@@ -14,7 +14,7 @@ constructor(props) {
 
 componentDidMount() {
 firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).get().then(function(doc) {
-    console.log(firebase.auth().currentUser.uid)
+    console.log("inside get " + firebase.auth().currentUser.uid)
     this.setState({currentUser: firebase.auth().currentUser, name: doc.data().first, isLoading: false});
   }.bind(this)).catch ((error) => {console.error(error);});
 }
@@ -22,7 +22,7 @@ firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).ge
 
 render() {
 
-    console.log( this.state.loading + " - " + this.state.name);
+    console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
     if(this.state.isLoading) {
       return ( false )
     }
