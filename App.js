@@ -9,6 +9,10 @@ import Signup from './screens/Signup';
 import Loading from './screens/Loading';
 import HomeScreen from './screens/HomeScreen';
 
+//expo note: If LAN doesn't work, look at your Wifi IPv4 and set it using
+//set REACT_NATIVE_PACKAGER_HOSTNAME=<IPv4>
+//but for some reason this only seems to work at my house and on campus I have to use a tunnel
+//I also often connect my device physically 
 
 // Initialize Firebase
   var config = {

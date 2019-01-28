@@ -5,7 +5,7 @@ import * as firebase from 'firebase';
 import 'firebase/firestore';
 
 export default class Signup extends React.Component {
-  state = { email: '', password: '', errorMessage: null, isNotSignedUp: true }
+  state = { email: '', password: '', errorMessage: null, isSignedUp: false }
 
   handleSignUp = () => {
     const { email, password, firstname, lastname, dob } = this.state
@@ -13,6 +13,8 @@ export default class Signup extends React.Component {
       .auth()
       .createUserWithEmailAndPassword(email, password)
       .then(function(user) {
+        var user = firebase.auth().currentUser;
+        console.log("user: " + user)
         firebase.firestore().collection("users").doc(user.uid).set({
               first: firstname,
               last: lastname,
@@ -20,18 +22,23 @@ export default class Signup extends React.Component {
               dob: dob,
               uid: user.uid,
           }).then(function() {
-              this.setState({isNotSignedUp: false});
+              this.setState({isSignedUp: true});
+              console.log("inside set " + user.uid)
             }.bind(this))
             .catch ((error) => {console.error(error);});
-        })
-      .catch(error => this.setState({ errorMessage: error.message }))
+        }.bind(this))
+      .catch(error => {console.log(error.message)})
   }
 
 //todo: make birthday a date picker
 
   render() {
-    console.log( this.state.isNotSignedUp + " - " + this.state.email);
-    if (this.state.isNotSignedUp) {
+    console.log("inside signup render " + this.state.isSignedUp + " - " + this.state.email);
+    if (this.state.isSignedUp && firebase.auth().currentUser!== null) {
+      return (
+        this.props.navigation.navigate('HomeScreen')
+      )
+    }
       return (
         <View style={styles.container}>
           <Text style={styles.title}>Sign Up</Text>
@@ -83,10 +90,8 @@ export default class Signup extends React.Component {
         </View>
       )
     }
-    return (
-      this.props.navigation.navigate('HomeScreen')
-    )
-  }
+
+
 }
 
 const styles = StyleSheet.create({
