@@ -34,7 +34,10 @@ render() {
       </Text>
       <Button
         title="Log Out"
-        onPress={() => this.props.navigation.navigate('Login')}
+        onPress={() => firebase.auth().signOut().then(function() {
+            console.log('Signed Out');
+             this.props.navigation.navigate('Login')
+          }.bind(this))}
       />
     </View>
   )
