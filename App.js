@@ -8,6 +8,7 @@ import Login from './screens/Login';
 import Signup from './screens/Signup';
 import Loading from './screens/Loading';
 import HomeScreen from './screens/HomeScreen';
+import CameraScreen from './screens/CameraScreen';
 
 //expo note: If LAN doesn't work, look at your Wifi IPv4 and set it using
 //set REACT_NATIVE_PACKAGER_HOSTNAME=<IPv4>
@@ -37,6 +38,7 @@ const MainStack = createStackNavigator(
     Loading: Loading,
     Login: Login,
     Signup: Signup,
+    CameraScreen: CameraScreen,
   },
   {
     initialRouteName: 'Loading',

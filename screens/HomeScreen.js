@@ -39,6 +39,12 @@ render() {
              this.props.navigation.navigate('Login')
           }.bind(this))}
       />
+      <Button
+        title="Upload photo from camera roll."
+           onPress={() => this.props.navigation.navigate('CameraScreen')}
+      />
+
+
     </View>
   )
 
