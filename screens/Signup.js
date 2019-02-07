@@ -1,11 +1,12 @@
 import React from 'react'
 import { StyleSheet, Text, TextInput, View, Button } from 'react-native'
+import { ImagePicker } from 'expo';
 import * as firebase from 'firebase';
 
 import 'firebase/firestore';
 
 export default class Signup extends React.Component {
-  state = { email: '', password: '', errorMessage: null, isSignedUp: false }
+  state = { email: '', password: '', errorMessage: null, isSignedUp: false, image: null }
 
   handleSignUp = () => {
     const { email, password, firstname, lastname, dob } = this.state
@@ -30,6 +31,17 @@ export default class Signup extends React.Component {
       .catch(error => {console.log(error.message)})
   }
 
+    pickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,
+            base64: true,
+        });
+        if (!result.cancelled) {
+            this.setState({
+                image: result.uri,
+            });
+        }
+    };
 //todo: make birthday a date picker
 
   render() {
@@ -86,6 +98,10 @@ export default class Signup extends React.Component {
               title="Already signed up? Log In"
               onPress={() => this.props.navigation.navigate('Login')}
             />
+          </View>
+          <View style={{margin:10}}>
+              <Button title="Image Upload"
+              onPress={this.pickImage}/>
           </View>
         </View>
       )
