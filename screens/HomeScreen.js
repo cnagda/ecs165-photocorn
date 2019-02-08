@@ -1,6 +1,32 @@
 import React from 'react'
 import { StyleSheet, Platform, Image, Text, View, Button } from 'react-native'
 import * as firebase from 'firebase';
+import { ImagePicker } from 'expo';
+
+
+// upload a given photo to firebase
+function uploadPhoto(uri, uploadUri) {
+    return new Promise(async (res, rej) => {
+        const response = await fetch(uri);
+        const blob = await response.blob();
+
+        const ref = firebase.storage().ref(uploadUri);
+        const unsubscribe = ref.put(blob).on(
+                'state_changed',
+                state => {},
+                err => {
+                unsubscribe();
+                rej(err);
+                console.log("put blob in storage")
+            },
+            async () => {
+                unsubscribe();
+                const url = await ref.getDownloadURL();
+                res(url);
+            },
+        );
+    });
+}
 
 
 export default class HomeScreen extends React.Component {
@@ -25,6 +51,22 @@ export default class HomeScreen extends React.Component {
         }.bind(this)).catch ((error) => {console.error(error);});
     }
 
+    // set a profile picture
+    pickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,
+            base64: true,
+        });
+
+        if (!result.cancelled) {
+            this.setState({image: result.uri,});
+            const path = "ProfilePictures/".concat(this.state.currentUser, ".jpg");
+            console.log(result.uri);
+            console.log(path);
+            return uploadPhoto(result.uri, path);
+        }
+    };
+
     render() {
         console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
         if(this.state.isLoading) {
@@ -36,6 +78,9 @@ export default class HomeScreen extends React.Component {
                 <Text>
                     Hello {this.state.name}!
                 </Text>
+                <Button title="Upload a Profile Picture"
+                    onPress={this.pickImage}
+                />
                 <Button
                     title="Log Out"
                     onPress={() => firebase.auth().signOut().then(function() {
