@@ -22,23 +22,26 @@ function uploadPhoto(uri, uploadUri) {
             xhr.open('GET', uri);
             xhr.send();
         });
-        blob.then(val => {console.log(val)});
 
-        const ref = firebase.storage().ref(uploadUri);
-        const unsubscribe = ref.put(blob).on(
-                'state_changed',
-                state => {},
-                err => {
-                unsubscribe();
-                rej(err);
-                console.log("put blob in storage")
-            },
-            async () => {
-                unsubscribe();
-                const url = await ref.getDownloadURL();
-                res(url);
-            },
-        );
+        // dereference blob and upload
+        blob.then(blob_val => {
+            console.log(blob_val)
+            const ref = firebase.storage().ref(uploadUri);
+            const unsubscribe = ref.put(blob_val).on(
+                    'state_changed',
+                    state => {},
+                    err => {
+                    unsubscribe();
+                    rej(err);
+                    console.log("put blob in storage")
+                },
+                async () => {
+                    unsubscribe();
+                    const url = await ref.getDownloadURL();
+                    res(url);
+                },
+            );
+        });
     });
 }
 
