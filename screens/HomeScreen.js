@@ -7,8 +7,22 @@ import { ImagePicker } from 'expo';
 // upload a given photo to firebase
 function uploadPhoto(uri, uploadUri) {
     return new Promise(async (res, rej) => {
-        const response = await fetch(uri);
-        const blob = await response.blob();
+        // const response = await fetch(uri);
+        // console.log(response);
+        // const blob = await response.blob();
+        blob = new Promise((resolve, reject) => {
+            var xhr = new XMLHttpRequest();
+            xhr.onerror = reject;
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === 4) {
+                    resolve(xhr.response);
+                }
+            };
+            xhr.responseType = 'blob'; // convert type
+            xhr.open('GET', uri);
+            xhr.send();
+        });
+        blob.then(val => {console.log(val)});
 
         const ref = firebase.storage().ref(uploadUri);
         const unsubscribe = ref.put(blob).on(
@@ -60,7 +74,7 @@ export default class HomeScreen extends React.Component {
 
         if (!result.cancelled) {
             this.setState({image: result.uri,});
-            const path = "ProfilePictures/".concat(this.state.currentUser, ".jpg");
+            const path = "ProfilePictures/".concat(this.state.name, ".jpg");
             console.log(result.uri);
             console.log(path);
             return uploadPhoto(result.uri, path);
