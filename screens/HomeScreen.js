@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, Platform, Image, Text, View, Button } from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
+import { COLOR_PINK, COLOR_BACKGRND } from './../components/commonstyle';
 
 
 // upload a given photo to firebase
@@ -119,6 +120,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        margin:10,
+        backgroundColor: COLOR_BACKGRND,
     }
 })

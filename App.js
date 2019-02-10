@@ -34,6 +34,10 @@ const MainStack = createStackNavigator(
     },
     {
         initialRouteName: 'Loading',
+        headerMode: 'none',
+        defaultNavigationOptions: {
+            headerVisible: false,
+        },
     }
 );
 
