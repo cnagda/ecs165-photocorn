@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, Text, StyleSheet, TouchableHighlight } from 'react-native'
 import * as firebase from 'firebase';
-import { COLOR_PINK, COLOR_BACKGRND, COLOR_BORDER } from './../components/commonstyle';
+import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY } from './../components/commonstyle';
 
 
 export default class Loading extends React.Component {
@@ -26,6 +26,7 @@ export default class Loading extends React.Component {
     }
 }
 
+//note: font not working
 
 const styles = StyleSheet.create({
     container: {
@@ -39,7 +40,7 @@ const styles = StyleSheet.create({
         width: 150,
         height: 150,
         borderRadius: 150 / 2,
-        backgroundColor: COLOR_BORDER,
+        backgroundColor: COLOR_DGREY,
         alignItems: 'center',
         justifyContent: 'center',
         margin: 40,
@@ -50,5 +51,6 @@ const styles = StyleSheet.create({
         borderRadius: 150 / 2,
         alignItems: 'center',
         justifyContent: 'center',
+        fontFamily: 'FuturaUCDavis-Book, Futura UC Davis',
     },
 })
