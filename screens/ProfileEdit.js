@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, Text, StyleSheet, TouchableHighlight, Button } from 'react-native'
 import * as firebase from 'firebase';
-import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY } from './../components/commonstyle';
+import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY } from './../components/commonstyle';
 
 
 export default class Loading extends React.Component {
@@ -13,19 +13,11 @@ export default class Loading extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <View style={{flex:1, flexDirection:'row',}} >
-                    <View style={{flex:1, flexDirection:'column'}}>
-                        <TouchableHighlight style={styles.circle}>
-                          <Text style={styles.text}>Put Photo Here</Text>
-                        </TouchableHighlight>
-                    </View>
-                    <View style = {styles.followButton} >
-                        <Button
-                            title="Edit"
-                            onPress={() => this.props.navigation.navigate('ProfileEdit')}
-                            color= 'rgba(228,228,228,0.66)'
-                        />
-                    </View>
+                <View style={{flex:1}} >
+                    <TouchableHighlight style={styles.circle}>
+                      <Text style={styles.text}>Put Photo Here</Text>
+                    </TouchableHighlight>
+
                 </View>
                 <View style={{flex:2}}>
                     <Text style = {styles.text}>About</Text>
@@ -61,11 +53,5 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: 'FuturaUCDavis-Book, Futura UC Davis',
-    },
-    followButton: {
-        alignItems: 'stretch',
-        justifyContent: 'center',
-        flex: 1,
-        flexDirection: 'column',
     },
 })
