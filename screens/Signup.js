@@ -80,7 +80,7 @@ export default class Signup extends React.Component {
           >
           <ScrollView
           width='100%'
-          contentContainerStyle={{ alignItems: "center" }}
+          contentContainerStyle={{ alignItems: "center", marginTop:40, }}
           >
           <Text style={styles.title}>Sign Up</Text>
           <TextInput

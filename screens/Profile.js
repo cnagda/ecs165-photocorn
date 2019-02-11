@@ -16,7 +16,9 @@ export default class Loading extends React.Component {
                         email: null,
                         bio: "unknown",
                         interests: "unknown",
+                        isImgLoading: "true",
                     }
+
     }
 
     // authenticate user
@@ -25,7 +27,7 @@ export default class Loading extends React.Component {
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
             console.log("inside get " + firebase.auth().currentUser.uid)
 
-            this.getProfileImage(doc.data().first);
+            this.getProfileImage(firebase.auth().currentUser.uid);
 
             this.setState(
                 {
@@ -43,6 +45,15 @@ export default class Loading extends React.Component {
         }.bind(this)).catch ((error) => {console.error(error);});
     }
 
+    componentWillUnmount() {
+
+    }
+
+    componentWillReceiveProps(newprops) {
+
+        this.setState({refreshed: this.props.navigation.getParam('refreshed', 'nochanges')});
+    }
+
     getProfileImage = async(user) => {
           console.log("in get profile image");
             console.log(user)
@@ -54,16 +65,17 @@ export default class Loading extends React.Component {
             if (!downloadURL.cancelled) {
               console.log("testing1")
               console.log(downloadURL)
-              this.setState({profileImageURL: downloadURL,});
+              this.setState({profileImageURL: downloadURL,isImgLoading:false,});
           }
     };
 
     render() {
         console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
-
-        if(this.state.isLoading) {
+        console.log(this.state.refresh)
+        if(this.state.isLoading || this.state.isImgLoading) {
             return ( false )
         }
+
 
         return (
             <View style={styles.container}>

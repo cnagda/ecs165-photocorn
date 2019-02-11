@@ -13,7 +13,7 @@ export default class Loading extends React.Component {
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
             console.log("inside get " + firebase.auth().currentUser.uid)
 
-            this.getProfileImage(doc.data().first);
+            this.getProfileImage(firebase.auth().currentUser.uid);
 
             this.setState(
                 {
@@ -24,7 +24,7 @@ export default class Loading extends React.Component {
                     email: firebase.auth().currentUser.email,
                     bio: doc.data().bio,
                     interests: doc.data().interests,
-                    isLoading: false
+                    isLoading: false,
                 }
             );
         }.bind(this)).catch ((error) => {console.error(error);});
@@ -39,6 +39,7 @@ export default class Loading extends React.Component {
         interests: '',
         bio: '',
         dob:'',
+        isImgLoading: true,
     }
 
     handleEdits = () => {
@@ -69,7 +70,7 @@ export default class Loading extends React.Component {
 
         if (!result.cancelled) {
             await this.setState({image: result.uri,});
-            const path = "ProfilePictures/".concat(this.state.name, ".jpg");
+            const path = "ProfilePictures/".concat(firebase.auth().currentUser.uid, ".jpg");
             console.log(result.uri);
             console.log(path);
             return uploadPhoto(result.uri, path);
@@ -87,16 +88,17 @@ export default class Loading extends React.Component {
             if (!downloadURL.cancelled) {
               console.log("testing1")
               console.log(downloadURL)
-              this.setState({profileImageURL: downloadURL,});
+              this.setState({profileImageURL: downloadURL, isImgLoading:false,});
           }
     };
 
     render() {
-        if(this.state.isLoading) {
+        if(this.state.isLoading || this.state.isImgLoading) {
             return ( false )
         }
         if (this.state.finishedEdit) {
-            return (this.props.navigation.navigate('Profile'))
+            var refreshString = this.state.profileImageURL + this.state.firstname + this.state.lastname + this.state.dob + this.state.email + this.state.interests + this.state.bio
+            return (this.props.navigation.navigate('Profile', {refreshed: refreshString}))
         }
         return (
             <View style={styles.container}>
