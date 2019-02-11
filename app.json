@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "InstaApp",
-    "slug": "insta-app",
+    "name": "PhotoCorn",
+    "slug": "photo-corn",
     "privacy": "public",
     "sdkVersion": "32.0.0",
     "platforms": [
@@ -24,6 +24,7 @@
     ],
     "ios": {
       "supportsTablet": true
-    }
+    },
+    "description": ""
   }
 }

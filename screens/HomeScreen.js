@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, Platform, Image, Text, View, Button } from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
+import { COLOR_PINK, COLOR_BACKGRND } from './../components/commonstyle';
 
 
 // upload a given photo to firebase
@@ -98,6 +99,9 @@ export default class HomeScreen extends React.Component {
                 <Button title="Upload a Profile Picture"
                     onPress={this.pickImage}
                 />
+                <Button title="View Profile"
+                    onPress={() => this.props.navigation.navigate('Profile')}
+                />
                 <Button
                     title="Log Out"
                     onPress={() => firebase.auth().signOut().then(function() {
@@ -115,6 +119,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        backgroundColor: COLOR_BACKGRND,
     }
 })
