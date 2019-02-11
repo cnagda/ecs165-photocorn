@@ -5,19 +5,55 @@ import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY } from './../compo
 
 
 export default class Loading extends React.Component {
+    // initialize state
+    constructor(props) {
+        super(props);
+        this.state = {currentUser: null,
+                        firstname: "user",
+                        lastname: "user",
+                        isLoading: true,
+                        birthday: "unknown",
+                        email: null,
+                        bio: "unknown",
+                        interests: "unknown",
+                    }
+    }
+
     // authenticate user
     componentDidMount() {
-
+        users_ref = firebase.firestore().collection("users");
+        users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
+            console.log("inside get " + firebase.auth().currentUser.uid)
+            this.setState(
+                {
+                    currentUser: firebase.auth().currentUser,
+                    firstname: doc.data().first,
+                    lastname: doc.data().last,
+                    birthday: doc.data().dob,
+                    email: firebase.auth().currentUser.email,
+                    bio: doc.data().bio,
+                    interests: doc.data().interests,
+                    isLoading: false
+                }
+            );
+        }.bind(this)).catch ((error) => {console.error(error);});
     }
 
     render() {
+        console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
+        
+        if(this.state.isLoading) {
+            return ( false )
+        }
+
         return (
             <View style={styles.container}>
-                <View style={{flex:1, flexDirection:'row',}} >
+                <View style={{flex:1, flexDirection:'row', marginBottom:40,}} >
                     <View style={{flex:1, flexDirection:'column'}}>
                         <TouchableHighlight style={styles.circle}>
-                          <Text style={styles.text}>Put Photo Here</Text>
+                          <Text style={styles.textMainOne}>Put Photo Here</Text>
                         </TouchableHighlight>
+                        <Text style = {styles.textMainTwo}>{this.state.firstname} {this.state.lastname}</Text>
                     </View>
                     <View style = {styles.followButton} >
                         <Button
@@ -27,8 +63,13 @@ export default class Loading extends React.Component {
                         />
                     </View>
                 </View>
-                <View style={{flex:2}}>
-                    <Text style = {styles.text}>About</Text>
+                <View style={{flex:2, flexDirection: 'row',}}>
+                    <View style={{flex:1, flexDirection:'column',}} >
+                        <Text style = {styles.textMainTwo}>About</Text>
+                        <Text style = {styles.textSecond}>Birthday: {this.state.birthday}</Text>
+                        <Text style={styles.textSecond}>Bio: {this.state.bio}</Text>
+                        <Text style = {styles.textSecond}>Interests: {this.state.interests}</Text>
+                    </View>
                 </View>
             </View>
         )
@@ -40,6 +81,7 @@ export default class Loading extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        flexDirection: 'column',
         fontSize: 20,
         justifyContent: 'center',
         alignItems: 'center',
@@ -54,9 +96,25 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         margin: 40,
     },
-    text: {
+    textMainOne: {
         color: COLOR_PINK,
         fontSize: 20,
+        borderRadius: 150 / 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: 'FuturaUCDavis-Book, Futura UC Davis',
+    },
+    textMainTwo: {
+        color: COLOR_PINK,
+        fontSize: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: 'FuturaUCDavis-Book, Futura UC Davis',
+        borderRadius: 20,
+    },
+    textSecond: {
+        color: COLOR_LGREY,
+        fontSize: 15,
         borderRadius: 150 / 2,
         alignItems: 'center',
         justifyContent: 'center',
@@ -67,5 +125,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         flex: 1,
         flexDirection: 'column',
+        margin:10,
     },
 })
