@@ -2,6 +2,8 @@ import React from 'react'
 import { View, Text, StyleSheet, TouchableHighlight, Button, TextInput, ScrollView } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK} from './../components/commonstyle';
+import { uploadPhoto } from '../utils/Photos'
+import { ImagePicker } from 'expo';
 
 
 export default class Loading extends React.Component {
@@ -24,7 +26,7 @@ export default class Loading extends React.Component {
             );
         }.bind(this)).catch ((error) => {console.error(error);});
     }
-    
+
     state = {
         email: '',
         password: '',
@@ -38,7 +40,6 @@ export default class Loading extends React.Component {
 
     handleEdits = () => {
         const { email, password, firstname, lastname, dob, interests, bio } = this.state
-
             var user = firebase.auth().currentUser;
             user.updateEmail(email).then(
             firebase.firestore().collection("users").doc(user.uid).set({
@@ -54,8 +55,23 @@ export default class Loading extends React.Component {
                 console.log("inside set " + user.uid)
             }.bind(this))
             )
-
     }
+
+    // set a profile picture
+    pickImage = async () => {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,
+            base64: true,
+        });
+
+        if (!result.cancelled) {
+            await this.setState({image: result.uri,});
+            const path = "ProfilePictures/".concat(this.state.name, ".jpg");
+            console.log(result.uri);
+            console.log(path);
+            return uploadPhoto(result.uri, path);
+        }
+    };
 
     render() {
         if(this.state.isLoading) {
@@ -69,7 +85,7 @@ export default class Loading extends React.Component {
             <ScrollView showsVerticalScrollIndicator={false} >
                 <View style={{flex:1, flexDirection:'column',}} >
                     <View style={{flex:1, paddingTop: 50,}}>
-                        <TouchableHighlight style={styles.circle}>
+                        <TouchableHighlight style={styles.circle} onPress={this.pickImage}>
                           <Text style={styles.textMainOne}>Put Photo Here</Text>
                         </TouchableHighlight>
                     </View>

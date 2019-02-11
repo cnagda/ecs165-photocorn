@@ -1,5 +1,7 @@
+import * as firebase from 'firebase';
+
 // upload a given photo with uri to firebase
-function uploadPhoto(uri, uploadUri) {
+export function uploadPhoto(uri, uploadUri) {
     return new Promise(async (res, rej) => {
         blob = new Promise((resolve, reject) => {
             var xhr = new XMLHttpRequest();
