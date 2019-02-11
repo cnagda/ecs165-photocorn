@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableHighlight, Button, TextInput, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, Button, TextInput, ScrollView, Image } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK} from './../components/commonstyle';
 import { uploadPhoto } from '../utils/Photos'
@@ -12,6 +12,9 @@ export default class Loading extends React.Component {
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
             console.log("inside get " + firebase.auth().currentUser.uid)
+
+            this.getProfileImage(doc.data().first);
+
             this.setState(
                 {
                     currentUser: firebase.auth().currentUser,
@@ -73,6 +76,21 @@ export default class Loading extends React.Component {
         }
     };
 
+    getProfileImage = async(user) => {
+          console.log("in get profile image");
+            console.log(user)
+            const path = "ProfilePictures/".concat(user, ".jpg");
+            console.log(path)
+            const image_ref = firebase.storage().ref(path);
+            const downloadURL = await image_ref.getDownloadURL()
+
+            if (!downloadURL.cancelled) {
+              console.log("testing1")
+              console.log(downloadURL)
+              this.setState({profileImageURL: downloadURL,});
+          }
+    };
+
     render() {
         if(this.state.isLoading) {
             return ( false )
@@ -85,8 +103,11 @@ export default class Loading extends React.Component {
             <ScrollView showsVerticalScrollIndicator={false} >
                 <View style={{flex:1, flexDirection:'column',}} >
                     <View style={{flex:1, paddingTop: 50,}}>
-                        <TouchableHighlight style={styles.circle} onPress={this.pickImage}>
-                          <Text style={styles.textMainOne}>Put Photo Here</Text>
+                        <TouchableHighlight style={styles.outerCircle} onPress={this.pickImage}>
+                          <Image
+                              style={styles.innerCircle}
+                              source = {{uri:   this.state.profileImageURL}}
+                          />
                         </TouchableHighlight>
                     </View>
                     <View style={{flex:3}}>
@@ -175,7 +196,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: COLOR_BACKGRND,
     },
-    circle: {
+    outerCircle: {
         width: 150,
         height: 150,
         borderRadius: 150 / 2,
@@ -184,6 +205,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 30,
     },
+
+    innerCircle: {
+        width: 150,
+        height: 150,
+        borderRadius: 150 / 2,
+        backgroundColor: COLOR_DGREY,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+
     textMainOne: {
         color: COLOR_PINK,
         fontSize: 20,
