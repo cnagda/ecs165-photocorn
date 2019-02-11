@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, TextInput, View, Button } from 'react-native';
+import { Header } from 'react-navigation';
+import { StyleSheet, ScrollView, Text, TextInput, KeyboardAvoidingView, View, Button } from 'react-native';
 import { ImagePicker } from 'expo';
 import * as firebase from 'firebase';
 
@@ -62,7 +63,6 @@ export default class Signup extends React.Component {
 
 
 //todo: make birthday a date picker
-
   render() {
     console.log("inside signup render " + this.state.isSignedUp + " - " + this.state.email);
     if (this.state.isSignedUp && firebase.auth().currentUser!== null) {
@@ -71,7 +71,17 @@ export default class Signup extends React.Component {
       )
     }
       return (
-        <View style={styles.container}>
+          <View style={styles.container}>
+          <KeyboardAvoidingView
+          style={styles.container}
+          keyboardVerticalOffset = {Header.HEIGHT + 30}
+          behavior="padding"
+          enabled
+          >
+          <ScrollView
+          width='100%'
+          contentContainerStyle={{ alignItems: "center" }}
+          >
           <Text style={styles.title}>Sign Up</Text>
           <TextInput
             placeholder="First Name"
@@ -110,6 +120,8 @@ export default class Signup extends React.Component {
             onChangeText={password => this.setState({ password })}
             value={this.state.password}
           />
+          </ScrollView>
+          </KeyboardAvoidingView>
           <View style={{margin:10}}>
             <Button title="Sign Up" onPress={this.handleSignUp} />
           </View>
@@ -123,7 +135,7 @@ export default class Signup extends React.Component {
               <Button title="Image Upload"
               onPress={this.pickImage}/>
           </View>
-        </View>
+          </View>
       )
     }
 }
@@ -132,7 +144,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: 40,
+    paddingTop: 20,
+    width: '100%',
   },
   textInput: {
     height: 40,
