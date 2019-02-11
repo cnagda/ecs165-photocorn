@@ -105,14 +105,12 @@ const styles = StyleSheet.create({
         borderRadius: 150 / 2,
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: 'FuturaUCDavis-Book, Futura UC Davis',
     },
     textMainTwo: {
         color: COLOR_PINK,
         fontSize: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: 'FuturaUCDavis-Book, Futura UC Davis',
         borderRadius: 20,
         marginTop:20,
     },
@@ -122,7 +120,6 @@ const styles = StyleSheet.create({
         borderRadius: 150 / 2,
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: 'FuturaUCDavis-Book, Futura UC Davis',
         marginTop: 20,
     },
     textVal: {
@@ -131,7 +128,6 @@ const styles = StyleSheet.create({
         borderRadius: 150 / 2,
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: 'FuturaUCDavis-Book, Futura UC Davis',
     },
     followButton: {
         alignItems: 'stretch',
