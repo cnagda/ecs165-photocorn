@@ -1,12 +1,29 @@
-import React from 'react'
-import { StyleSheet, Text, TextInput, View, Button } from 'react-native'
+import React from 'react';
+import { StyleSheet, Text, TextInput, View, Button } from 'react-native';
 import { ImagePicker } from 'expo';
 import * as firebase from 'firebase';
 
 import 'firebase/firestore';
 
 export default class Signup extends React.Component {
-  state = { email: '', password: '', errorMessage: null, isSignedUp: false, image: null }
+  // initialize state
+  state = { email: '', password: '', errorMessage: null, isSignedUp: false, image: null, isFocused: false }
+
+  getPasswordStrength = (passwordLength) => {
+      switch (passwordLength) {
+          case 5:
+          case 4:
+              return {borderColor: 'yellow', borderWidth: 3}
+          case 3:
+          case 2:
+          case 1:
+              return {borderColor: 'red', borderWidth: 3}
+          case 0:
+              return {borderColor: 'gray', borderWidth: 1}
+          default:
+              return {borderColor: 'green', borderWidth: 3}
+      }
+  }
 
   handleSignUp = () => {
     const { email, password, firstname, lastname, dob } = this.state
@@ -42,6 +59,8 @@ export default class Signup extends React.Component {
             });
         }
     };
+
+
 //todo: make birthday a date picker
 
   render() {
@@ -86,7 +105,8 @@ export default class Signup extends React.Component {
             secureTextEntry
             placeholder="Password"
             autoCapitalize="none"
-            style={styles.textInput}
+            style={[styles.textInput, this.getPasswordStrength(this.state.password.length),
+            ]}
             onChangeText={password => this.setState({ password })}
             value={this.state.password}
           />
@@ -106,8 +126,6 @@ export default class Signup extends React.Component {
         </View>
       )
     }
-
-
 }
 
 const styles = StyleSheet.create({
