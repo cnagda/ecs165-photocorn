@@ -7,6 +7,3 @@ export const COLOR_DGREY = 'rgba(122,122,122,0.2)';
 export const COLOR_LGREY = 'rgba(228,228,228,0.66)';
 
 export const COLOR_BORDER = '#707070';
-
-
-export const FONT = 'FuturaUCDavis-Book';
