@@ -99,6 +99,9 @@ export default class HomeScreen extends React.Component {
                 <Button title="Upload a Profile Picture"
                     onPress={this.pickImage}
                 />
+                <Button title="View Profile"
+                    onPress={() => this.props.navigation.navigate('Profile')}
+                />
                 <Button
                     title="Log Out"
                     onPress={() => firebase.auth().signOut().then(function() {
@@ -113,11 +116,13 @@ export default class HomeScreen extends React.Component {
 
 
 const styles = StyleSheet.create({
-    flex: 1,
-    paddingTop: 40,
-    flexDirection: 'column',
-    fontSize: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: COLOR_BACKGRND,
+    container: {
+        flex: 1,
+        paddingTop: 40,
+        flexDirection: 'column',
+        fontSize: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: COLOR_BACKGRND,
+    },
 })
