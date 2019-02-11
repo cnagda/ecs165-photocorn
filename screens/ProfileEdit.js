@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, Text, StyleSheet, TouchableHighlight, Button, TextInput, ScrollView } from 'react-native'
 import * as firebase from 'firebase';
-import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY } from './../components/commonstyle';
+import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK} from './../components/commonstyle';
 
 
 export default class Loading extends React.Component {
@@ -64,8 +64,8 @@ export default class Loading extends React.Component {
             return (this.props.navigation.navigate('Profile'))
         }
         return (
-            <View style={{flex:1}}>
-            <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
+            <View style={styles.container}>
+            <ScrollView showsVerticalScrollIndicator={false} >
                 <View style={{flex:1, flexDirection:'column',}} >
                     <View style={{flex:1, paddingTop: 50,}}>
                         <TouchableHighlight style={styles.circle}>
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_DGREY,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 40,
+        marginTop: 30,
     },
     textMainOne: {
         color: COLOR_PINK,
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
         marginTop: 80,
     },
     textSecond: {
-        color: COLOR_LGREY,
+        color: COLOR_PURPLEPINK,
         fontSize: 15,
         borderRadius: 150 / 2,
         alignItems: 'center',
@@ -198,19 +198,20 @@ const styles = StyleSheet.create({
         width: 300,
         borderColor: COLOR_DGREY,
         borderWidth: 1,
-        color: COLOR_PINK,
+        color: COLOR_LGREY,
     },
     textInputLong: {
         height: 160,
         width: 300,
         borderColor: COLOR_DGREY,
         borderWidth: 1,
-        color: COLOR_PINK,
+        color: COLOR_LGREY,
     },
     doneButton: {
         alignItems: 'stretch',
         justifyContent: 'center',
         flex: 1,
         flexDirection: 'column',
+        marginTop: 30,
     },
 })

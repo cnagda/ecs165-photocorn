@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, Text, StyleSheet, TouchableHighlight, Button } from 'react-native'
 import * as firebase from 'firebase';
-import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY } from './../components/commonstyle';
+import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 
 
 export default class Loading extends React.Component {
@@ -41,14 +41,14 @@ export default class Loading extends React.Component {
 
     render() {
         console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
-        
+
         if(this.state.isLoading) {
             return ( false )
         }
 
         return (
             <View style={styles.container}>
-                <View style={{flex:1, flexDirection:'row', marginBottom:40,}} >
+                <View style={{flex:1, flexDirection:'row', marginBottom:40, marginLeft:20,}} >
                     <View style={{flex:1, flexDirection:'column'}}>
                         <TouchableHighlight style={styles.circle}>
                           <Text style={styles.textMainOne}>Put Photo Here</Text>
@@ -63,12 +63,15 @@ export default class Loading extends React.Component {
                         />
                     </View>
                 </View>
-                <View style={{flex:2, flexDirection: 'row',}}>
+                <View style={{flex:2, flexDirection: 'row',marginLeft:20,}}>
                     <View style={{flex:1, flexDirection:'column',}} >
                         <Text style = {styles.textMainTwo}>About</Text>
-                        <Text style = {styles.textSecond}>Birthday: {this.state.birthday}</Text>
-                        <Text style={styles.textSecond}>Bio: {this.state.bio}</Text>
-                        <Text style = {styles.textSecond}>Interests: {this.state.interests}</Text>
+                        <Text style = {styles.textSecond}>Birthday:</Text>
+                        <Text style= {styles.textVal}> {this.state.birthday}</Text>
+                        <Text style={styles.textSecond}>Bio: </Text>
+                        <Text style={styles.textVal}>{this.state.bio}</Text>
+                        <Text style = {styles.textSecond}>Interests: </Text>
+                        <Text style={styles.textVal}>{this.state.interests}</Text>
                     </View>
                 </View>
             </View>
@@ -94,7 +97,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_DGREY,
         alignItems: 'center',
         justifyContent: 'center',
-        margin: 40,
+        marginTop: 40,
     },
     textMainOne: {
         color: COLOR_PINK,
@@ -111,8 +114,18 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         fontFamily: 'FuturaUCDavis-Book, Futura UC Davis',
         borderRadius: 20,
+        marginTop:20,
     },
     textSecond: {
+        color: COLOR_PURPLEPINK,
+        fontSize: 15,
+        borderRadius: 150 / 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: 'FuturaUCDavis-Book, Futura UC Davis',
+        marginTop: 20,
+    },
+    textVal: {
         color: COLOR_LGREY,
         fontSize: 15,
         borderRadius: 150 / 2,
