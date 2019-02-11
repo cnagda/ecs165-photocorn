@@ -1,8 +1,8 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableHighlight, Button } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, Button, Image } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
-
+//import { getProfileImage } from '../utils/Photos'
 
 export default class Loading extends React.Component {
     // initialize state
@@ -24,6 +24,9 @@ export default class Loading extends React.Component {
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
             console.log("inside get " + firebase.auth().currentUser.uid)
+
+            this.getProfileImage(doc.data().first);
+
             this.setState(
                 {
                     currentUser: firebase.auth().currentUser,
@@ -36,8 +39,24 @@ export default class Loading extends React.Component {
                     isLoading: false
                 }
             );
+
         }.bind(this)).catch ((error) => {console.error(error);});
     }
+
+    getProfileImage = async(user) => {
+          console.log("in get profile image");
+            console.log(user)
+            const path = "ProfilePictures/".concat(user, ".jpg");
+            console.log(path)
+            const image_ref = firebase.storage().ref(path);
+            const downloadURL = await image_ref.getDownloadURL()
+
+            if (!downloadURL.cancelled) {
+              console.log("testing1")
+              console.log(downloadURL)
+              this.setState({profileImageURL: downloadURL,});
+          }
+    };
 
     render() {
         console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
@@ -50,10 +69,12 @@ export default class Loading extends React.Component {
             <View style={styles.container}>
                 <View style={{flex:1, flexDirection:'row', marginBottom:40, marginLeft:20,}} >
                     <View style={{flex:1, flexDirection:'column'}}>
-                        <TouchableHighlight style={styles.circle}>
-                          <Text style={styles.textMainOne}>Put Photo Here</Text>
-                        </TouchableHighlight>
+                        <Image
+                          style= {styles.circle}
+                        source = {{uri:   this.state.profileImageURL}}
+                      />
                         <Text style = {styles.textMainTwo}>{this.state.firstname} {this.state.lastname}</Text>
+
                     </View>
                     <View style = {styles.followButton} >
                         <Button
