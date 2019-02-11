@@ -2,6 +2,7 @@ import React from 'react'
 import { StyleSheet, Platform, Image, Text, View, Button } from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
+import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 
 
 // upload a given photo to firebase
@@ -112,9 +113,11 @@ export default class HomeScreen extends React.Component {
 
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
-    }
+    flex: 1,
+    paddingTop: 40,
+    flexDirection: 'column',
+    fontSize: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLOR_BACKGRND,
 })

@@ -3,7 +3,7 @@ import { StyleSheet, Text, TextInput, View, Button } from 'react-native'
 import { ImagePicker } from 'expo';
 import * as firebase from 'firebase';
 import 'firebase/firestore';
-
+import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 
 export default class Signup extends React.Component {
     // initialize state
@@ -118,20 +118,26 @@ export default class Signup extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        flexDirection: 'column',
+        fontSize: 20,
+        justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: 40,
+        backgroundColor: COLOR_BACKGRND,
     },
 
     textInput: {
         height: 40,
-        width: '90%',
-        borderColor: 'gray',
+        width: 300,
+        borderColor: COLOR_DGREY,
         borderWidth: 1,
-        marginTop: 8,
-        paddingTop: 10,
+        color: COLOR_LGREY,
+        marginTop: 20,
     },
 
     title: {
+        color: COLOR_PINK,
         fontSize: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 })
