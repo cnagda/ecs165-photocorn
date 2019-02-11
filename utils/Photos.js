@@ -1,4 +1,4 @@
-// upload a given photo to firebase
+// upload a given photo with uri to firebase
 function uploadPhoto(uri, uploadUri) {
     return new Promise(async (res, rej) => {
         blob = new Promise((resolve, reject) => {

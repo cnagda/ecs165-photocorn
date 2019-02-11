@@ -24,6 +24,7 @@ export default class Loading extends React.Component {
             );
         }.bind(this)).catch ((error) => {console.error(error);});
     }
+    
     state = {
         email: '',
         password: '',
