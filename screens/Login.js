@@ -37,13 +37,13 @@ export default class Login extends React.Component {
             />
             <View style={{margin: 10}}>
                 <Button
-                    title="Login"
+                    title="Login" color= '#f300a2'
                     onPress={this.handleLogin}
                 />
             </View>
             <View stye={{margin: 10}}>
                 <Button
-                    title="No account? No problem. Sign Up"
+                    title="No account? No problem. Sign Up" color= '#f300a2'
                     onPress={() => this.props.navigation.navigate('Signup')}
                 />
             </View>

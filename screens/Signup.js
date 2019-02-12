@@ -22,7 +22,7 @@ export default class Signup extends React.Component {
             case 1:
                 return {borderColor: 'red', borderWidth: 3}
             case 0:
-                return {borderColor: 'gray', borderWidth: 1}
+                return {borderColor: COLOR_DGREY, borderWidth: 1}
             default:
                 return {borderColor: 'green', borderWidth: 3}
         }
@@ -122,11 +122,11 @@ export default class Signup extends React.Component {
           </ScrollView>
           </KeyboardAvoidingView>
           <View style={{margin:10}}>
-            <Button title="Sign Up" onPress={this.handleSignUp} />
+            <Button title="Sign Up" color= '#f300a2' onPress={this.handleSignUp} />
           </View>
           <View style={{margin:10}}>
             <Button
-              title="Already signed up? Log In"
+              title="Already signed up? Log In" color= '#f300a2'
               onPress={() => this.props.navigation.navigate('Login')}
             />
           </View>

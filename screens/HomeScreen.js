@@ -70,20 +70,7 @@ export default class HomeScreen extends React.Component {
     }
 
     // set a profile picture
-    pickImage = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            allowsEditing: true,
-            base64: true,
-        });
 
-        if (!result.cancelled) {
-            this.setState({image: result.uri,});
-            const path = "ProfilePictures/".concat(this.state.name, ".jpg");
-            console.log(result.uri);
-            console.log(path);
-            return uploadPhoto(result.uri, path);
-        }
-    };
 
     render() {
         console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
@@ -93,22 +80,28 @@ export default class HomeScreen extends React.Component {
 
         return (
             <View style={styles.container}>
-                <Text>
-                    Hello {this.state.name}!
-                </Text>
-                <Button title="Upload a Profile Picture"
-                    onPress={this.pickImage}
-                />
-                <Button title="View Profile"
-                    onPress={() => this.props.navigation.navigate('Profile')}
-                />
-                <Button
-                    title="Log Out"
-                    onPress={() => firebase.auth().signOut().then(function() {
-                    console.log('Signed Out');
-                    this.props.navigation.navigate('Login')
-                    }.bind(this))}
-                />
+                <View style={{flex:1, flexDirection:'row',alignItems:'flex-end'}} >
+                    <Text style={styles.textPink}>
+                        {this.state.name}
+                    </Text>
+                </View>
+                <View style={{flex:8, flexDirection: 'row',alignItems:'flex-end', marginLeft: 10, marginRight: 10,}}>
+                    <View style={{flex:1, flexDirection:'column',marginRight:10,}}>
+                        <Button title="View Profile" color= '#f300a2'
+                            onPress={() => this.props.navigation.navigate('Profile')}
+                        />
+                    </View>
+                    <View style={{flex:1, flexDirection:'column',}}>
+                        <Button
+                            title="Log Out"
+                            color= '#f300a2'
+                            onPress={() => firebase.auth().signOut().then(function() {
+                            console.log('Signed Out');
+                            this.props.navigation.navigate('Login')
+                            }.bind(this))}
+                        />
+                    </View>
+                </View>
             </View>
         )
     }
@@ -118,11 +111,16 @@ export default class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 40,
         flexDirection: 'column',
         fontSize: 20,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLOR_BACKGRND,
+    },
+    textPink: {
+        color: COLOR_PINK,
+        fontSize: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 })

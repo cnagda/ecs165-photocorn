@@ -3,6 +3,7 @@ import { Platform, StatusBar, StyleSheet, View, Text, TextInput, Button } from '
 import { AppLoading, Asset, Font, Icon } from 'expo';
 import * as firebase from 'firebase';
 import { createStackNavigator, createAppContainer } from 'react-navigation'
+import { COLOR_BACKGRND } from './components/commonstyle';
 
 import Login from './screens/Login';
 import Signup from './screens/Signup';
@@ -47,6 +48,6 @@ const AppContainer = createAppContainer(MainStack);
 
 export default class App extends React.Component {
     render() {
-        return <AppContainer />;
+        return <AppContainer style={{backgroundColor: COLOR_BACKGRND,}}/>;
     }
 }
