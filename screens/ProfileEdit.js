@@ -73,7 +73,12 @@ export default class Loading extends React.Component {
             const path = "ProfilePictures/".concat(firebase.auth().currentUser.uid, ".jpg");
             console.log(result.uri);
             console.log(path);
-            return uploadPhoto(result.uri, path);
+            return uploadPhoto(result.uri, path).then(function() {
+                this.setState({isImgLoading: true})
+                this.getProfileImage(firebase.auth().currentUser.uid).then(function() {
+                    this.setState({isImgLoading: false})
+                }.bind(this));
+            }.bind(this));
         }
     };
 
@@ -98,6 +103,8 @@ export default class Loading extends React.Component {
         }
         if (this.state.finishedEdit) {
             var refreshString = this.state.profileImageURL + this.state.firstname + this.state.lastname + this.state.dob + this.state.email + this.state.interests + this.state.bio
+            console.log('here' + refreshString)
+            //I think these parameters are unnecessary because that didn't work but I'm leaving it for now because I'm scared.
             return (this.props.navigation.navigate('Profile', {refreshed: refreshString}))
         }
         return (
