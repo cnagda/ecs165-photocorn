@@ -5,28 +5,32 @@ import { ImagePicker } from 'expo';
 import * as firebase from 'firebase';
 import 'firebase/firestore';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
+import { uploadPhoto } from '../utils/Photos';
 
 export default class Signup extends React.Component {
-  // initialize state
-  state = { email: '', password: '', errorMessage: null, isSignedUp: false, image: null, isFocused: false }
+    // initialize state
+    state = { email: '', password: '', errorMessage: null, isSignedUp: false, image: null, isFocused: false }
 
-  getPasswordStrength = (passwordLength) => {
-      switch (passwordLength) {
-          case 5:
-          case 4:
-              return {borderColor: 'yellow', borderWidth: 3}
-          case 3:
-          case 2:
-          case 1:
-              return {borderColor: 'red', borderWidth: 3}
-          case 0:
-              return {borderColor: 'gray', borderWidth: 1}
-          default:
-              return {borderColor: 'green', borderWidth: 3}
-      }
-  }
+    // display password strength based on length
+    getPasswordStrength = (passwordLength) => {
+        switch (passwordLength) {
+            case 5:
+            case 4:
+                return {borderColor: 'yellow', borderWidth: 3}
+            case 3:
+            case 2:
+            case 1:
+                return {borderColor: 'red', borderWidth: 3}
+            case 0:
+                return {borderColor: 'gray', borderWidth: 1}
+            default:
+                return {borderColor: 'green', borderWidth: 3}
+        }
+    }
 
+    // set user information in firebase
     handleSignUp = () => {
+        // create user
         const { email, password, firstname, lastname, dob } = this.state
         firebase
         .auth()
@@ -34,6 +38,13 @@ export default class Signup extends React.Component {
         .then(function(user) {
             var user = firebase.auth().currentUser;
             console.log("user: " + user)
+
+            // create profile picture
+            const uri = "http://i68.tinypic.com/awt7ko.jpg"
+            const path = "ProfilePictures/".concat(user.uid, ".jpg");
+            uploadPhoto(uri, path);
+
+            // create a user
             firebase.firestore().collection("users").doc(user.uid).set({
                 first: firstname,
                 last: lastname,
@@ -46,31 +57,20 @@ export default class Signup extends React.Component {
             }.bind(this))
                 .catch ((error) => {console.error(error);});
             }.bind(this))
-                .catch(error => {console.log(error.message)})
+                .catch(error => {console.log(error.message)});
+
+
     }
 
-    pickImage = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            allowsEditing: true,
-            base64: true,
-        });
-
-        if (!result.cancelled) {
-            this.setState({image: result.uri,});
+    render() {
+        console.log("inside signup render " + this.state.isSignedUp + " - " + this.state.email);
+        if (this.state.isSignedUp && firebase.auth().currentUser!== null) {
+            return (
+                this.props.navigation.navigate('HomeScreen')
+            )
         }
-    };
 
-    //todo: make birthday a date picker
-
-//todo: make birthday a date picker
-  render() {
-    console.log("inside signup render " + this.state.isSignedUp + " - " + this.state.email);
-    if (this.state.isSignedUp && firebase.auth().currentUser!== null) {
-      return (
-        this.props.navigation.navigate('HomeScreen')
-      )
-    }
-      return (
+        return (
           <View style={styles.container}>
           <KeyboardAvoidingView
           style={styles.container}
@@ -131,12 +131,8 @@ export default class Signup extends React.Component {
               onPress={() => this.props.navigation.navigate('Login')}
             />
           </View>
-          <View style={{margin:10}}>
-              <Button title="Image Upload"
-              onPress={this.pickImage}/>
           </View>
-          </View>
-      )
+        )
     }
 }
 
