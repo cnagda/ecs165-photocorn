@@ -41,6 +41,9 @@ const MainStack = createStackNavigator(
         defaultNavigationOptions: {
             headerVisible: false,
         },
+        cardStyle: {
+            backgroundColor: COLOR_BACKGRND,
+        },
     }
 );
 
@@ -48,6 +51,6 @@ const AppContainer = createAppContainer(MainStack);
 
 export default class App extends React.Component {
     render() {
-        return <AppContainer style={{backgroundColor: COLOR_BACKGRND,}}/>;
+        return <AppContainer />;
     }
 }
