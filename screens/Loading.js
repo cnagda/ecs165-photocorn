@@ -1,7 +1,13 @@
 import React from 'react'
-import { View, Text, StyleSheet } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
+import {
+  ActivityIndicator,
+  AppRegistry,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native'
 
 
 export default class Loading extends React.Component {
@@ -15,7 +21,8 @@ export default class Loading extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text>Welcome</Text>
+                <Text style={styles.textMainTwo}>Loading</Text>
+                <ActivityIndicator size="large" color="#ffffff"/>
             </View>
         )
     }
