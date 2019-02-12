@@ -70,7 +70,15 @@ export default class Signup extends React.Component {
             )
         }
 
-        return (
+//todo: make birthday a date picker
+  render() {
+    console.log("inside signup render " + this.state.isSignedUp + " - " + this.state.email);
+    if (this.state.isSignedUp && firebase.auth().currentUser!== null) {
+      return (
+        this.props.navigation.navigate('ProfileEdit')
+      )
+    }
+      return (
           <View style={styles.container}>
           <KeyboardAvoidingView
           style={styles.container}
