@@ -22,7 +22,7 @@ export default class Signup extends React.Component {
             case 1:
                 return {borderColor: 'red', borderWidth: 3}
             case 0:
-                return {borderColor: COLOR_DGREY, borderWidth: 1}
+                return {borderColor: COLOR_DGREY, borderWidth: 0}
             default:
                 return {borderColor: 'green', borderWidth: 3}
         }
@@ -66,70 +66,78 @@ export default class Signup extends React.Component {
         console.log("inside signup render " + this.state.isSignedUp + " - " + this.state.email);
         if (this.state.isSignedUp && firebase.auth().currentUser!== null) {
             return (
-                this.props.navigation.navigate('HomeScreen')
+                this.props.navigation.navigate('ProfileEdit')
             )
         }
+        const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 0
       return (
           <View style={styles.container}>
           <KeyboardAvoidingView
-          style={styles.container}
-          keyboardVerticalOffset = {Header.HEIGHT + 30}
-          behavior="padding"
-          enabled
+              style={styles.container}
+              keyboardVerticalOffset = {keyboardVerticalOffset}
+              behavior="padding"
+              enabled
           >
-          <ScrollView
-          width='100%'
-          contentContainerStyle={{ alignItems: "center", marginTop:40, }}
-          >
-          <Text style={styles.title}>Sign Up</Text>
-          <TextInput
-            placeholder="First Name"
-            autoCapitalize="words"
-            style={styles.textInput}
-            onChangeText={firstname => this.setState({ firstname })}
-            value={this.state.firstname}
-          />
-          <TextInput
-            placeholder="Last Name"
-            autoCapitalize="words"
-            style={styles.textInput}
-            onChangeText={lastname => this.setState({ lastname })}
-            value={this.state.lastname}
-          />
-          <TextInput
-            placeholder="Birthday"
-            autoCapitalize="none"
-            style={styles.textInput}
-            onChangeText={dob => this.setState({ dob })}
-            value={this.state.dob}
-          />
-          <TextInput
-            placeholder="Email"
-            autoCapitalize="none"
-            style={styles.textInput}
-            onChangeText={email => this.setState({ email })}
-            value={this.state.email}
-          />
-          <TextInput
-            secureTextEntry
-            placeholder="Password"
-            autoCapitalize="none"
-            style={[styles.textInput, this.getPasswordStrength(this.state.password.length),
-            ]}
-            onChangeText={password => this.setState({ password })}
-            value={this.state.password}
-          />
-          </ScrollView>
+              <ScrollView
+                  width='100%'
+                  contentContainerStyle={{ alignItems: "center", marginTop:40, paddingBottom:40}}
+              >
+                  <Text style={styles.title}>Sign Up</Text>
+                  <TextInput
+                        placeholderTextColor='#f300a2'
+                        placeholder="First Name"
+                        autoCapitalize="words"
+                        style={styles.textInput}
+                        onChangeText={firstname => this.setState({ firstname })}
+                        value={this.state.firstname}
+                  />
+                  <TextInput
+                        placeholder="Last Name"
+                        placeholderTextColor='#f300a2'
+                        autoCapitalize="words"
+                        style={styles.textInput}
+                        onChangeText={lastname => this.setState({ lastname })}
+                        value={this.state.lastname}
+                  />
+                  <TextInput
+                        placeholder="Birthday"
+                        placeholderTextColor='#f300a2'
+                        autoCapitalize="none"
+                        style={styles.textInput}
+                        onChangeText={dob => this.setState({ dob })}
+                        value={this.state.dob}
+                  />
+                  <TextInput
+                        placeholder="Email"
+                        placeholderTextColor='#f300a2'
+                        autoCapitalize="none"
+                        style={styles.textInput}
+                        onChangeText={email => this.setState({ email })}
+                        value={this.state.email}
+                  />
+                  <TextInput
+                        secureTextEntry
+                        placeholderTextColor='#f300a2'
+                        placeholder="Password"
+                        autoCapitalize="none"
+                        style={[styles.textInput, this.getPasswordStrength(this.state.password.length),
+                        ]}
+                        onChangeText={password => this.setState({ password })}
+                        value={this.state.password}
+                  />
+                  <View style={{marginTop:40}}>
+                    <Button title="Create Account" color= '#f300a2' onPress={this.handleSignUp} />
+                  </View>
+                  <View style={{margin:20}}>
+                    <Button
+                      title="Already signed up? Log In" color= '#f300a2'
+                      onPress={() => this.props.navigation.navigate('Login')}
+                    />
+                  </View>
+              </ScrollView>
           </KeyboardAvoidingView>
-          <View style={{margin:10}}>
-            <Button title="Sign Up" color= '#f300a2' onPress={this.handleSignUp} />
-          </View>
-          <View style={{margin:10}}>
-            <Button
-              title="Already signed up? Log In" color= '#f300a2'
-              onPress={() => this.props.navigation.navigate('Login')}
-            />
-          </View>
+
+
           </View>
         )
     }
@@ -149,15 +157,15 @@ const styles = StyleSheet.create({
     textInput: {
         height: 40,
         width: 300,
-        borderColor: COLOR_DGREY,
-        borderWidth: 1,
-        color: COLOR_LGREY,
+        color: COLOR_PINK,
         marginTop: 20,
+        backgroundColor: COLOR_DGREY,
     },
 
     title: {
-        color: COLOR_PINK,
+        color: COLOR_LGREY,
         fontSize: 20,
+        fontWeight: 'bold',
         alignItems: 'center',
         justifyContent: 'center',
     },

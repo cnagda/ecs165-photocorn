@@ -21,6 +21,7 @@ export default class Login extends React.Component {
         <View style={styles.container}>
             <Text style={styles.title}>Login</Text>
             <TextInput
+                placeholderTextColor='#f300a2'
                 style={styles.textInput}
                 autoCapitalize="none"
                 placeholder="Email"
@@ -32,6 +33,7 @@ export default class Login extends React.Component {
                 style={styles.textInput}
                 autoCapitalize="none"
                 placeholder="Password"
+                placeholderTextColor='#f300a2'
                 onChangeText={password => this.setState({ password })}
                 value={this.state.password}
             />
@@ -66,15 +68,15 @@ const styles = StyleSheet.create({
     textInput: {
         height: 40,
         width: 300,
-        borderColor: COLOR_DGREY,
-        borderWidth: 1,
-        color: COLOR_LGREY,
+        color: COLOR_PINK,
         marginTop: 20,
+        backgroundColor: COLOR_DGREY,
     },
 
     title: {
-        color: COLOR_PINK,
+        color: COLOR_LGREY,
         fontSize: 20,
+        fontWeight: 'bold',
         alignItems: 'center',
         justifyContent: 'center',
     },

@@ -82,7 +82,7 @@ export default class HomeScreen extends React.Component {
             <View style={styles.container}>
                 <View style={{flex:1, flexDirection:'row',alignItems:'flex-end'}} >
                     <Text style={styles.textPink}>
-                        {this.state.name}
+                        Welcome, {this.state.name}!
                     </Text>
                 </View>
                 <View style={{flex:8, flexDirection: 'row',alignItems:'flex-end', marginLeft: 10, marginRight: 10,}}>
