@@ -21,9 +21,7 @@ export default class Loading extends React.Component {
 
     }
 
-    // authenticate user
-    componentDidMount() {
-        users_ref = firebase.firestore().collection("users");
+    getUserInfo = async(users_ref) => {
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
             console.log("inside get " + firebase.auth().currentUser.uid)
 
@@ -43,6 +41,13 @@ export default class Loading extends React.Component {
             );
 
         }.bind(this)).catch ((error) => {console.error(error);});
+    };
+
+    // authenticate user
+    componentDidMount() {
+        users_ref = firebase.firestore().collection("users");
+        this.getUserInfo(users_ref)
+
     }
 
     componentWillUnmount() {
@@ -50,8 +55,13 @@ export default class Loading extends React.Component {
     }
 
     componentWillReceiveProps(newprops) {
+        users_ref = firebase.firestore().collection("users");
+        this.getUserInfo(users_ref)
 
-        this.setState({refreshed: this.props.navigation.getParam('refreshed', 'nochanges')});
+        //this.setState({refreshed: this.props.navigation.getParam('refreshed', 'nochanges')}).then(function() {
+        
+        //}.bind(this));
+        //console.log('supposedly refresh has happened ' + this.props.navigation.getParam('refreshed', 'nochanges'))
     }
 
     getProfileImage = async(user) => {
