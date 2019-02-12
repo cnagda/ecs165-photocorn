@@ -57,11 +57,6 @@ export default class Loading extends React.Component {
     componentWillReceiveProps(newprops) {
         users_ref = firebase.firestore().collection("users");
         this.getUserInfo(users_ref)
-
-        //this.setState({refreshed: this.props.navigation.getParam('refreshed', 'nochanges')}).then(function() {
-        
-        //}.bind(this));
-        //console.log('supposedly refresh has happened ' + this.props.navigation.getParam('refreshed', 'nochanges'))
     }
 
     getProfileImage = async(user) => {

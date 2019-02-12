@@ -104,6 +104,7 @@ export default class Loading extends React.Component {
         if (this.state.finishedEdit) {
             var refreshString = this.state.profileImageURL + this.state.firstname + this.state.lastname + this.state.dob + this.state.email + this.state.interests + this.state.bio
             console.log('here' + refreshString)
+            //I think these parameters are unnecessary because that didn't work but I'm leaving it for now because I'm scared.
             return (this.props.navigation.navigate('Profile', {refreshed: refreshString}))
         }
         return (
