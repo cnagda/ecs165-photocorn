@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableHighlight, Button, TextInput, ScrollView, Image } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, Button, TextInput, ScrollView, Image, Platform, KeyboardAvoidingView } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK} from './../components/commonstyle';
 import { uploadPhoto } from '../utils/Photos'
@@ -107,8 +107,15 @@ export default class Loading extends React.Component {
             //I think these parameters are unnecessary because that didn't work but I'm leaving it for now because I'm scared.
             return (this.props.navigation.navigate('Profile', {refreshed: refreshString}))
         }
+        const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 0
         return (
             <View style={styles.container}>
+            <KeyboardAvoidingView
+                style={styles.container}
+                keyboardVerticalOffset = {keyboardVerticalOffset}
+                behavior="padding"
+                enabled
+            >
             <ScrollView showsVerticalScrollIndicator={false} >
                 <View style={{flex:1, flexDirection:'column',}} >
                     <View style={{flex:1, paddingTop: 50,}}>
@@ -188,6 +195,7 @@ export default class Loading extends React.Component {
                     </View>
                 </View>
             </ScrollView>
+            </KeyboardAvoidingView>
             </View>
         )
     }
