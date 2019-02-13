@@ -1,6 +1,6 @@
 import React from 'react';
 import { Header } from 'react-navigation';
-import { StyleSheet, ScrollView, Text, TextInput, KeyboardAvoidingView, View, Button } from 'react-native';
+import { StyleSheet, ScrollView, Text, TextInput, KeyboardAvoidingView, View, Button, Platform } from 'react-native';
 import { ImagePicker } from 'expo';
 import * as firebase from 'firebase';
 import 'firebase/firestore';

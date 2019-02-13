@@ -67,6 +67,41 @@ export default class HomeScreen extends React.Component {
                 }
             );
         }.bind(this)).catch ((error) => {console.error(error);});
+
+
+        //Get up to 10 most recent posts from users that this user follows
+        follows_ref = firebase.firestore().collection("Follows");               //get the Follows collection
+        var followed = [];                                                      //this will contain the users that this user follows
+        follows_ref
+        .where("userID", "==", firebase.auth().currentUser.uid)                 //look in follows table for this user
+        .get()
+        .then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {                               //for each match
+                followed.push(doc.data().followedID);                           //add to followed array
+            });
+
+            var post_captions = [];                                             //will contain the captions for 10 most recent posts
+            var post_timestamps = [];                                           //will contain the timestamps for 10 most recent posts
+
+            posts_ref = firebase.firestore().collection("Posts")                //get the Posts collection
+
+            posts_ref
+            .orderBy("timestamp")                                               //order by time
+            .limit(10)                                                          //get up to 10
+            .get()
+            .then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {                           //for each match
+                    if (followed.includes(doc.data().userID)) {                 //if this post's poster is followed by this user
+                        post_captions.push(doc.data().caption);
+                        post_timestamps.push(doc.data().timestamp);
+                    }
+
+                });
+                console.log(post_captions);                                     //print captions array
+                console.log(post_timestamps);                                   //print timestamp array
+            })
+        })
+
     }
 
     // set a profile picture
