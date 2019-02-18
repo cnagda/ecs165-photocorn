@@ -11,6 +11,8 @@ import Loading from './screens/Loading';
 import HomeScreen from './screens/HomeScreen';
 import Profile from './screens/Profile';
 import ProfileEdit from './screens/ProfileEdit';
+import NewPostUpload from './screens/NewPostUpload';
+import ViewPost from './screens/ViewPost';
 
 
 // initialize firebase
@@ -34,6 +36,8 @@ const MainStack = createStackNavigator(
         Signup: Signup,
         Profile: Profile,
         ProfileEdit: ProfileEdit,
+        NewPostUpload: NewPostUpload,
+        ViewPost: ViewPost,
     },
     {
         initialRouteName: 'Loading',
