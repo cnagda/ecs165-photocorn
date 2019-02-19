@@ -10,6 +10,8 @@ import {
   Image
 } from 'react-native'
 
+import {LinearGradient} from 'expo'
+
 
 export default class PostView extends React.Component {
 
@@ -64,13 +66,19 @@ export default class PostView extends React.Component {
         }
         return (
             <View style={styles.container}>
-                <View style = {styles.backBox}>
+            <LinearGradient
+              colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
+              style={styles.backBox}>
                     <View style = {{height: 50, flexDirection: 'row'}}>
                         <View style={{flex: 1, flexDirection: 'row'}}>
-                            <Image style={styles.profile} source={{uri: this.state.profileImageURL}}/>
+                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
+                                <Image style={styles.profile} source={{uri: this.state.profileImageURL}}/>
+                            </View>
                         </View>
-                        <View style = {{flex: 1, flexDirection: 'row'}}>
-                            <Text style = {styles.posterName}>{this.state.name}</Text>
+                        <View style = {{flex: 5, flexDirection: 'row'}}>
+                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
+                                <Text style = {styles.posterName}>{this.state.name}</Text>
+                            </View>
                         </View>
                     </View>
                     <View style = {{flexDirection: 'row'}}>
@@ -80,16 +88,27 @@ export default class PostView extends React.Component {
                             source = {{uri: this.state.imageUri}}
                         />
                     </View>
-                </View>
-                <View>
+
+
                     <View style = {{flexDirection: 'row'}}>
-                        <Text style = {styles.smallInfoLeft}>Liked by </Text>
-                        <Text style = {styles.smallInfoRight}>{this.state.numComments} Comments</Text>
+                        <View style={{flex: 1, flexDirection: 'row'}}>
+                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
+                                <Text style = {styles.smallInfoLeft}>Liked by </Text>
+                                </View>
+                        </View>
+                        <View style={{flex: 1, flexDirection: 'row'}}>
+                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center'}}>
+                                <Text style = {styles.smallInfoRight}>{this.state.numComments} Comments</Text>
+                            </View>
+                        </View>
                     </View>
-                    <View>
-                        <Text style = {styles.posterName}>Tags: {this.state.tags}</Text>
-                        <Text style = {styles.smallInfoLeft}>{this.state.caption}</Text>
-                    </View>
+
+
+
+                </LinearGradient>
+                <View style={{height: 80, width: Dimensions.get('window').width, alignItems: 'center', flexDirection: 'column', flex: 1}}>
+                    <Text style = {styles.posterName}>Tags: {this.state.tags}</Text>
+                    <Text style = {styles.smallInfoLeft}>{this.state.caption}</Text>
                 </View>
             </View>
         )
@@ -107,14 +126,12 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_BACKGRND,
     },
     backBox: {
-        height: Dimensions.get('window').width + 50,
+        height: Dimensions.get('window').width + 75,
         width: Dimensions.get('window').width,
         flexDirection: 'column',
         fontSize: 20,
         justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: COLOR_DGREY,
-        marginBottom: 50,
+        alignItems: 'flex-start',
     },
     textMainTwo: {
         color: COLOR_PINK,
@@ -137,20 +154,20 @@ const styles = StyleSheet.create({
     },
     posterName: {
         color: COLOR_PINK,
-        fontSize: 15,
+        fontSize: 18,
         alignItems: 'center',
         justifyContent: 'center',
     },
     smallInfoLeft: {
         color: COLOR_LGREY,
-        fontSize: 12,
-        alignItems: 'flex-start',
-        justifyContent: 'center',
+        fontSize: 15,
+        marginLeft: 20,
+        alightItems: 'flex-start'
     },
     smallInfoRight: {
         color: COLOR_LGREY,
-        fontSize: 12,
-        alignItems: 'flex-end',
-        justifyContent: 'center',
+        fontSize: 15,
+        marginRight: 20,
+        alignItems: 'flex-end'
     },
 })

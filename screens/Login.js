@@ -12,7 +12,7 @@ export default class Login extends React.Component {
         firebase
         .auth()
         .signInWithEmailAndPassword(email, password)
-        .then(() => this.props.navigation.navigate('HomeScreen'))
+        .then(() => this.props.navigation.navigate('HomeScreen', {refresh: true}))
         .catch(error => this.setState({ errorMessage: error.message }))
     }
 

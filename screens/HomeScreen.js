@@ -70,8 +70,25 @@ export default class HomeScreen extends React.Component {
             //this.forceUpdate();
         }.bind(this)).catch ((error) => {console.error(error);});
 
+    }
 
 
+
+    componentWillReceiveProps(newprops) {
+
+        console.log("in component will receive props")
+        users_ref = firebase.firestore().collection("users");
+        users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
+            console.log("inside get " + firebase.auth().currentUser.uid)
+            this.getPosts(10, firebase.auth().currentUser, doc.data().first);
+
+            this.setState({
+                isLoading: false,
+            })
+
+            console.log("does it work here? " + this.state.postList)
+            //this.forceUpdate();
+        }.bind(this)).catch ((error) => {console.error(error);});
 
     }
 
@@ -99,6 +116,7 @@ export default class HomeScreen extends React.Component {
             .then(function(querySnapshot) {
                 querySnapshot.forEach(function(doc) {                           //for each match
                     if (followed.includes(doc.data().userID)) {                 //if this post's poster is followed by this user
+                        console.log("user followed: " + doc.data().userID)
                         postIDs.push(doc.data().postID);
                     }
 

@@ -27,12 +27,13 @@ export default class ViewPost extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        flexDirection: 'column',
+        width:  Dimensions.get('window').width,
+        height:  Dimensions.get('window').height,
         fontSize: 20,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLOR_BACKGRND,
+        marginTop: 50,
     },
 
 })
