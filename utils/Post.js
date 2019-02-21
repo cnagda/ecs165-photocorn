@@ -39,10 +39,12 @@ export default class PostView extends React.Component {
                         numComments: doc.data().numComments,
                         tags: doc.data().tags,
                         imageUri: doc2.data().imageUri,
+                        timestamp: doc.data().timestamp,
                     });
                     console.log("caption " + doc.data().caption)
                     console.log("postid " + this.props.postID)
                     console.log("imageuri " + doc2.data().imageUri)
+                    console.log("timestamp " + doc.data().timestamp)
                 }.bind(this))
             }.bind(this))
             this.getProfileImage(doc.data().userID);

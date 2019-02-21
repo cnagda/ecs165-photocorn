@@ -66,7 +66,7 @@ export default class HomeScreen extends React.Component {
 
             this.setState({
                 isLoading: false,
-                postList: null,
+                postList: null,  //this may be bad because I'm relying on getPosts to take longer so test it with this removed later
             })
 
             console.log("does it work here? " + this.state.postList)
@@ -87,7 +87,7 @@ export default class HomeScreen extends React.Component {
 
             this.setState({
                 isLoading: false,
-                postList: null,
+                postList: null, //this may be bad because I'm relying on getPosts to take longer so test it with this removed later
             })
 
             console.log("does it work here? " + this.state.postList)
