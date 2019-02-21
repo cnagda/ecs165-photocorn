@@ -31,7 +31,7 @@ export default class NewPostUpload extends React.Component {
             caption: caption,
             numComments: numComments,
             userID: userID,
-            timestamp: Date.now(),
+            timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
             tags: tags,
         }).then(function() {
             firebase.firestore().collection("Photo").doc(photoID).set({
