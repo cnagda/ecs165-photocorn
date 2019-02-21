@@ -115,7 +115,7 @@ export default class HomeScreen extends React.Component {
             .get()
             .then(function(querySnapshot) {
                 querySnapshot.forEach(function(doc) {                           //for each match
-                    if (followed.includes(doc.data().userID)) {                 //if this post's poster is followed by this user
+                    if (followed.includes(doc.data().userID) || (currUser == doc.data().userID)) {  //if this post's poster is followed by this user
                         console.log("user followed: " + doc.data().userID)
                         postIDs.push(doc.data().postID);
                     }

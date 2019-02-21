@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
         color: COLOR_LGREY,
         fontSize: 15,
         marginLeft: 20,
-        alightItems: 'flex-start'
+        alignItems: 'flex-start'
     },
     smallInfoRight: {
         color: COLOR_LGREY,
