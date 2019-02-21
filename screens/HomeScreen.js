@@ -150,11 +150,12 @@ export default class HomeScreen extends React.Component {
         }
         return (
             <View style={styles.container}>
+
             <View style={{flex:1, flexDirection:'row', alignItems: 'center'}}>
             <TextInput
             placeholder='...'
             onChangeText={query => this.setState({query})}
-            value={this.state.query}
+            value={this.state.query} style={styles.search}
             />
             {
                 this.state.loading &&
@@ -212,6 +213,15 @@ const styles = StyleSheet.create({
     textPink: {
         color: COLOR_PINK,
         fontSize: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    search: {
+        height: 40,
+        width: 300,
+        color: COLOR_PINK,
+        marginTop: 20,
+        backgroundColor: COLOR_DGREY,
         alignItems: 'center',
         justifyContent: 'center',
     },
