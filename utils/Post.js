@@ -24,14 +24,12 @@ export default class PostView extends React.Component {
     }
     // authenticate user
     componentDidMount() {
-    }
-
-    componentWillMount() {
         postID = this.props.postID;
         post_ref = firebase.firestore().collection("Posts");
-        post_ref.doc(postID).get().then(function(doc) {
+        post_ref.doc(this.props.postID).get().then(function(doc) {
             photo_ref = firebase.firestore().collection("Photo");
-            photo_ref.doc(postID).get().then(function(doc2) {
+            photo_ref.doc(this.props.postID).get().then(function(doc2) {
+                console.log(doc2.data())
                 users_ref = firebase.firestore().collection("users");
                 users_ref.doc(doc.data().userID).get().then(function(doc1) {
                     this.setState({
@@ -42,10 +40,17 @@ export default class PostView extends React.Component {
                         tags: doc.data().tags,
                         imageUri: doc2.data().imageUri,
                     });
+                    console.log("caption " + doc.data().caption)
+                    console.log("postid " + this.props.postID)
+                    console.log("imageuri " + doc2.data().imageUri)
                 }.bind(this))
             }.bind(this))
             this.getProfileImage(doc.data().userID);
         }.bind(this)).catch ((error) => {console.error(error);});
+    }
+
+    componentWillMount() {
+
 
 
     }

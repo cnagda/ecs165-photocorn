@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, Platform, Image, Text, View, Button, ScrollView } from 'react-native'
+import { StyleSheet, Platform, Image, Text, View, Button, ScrollView, RefreshControl, } from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
@@ -48,11 +48,13 @@ function uploadPhoto(uri, uploadUri) {
 }
 
 
+
+
 export default class HomeScreen extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
-        this.state = {currentUser: null, name: "user", isLoading: true, postList: null,}
+        this.state = {currentUser: null, name: "user", isLoading: true, postList: null, refreshing: false,}
     }
 
     // authenticate user
@@ -108,16 +110,16 @@ export default class HomeScreen extends React.Component {
 
 
             posts_ref = firebase.firestore().collection("Posts")                //get the Posts collection
-
+            var numPosts = 0
             posts_ref
-            .orderBy("timestamp")                                               //order by time
-            .limit(numPosts)                                                          //get up to 10
+            .orderBy("timestamp", "desc")                                               //order by time
             .get()
             .then(function(querySnapshot) {
                 querySnapshot.forEach(function(doc) {                           //for each match
-                    if (followed.includes(doc.data().userID) || (currUser == doc.data().userID)) {  //if this post's poster is followed by this user
+                    if ((followed.includes(doc.data().userID) || (firebase.auth().currentUser.uid == doc.data().userID)) && numPosts < 10) {  //if this post's poster is followed by this user
                         console.log("user followed: " + doc.data().userID)
                         postIDs.push(doc.data().postID);
+                        numPosts++
                     }
 
                 });
@@ -140,6 +142,25 @@ export default class HomeScreen extends React.Component {
             }.bind(this))
         }.bind(this))
     }
+
+    _onRefresh = () => {
+        this.setState({refreshing: true});
+        users_ref = firebase.firestore().collection("users");
+        users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
+            console.log("inside get " + firebase.auth().currentUser.uid)
+            this.getPosts(10, firebase.auth().currentUser, doc.data().first);
+
+            this.setState({
+                isLoading: false,
+                refreshing: false,
+            })
+
+            console.log("refresh " + this.state.postList)
+            this.forceUpdate()
+            //this.forceUpdate();
+        }.bind(this)).catch ((error) => {console.error(error);});
+    }
+
 
 
     render() {
@@ -167,7 +188,8 @@ export default class HomeScreen extends React.Component {
                     />
                 </View>
                 <View style={{flex: 7, flexDirection: 'column'}}>
-                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom:40}}>
+                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom:40}}
+                                refreshControl={ <RefreshControl refreshing={this.state.refreshing} onRefresh={this._onRefresh} /> }>
                         {this.state.postList}
                     </ScrollView>
 

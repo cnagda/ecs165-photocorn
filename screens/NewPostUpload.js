@@ -117,6 +117,7 @@ export default class NewPostUpload extends React.Component {
                             style={styles.textInput}
                             onChangeText={tags => this.setState({ tags })}
                             value={this.state.tags}
+                            autoCapitalize="none"
                         />
                         <View style = {styles.doneButton} >
                             <Button
