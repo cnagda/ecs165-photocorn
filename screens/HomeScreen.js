@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, Platform, Image, Text, View, Button } from 'react-native'
+import { StyleSheet, ScrollView, FlatList, TextInput, Platform, Image, Text, View, Button } from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
@@ -46,12 +46,47 @@ function uploadPhoto(uri, uploadUri) {
     });
 }
 
+function search(query) {
+    matches = firebase.database().ref('users/').orderByValue().equalTo(query).limitToFirst(5);
+    /*
+    var query = this.state.query.toString();
+
+    if (query == "") {
+        this.listenForItems(reference);
+    }
+    else {
+        reference.orderByChild("searchable").startAt(query).endAt(query).on('value',(snap) => {
+            this.data = [];
+            snap.forEach((child) => {
+                this.data.push({
+                    first: child.val().first,
+                });
+            });
+            this.setState({
+                dataSource: this.state.dataSource.cloneWithRows(items)
+            });
+        });
+    }
+    */
+}
+
+renderRow = ({result}) => {
+    return (
+        <View style={styles.container}>
+        <Text>
+        {result.toString()}
+    </Text>
+        </View>
+    )
+}
+
+
 
 export default class HomeScreen extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
-        this.state = {currentUser: null, name: "user", isLoading: true}
+        this.state = {currentUser: null, name: "user", isLoading: true, query: ""}
     }
 
     // authenticate user
@@ -63,7 +98,8 @@ export default class HomeScreen extends React.Component {
                 {
                     currentUser: firebase.auth().currentUser,
                     name: doc.data().first,
-                    isLoading: false
+                    isLoading: false,
+                    query: ""
                 }
             );
         }.bind(this)).catch ((error) => {console.error(error);});
@@ -112,9 +148,30 @@ export default class HomeScreen extends React.Component {
         if(this.state.isLoading) {
             return ( false )
         }
-
         return (
             <View style={styles.container}>
+            <View style={{flex:1, flexDirection:'row', alignItems: 'center'}}>
+            <TextInput
+            placeholder='...'
+            onChangeText={query => this.setState({query})}
+            value={this.state.query}
+            />
+            {
+                this.state.loading &&
+                <ActivityIndicator
+                size="large"
+                color="#3498db"
+                style={styles.activityStyle}
+                />
+            }
+            <ScrollView>
+            <FlatList
+                data={search(this.state.query)}
+                renderItem={this.renderRow}
+                enableEmptySections={true}
+            />
+            </ScrollView>
+            </View>
                 <View style={{flex:1, flexDirection:'row',alignItems:'flex-end'}} >
                     <Text style={styles.textPink}>
                         Welcome, {this.state.name}!
