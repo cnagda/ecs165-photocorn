@@ -66,6 +66,7 @@ export default class HomeScreen extends React.Component {
 
             this.setState({
                 isLoading: false,
+                postList: null,
             })
 
             console.log("does it work here? " + this.state.postList)
@@ -86,6 +87,7 @@ export default class HomeScreen extends React.Component {
 
             this.setState({
                 isLoading: false,
+                postList: null,
             })
 
             console.log("does it work here? " + this.state.postList)
@@ -95,6 +97,7 @@ export default class HomeScreen extends React.Component {
     }
 
     getPosts(numPosts, currUser, firstName){
+        this.setState({postList: null})
         var postList = [];
         var postIDs = [];
         //Get up to 10 most recent posts from users that this user follows
@@ -144,7 +147,7 @@ export default class HomeScreen extends React.Component {
     }
 
     _onRefresh = () => {
-        this.setState({refreshing: true});
+        this.setState({refreshing: true, postList: null});
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
             console.log("inside get " + firebase.auth().currentUser.uid)
