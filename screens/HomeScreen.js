@@ -1,8 +1,9 @@
 import React from 'react'
-import { StyleSheet, Platform, Image, Text, View, Button } from 'react-native'
+import { StyleSheet, Platform, Image, Text, View, Button, ScrollView } from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
+import PostView from '../utils/Post'
 
 
 // upload a given photo to firebase
@@ -51,7 +52,7 @@ export default class HomeScreen extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
-        this.state = {currentUser: null, name: "user", isLoading: true}
+        this.state = {currentUser: null, name: "user", isLoading: true, postList: null,}
     }
 
     // authenticate user
@@ -59,16 +60,41 @@ export default class HomeScreen extends React.Component {
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
             console.log("inside get " + firebase.auth().currentUser.uid)
-            this.setState(
-                {
-                    currentUser: firebase.auth().currentUser,
-                    name: doc.data().first,
-                    isLoading: false
-                }
-            );
+            this.getPosts(10, firebase.auth().currentUser, doc.data().first);
+
+            this.setState({
+                isLoading: false,
+            })
+
+            console.log("does it work here? " + this.state.postList)
+            //this.forceUpdate();
         }.bind(this)).catch ((error) => {console.error(error);});
 
+    }
 
+
+
+    componentWillReceiveProps(newprops) {
+
+        console.log("in component will receive props")
+        users_ref = firebase.firestore().collection("users");
+        users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
+            console.log("inside get " + firebase.auth().currentUser.uid)
+            this.getPosts(10, firebase.auth().currentUser, doc.data().first);
+
+            this.setState({
+                isLoading: false,
+            })
+
+            console.log("does it work here? " + this.state.postList)
+            //this.forceUpdate();
+        }.bind(this)).catch ((error) => {console.error(error);});
+
+    }
+
+    getPosts(numPosts, currUser, firstName){
+        var postList = [];
+        var postIDs = [];
         //Get up to 10 most recent posts from users that this user follows
         follows_ref = firebase.firestore().collection("Follows");               //get the Follows collection
         var followed = [];                                                      //this will contain the users that this user follows
@@ -80,38 +106,49 @@ export default class HomeScreen extends React.Component {
                 followed.push(doc.data().followedID);                           //add to followed array
             });
 
-            var post_captions = [];                                             //will contain the captions for 10 most recent posts
-            var post_timestamps = [];                                           //will contain the timestamps for 10 most recent posts
 
             posts_ref = firebase.firestore().collection("Posts")                //get the Posts collection
 
             posts_ref
             .orderBy("timestamp")                                               //order by time
-            .limit(10)                                                          //get up to 10
+            .limit(numPosts)                                                          //get up to 10
             .get()
             .then(function(querySnapshot) {
                 querySnapshot.forEach(function(doc) {                           //for each match
-                    if (followed.includes(doc.data().userID)) {                 //if this post's poster is followed by this user
-                        post_captions.push(doc.data().caption);
-                        post_timestamps.push(doc.data().timestamp);
+                    if (followed.includes(doc.data().userID) || (currUser == doc.data().userID)) {  //if this post's poster is followed by this user
+                        console.log("user followed: " + doc.data().userID)
+                        postIDs.push(doc.data().postID);
                     }
 
                 });
-                console.log(post_captions);                                     //print captions array
-                console.log(post_timestamps);                                   //print timestamp array
-            })
-        })
+                postIDs.forEach(function(thisPostID) {
+                    postList.push(<PostView postID={thisPostID} />);
+                })
 
+                console.log(postIDs)
+                //postList = postIDs.map((id)=> <PostView postID={id} />)
+                console.log("here")
+
+                console.log(postList)
+                this.setState(
+                    {
+                        currentUser: currUser,
+                        name: firstName,
+                        postList: postList,
+                    }
+                );
+            }.bind(this))
+        }.bind(this))
     }
-
-    // set a profile picture
 
 
     render() {
-        console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
         if(this.state.isLoading) {
             return ( false )
         }
+        console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
+
+        console.log("inside render " + this.state.postList)
 
         return (
             <View style={styles.container}>
@@ -119,11 +156,26 @@ export default class HomeScreen extends React.Component {
                     <Text style={styles.textPink}>
                         Welcome, {this.state.name}!
                     </Text>
+
                 </View>
-                <View style={{flex:8, flexDirection: 'row',alignItems:'flex-end', marginLeft: 10, marginRight: 10,}}>
+                <View style={{flex:1, flexDirection:'column',}}>
+                    <Button title="New Post Upload" color= '#f300a2'
+                        onPress={() => this.props.navigation.navigate('NewPostUpload')}
+                    />
+                    <Button title="View Emma's Profile" color= '#f300a2'
+                        onPress={() => this.props.navigation.navigate('Profile', {userID: 'qZC2oLFxa8NgzyesghbtmujjQcO2'})}
+                    />
+                </View>
+                <View style={{flex: 7, flexDirection: 'column'}}>
+                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom:40}}>
+                        {this.state.postList}
+                    </ScrollView>
+
+                </View>
+                <View style={{flex:1, flexDirection: 'row',alignItems:'flex-end', marginLeft: 10, marginRight: 10,}}>
                     <View style={{flex:1, flexDirection:'column',marginRight:10,}}>
                         <Button title="View Profile" color= '#f300a2'
-                            onPress={() => this.props.navigation.navigate('Profile')}
+                            onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}
                         />
                     </View>
                     <View style={{flex:1, flexDirection:'column',}}>
@@ -140,8 +192,8 @@ export default class HomeScreen extends React.Component {
             </View>
         )
     }
-}
 
+}
 
 const styles = StyleSheet.create({
     container: {
