@@ -5,48 +5,95 @@ import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK 
 //import { getProfileImage } from '../utils/Photos'
 
 export default class Loading extends React.Component {
+
+
+
+
     // initialize state
     constructor(props) {
         super(props);
-        this.state = {currentUser: null,
-                        firstname: "user",
-                        lastname: "user",
-                        isLoading: true,
-                        birthday: "unknown",
-                        email: null,
-                        bio: "unknown",
-                        interests: "unknown",
-                        isImgLoading: "true",
-                    }
 
+        this.state = {
+          isLoading: true,
+          isImgLoading: true,
+       }
     }
 
     getUserInfo = async(users_ref) => {
-        users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
-            console.log("inside get " + firebase.auth().currentUser.uid)
-
-            this.getProfileImage(firebase.auth().currentUser.uid);
+        console.log("inside get user info")
+        users_ref.doc(this.state.userViewing).get().then(function(doc) {
+            this.getProfileImage(this.state.userViewing);
 
             this.setState(
                 {
-                    currentUser: firebase.auth().currentUser,
                     firstname: doc.data().first,
                     lastname: doc.data().last,
                     birthday: doc.data().dob,
-                    email: firebase.auth().currentUser.email,
+                    email: doc.data().email,
                     bio: doc.data().bio,
                     interests: doc.data().interests,
                     isLoading: false
                 }
             );
+            console.log("just set states for real")
 
         }.bind(this)).catch ((error) => {console.error(error);});
     };
 
     // authenticate user
-    componentDidMount() {
-        users_ref = firebase.firestore().collection("users");
-        this.getUserInfo(users_ref)
+    componentWillMount() {
+        console.log("in component did mount")
+        currentUserVar = firebase.auth().currentUser.uid;
+        userViewingVar = this.props.navigation.getParam('userID', firebase.auth().currentUser.uid);
+        isEditableVar = currentUserVar == userViewingVar;
+        console.log(currentUserVar)
+        console.log(userViewingVar)
+        console.log(isEditableVar)
+
+        follows_ref = firebase.firestore().collection("Follows");
+        follows_ref
+        .where("userID", "==", firebase.auth().currentUser.uid)
+        .get()
+        .then(function(querySnapshot) {
+            console.log("here")
+            isAlreadyFollowingVar = false;
+            querySnapshot.forEach(function(doc) {
+                console.log(doc.data().followedID);
+                if(userViewingVar == doc.data().followedID) {
+                    isAlreadyFollowingVar = true;
+                }
+            });
+            this.setState( {  currentUser:currentUserVar,
+                            userViewing: userViewingVar,
+                            isImgLoading: true,
+                            isEditable: isEditableVar,
+                            isAlreadyFollowing: isAlreadyFollowingVar,
+                            followedJustNow: false,
+                        });
+            console.log("just initialized state")
+            users_ref = firebase.firestore().collection("users");
+            users_ref.doc(this.state.userViewing).get().then(function(doc) {
+                this.getProfileImage(this.state.userViewing);
+
+                this.setState(
+                    {
+                        firstname: doc.data().first,
+                        lastname: doc.data().last,
+                        birthday: doc.data().dob,
+                        email: doc.data().email,
+                        bio: doc.data().bio,
+                        interests: doc.data().interests,
+                        isLoading: false,
+                    }
+                );
+                console.log("just set states for real")
+
+            }.bind(this)).catch ((error) => {console.error(error);});
+            console.log("hereeeee")
+            console.log("at the end: " + this.state.isEditable)
+        }.bind(this))
+
+        console.log("out here")
 
     }
 
@@ -56,7 +103,8 @@ export default class Loading extends React.Component {
 
     componentWillReceiveProps(newprops) {
         users_ref = firebase.firestore().collection("users");
-        this.getUserInfo(users_ref)
+         this.getUserInfo(users_ref)
+        console.log("in component will receive props")
     }
 
     getProfileImage = async(user) => {
@@ -74,14 +122,36 @@ export default class Loading extends React.Component {
           }
     };
 
+    handleFollow = () => {
+        const {currentUser, userViewing } = this.state
+            firebase.firestore().collection("Follows").doc(currentUser).set({
+                followedID: userViewing,
+                userID: currentUser,
+            }).then(function() {
+                this.setState({followedJustNow: true});
+            }.bind(this))
+
+    };
+
+    displayFollowEditButton =  (isEditable, isAlreadyFollowing) => {
+        if (isEditable) {
+            return <Button title="Edit" onPress={() => this.props.navigation.navigate('ProfileEdit')} color= 'rgba(228,228,228,0.66)'/>;
+        } else if (isAlreadyFollowing) {
+            return <Button title="Follow" color= 'rgba(228,228,228,0.66)' disabled = {true} />;
+        } else {
+            return <Button title="Follow" onPress={this.handleFollow} color= 'rgba(228,228,228,0.66)' disabled = {this.state.followedJustNow}/>;
+        }
+    };
+
     render() {
-        console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
-        console.log(this.state.refresh)
-        if(this.state.isLoading || this.state.isImgLoading) {
+        if (Boolean(this.state.isLoading) || Boolean(this.state.isImgLoading) ) {
+            console.log("about to return false")
+
             return ( false )
         }
-
-
+        const isEditable = this.state.isEditable;
+        const isAlreadyFollowing = this.state.isAlreadyFollowing;
+        console.log("from render: " + isEditable + " " + isAlreadyFollowing)
         return (
             <View style={styles.container}>
                 <View style={{flex:1, flexDirection:'row', marginBottom:40, marginLeft:20,}} >
@@ -94,11 +164,8 @@ export default class Loading extends React.Component {
 
                     </View>
                     <View style = {styles.followButton} >
-                        <Button
-                            title="Edit"
-                            onPress={() => this.props.navigation.navigate('ProfileEdit')}
-                            color= 'rgba(228,228,228,0.66)'
-                        />
+                        {this.displayFollowEditButton(isEditable, isAlreadyFollowing)}
+
                     </View>
                 </View>
                 <View style={{flex:2, flexDirection: 'row',marginLeft:20,}}>
