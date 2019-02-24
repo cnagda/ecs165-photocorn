@@ -69,6 +69,7 @@ export default class Loading extends React.Component {
                             isEditable: isEditableVar,
                             isAlreadyFollowing: isAlreadyFollowingVar,
                             followedJustNow: false,
+                            unfollowedJustNow: false,
                         });
             console.log("just initialized state")
             users_ref = firebase.firestore().collection("users");
@@ -129,17 +130,31 @@ export default class Loading extends React.Component {
                 userID: currentUser,
             }).then(function() {
                 this.setState({followedJustNow: true});
+                this.setState({unfollowedJustNow: false});
+            }.bind(this))
+
+    };
+
+
+    handleUnFollow = () => {
+        const {currentUser, userViewing } = this.state
+            firebase.firestore().collection("Follows").doc(currentUser).delete().then(function(){
+                this.setState({followedJustNow: false});
+                this.setState({unfollowedJustNow: true});
+                console.log("Successfully deleted document in Follows", currentUser)
             }.bind(this))
 
     };
 
     displayFollowEditButton =  (isEditable, isAlreadyFollowing) => {
+        console.log("isAlreadyFollowing: ", isAlreadyFollowing)
+        console.log("followedJustNow: ", this.state.followedJustNow)
         if (isEditable) {
             return <Button title="Edit" onPress={() => this.props.navigation.navigate('ProfileEdit')} color= 'rgba(228,228,228,0.66)'/>;
-        } else if (isAlreadyFollowing) {
-            return <Button title="Follow" color= 'rgba(228,228,228,0.66)' disabled = {true} />;
+        } else if ((this.state.followedJustNow || isAlreadyFollowing) && ! this.state.unfollowedJustNow){
+            return <Button title="UnFollow" onPress={this.handleUnFollow} color= 'rgba(228,228,228,0.66)'/>;
         } else {
-            return <Button title="Follow" onPress={this.handleFollow} color= 'rgba(228,228,228,0.66)' disabled = {this.state.followedJustNow}/>;
+            return <Button title="Follow" onPress={this.handleFollow} color= 'rgba(228,228,228,0.66)'/>;
         }
     };
 
