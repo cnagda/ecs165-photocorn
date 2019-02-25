@@ -196,9 +196,14 @@ export default class HomeScreen extends React.Component {
 
                 </View>
                 <View style={{flex:1, flexDirection:'column',}}>
+                    <View style ={{flex:1, flexDirection: 'row'}}>
                     <Button title="New Post Upload" color= '#f300a2'
                         onPress={() => this.props.navigation.navigate('NewPostUpload')}
                     />
+                    <Button title="New Post from Camera" color= '#f300a2'
+                        onPress={() => this.props.navigation.navigate('NewPostCamera')}
+                    />
+                    </View>
                     <Button title="View Emma's Profile" color= '#f300a2'
                         onPress={() => this.props.navigation.navigate('Profile', {userID: 'qZC2oLFxa8NgzyesghbtmujjQcO2'})}
                     />
