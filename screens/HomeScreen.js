@@ -100,42 +100,36 @@ export default class HomeScreen extends React.Component {
         this.setState({postList: null})
         var postList = [];
         var postIDs = [];
-        //Get up to 10 most recent posts from users that this user follows
-        follows_ref = firebase.firestore().collection("Follows");               //get the Follows collection
-        var followed = [];                                                      //this will contain the users that this user follows
+
+        //Get up to 10 most recent posts for activity feed
+        follows_ref = firebase.firestore().collection("Follows");                       //get the Follows collection
+        var followed = [];                                                              //this will contain the users that this user follows
         follows_ref
-        .where("userID", "==", firebase.auth().currentUser.uid)                 //look in follows table for this user
+        .where("userID", "==", firebase.auth().currentUser.uid)                         //look in follows table for this user
         .get()
         .then(function(querySnapshot) {
-            querySnapshot.forEach(function(doc) {                               //for each match
-                followed.push(doc.data().followedID);                           //add to followed array
+            querySnapshot.forEach(function(doc) {                                       //for each match
+                followed.push(doc.data().followedID);                                   //add to followed list
             });
-
-
-            posts_ref = firebase.firestore().collection("Posts")                //get the Posts collection
+            posts_ref = firebase.firestore().collection("Posts")                        //get the Posts collection
             var numPosts = 0
             posts_ref
-            .orderBy("timestamp", "desc")                                               //order by time
+            .orderBy("timestamp", "desc")                                               //order by time descending
             .get()
             .then(function(querySnapshot) {
-                querySnapshot.forEach(function(doc) {                           //for each match
-                    if ((followed.includes(doc.data().userID) || (firebase.auth().currentUser.uid == doc.data().userID)) && numPosts < 10) {  //if this post's poster is followed by this user
+                querySnapshot.forEach(function(doc) {                                   //for each match
+                    if ((followed.includes(doc.data().userID) ||
+                            (firebase.auth().currentUser.uid == doc.data().userID))
+                            && numPosts < 10) {                                         //if the post should be in the feed
                         console.log("user followed: " + doc.data().userID)
                         postIDs.push(doc.data().postID);
                         numPosts++
                     }
-
                 });
-                postIDs.forEach(function(thisPostID) {
-                    postList.push(<PostView postID={thisPostID} />);
+                postIDs.forEach(function(thisPostID) {                                  //for each post from the post is list
+                    postList.push(<PostView postID={thisPostID} />);                    //create a list of PostViews to render
                 })
-
-                console.log(postIDs)
-                //postList = postIDs.map((id)=> <PostView postID={id} />)
-                console.log("here")
-
-                console.log(postList)
-                this.setState(
+                this.setState(                                                          //set states to rerender
                     {
                         currentUser: currUser,
                         name: firstName,
