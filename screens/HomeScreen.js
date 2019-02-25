@@ -158,6 +158,25 @@ export default class HomeScreen extends React.Component {
         }.bind(this)).catch ((error) => {console.error(error);});
     }
 
+    displayPosts = (postList) => {
+        console.log("getting post list: " + postList)
+
+        if (postList == null) {
+            return (false)
+
+        } else {
+
+             if (Object.keys(postList).length > 0) {
+                return postList
+            } else {
+                return <View style = {{alignItems: 'center', justifyContent: 'center', height:50, width: 50}}></View>
+                //<Button title="Oops, the unicorns are sleeping. Refresh now." onPress={this._onRefresh} color=  '#f300a2'/>
+            }
+        }
+
+
+    };
+
 
 
     render() {
@@ -187,7 +206,9 @@ export default class HomeScreen extends React.Component {
                 <View style={{flex: 7, flexDirection: 'column'}}>
                     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom:40}}
                                 refreshControl={ <RefreshControl refreshing={this.state.refreshing} onRefresh={this._onRefresh} /> }>
-                        {this.state.postList}
+                        <View >
+                            {this.displayPosts(this.state.postList)}
+                        </View>
                     </ScrollView>
 
                 </View>
