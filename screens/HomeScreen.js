@@ -1,5 +1,6 @@
-import React from 'react'
-import { StyleSheet, Platform, Image, Text, View, Button, ScrollView, RefreshControl, } from 'react-native'
+import React from 'react';
+import { StyleSheet, Platform, Image, Text, TextInput, View, Button, ScrollView, RefreshControl, } from 'react-native'
+import { List, ListItem } from 'react-native-elements'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
@@ -47,14 +48,19 @@ function uploadPhoto(uri, uploadUri) {
     });
 }
 
-
-
-
 export default class HomeScreen extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
-        this.state = {currentUser: null, name: "user", isLoading: true, postList: null, refreshing: false,}
+        this.state = {
+            currentUser: null,
+            name: "user",
+            isLoading: true,
+            postList: null,
+            refreshing: false,
+            query: '',
+            searchText: '',
+        };
     }
 
     // authenticate user
@@ -72,7 +78,6 @@ export default class HomeScreen extends React.Component {
             console.log("does it work here? " + this.state.postList)
             //this.forceUpdate();
         }.bind(this)).catch ((error) => {console.error(error);});
-
     }
 
 
@@ -164,7 +169,9 @@ export default class HomeScreen extends React.Component {
         }.bind(this)).catch ((error) => {console.error(error);});
     }
 
-
+    updateSearch = (value) => {
+        this.setState({ query: value });
+    }
 
     render() {
         if(this.state.isLoading) {
@@ -176,13 +183,20 @@ export default class HomeScreen extends React.Component {
 
         return (
             <View style={styles.container}>
-                <View style={{flex:1, flexDirection:'row',alignItems:'flex-end'}} >
+                <View style={{flex:1, flexDirection:'row', alignItems:'flex-end'}} >
                     <Text style={styles.textPink}>
                         Welcome, {this.state.name}!
                     </Text>
-
                 </View>
-                <View style={{flex:1, flexDirection:'column',}}>
+                <View style={{flex: 1, flexDirection:'column'}}>
+                    <TextInput
+                        style={styles.search} placeholder={"SEARCH"}
+                        onChangeText={this.updateSearch}
+                        value={this.state.query}
+                    />
+                    <List>
+                        
+                    </List>
                     <Button title="New Post Upload" color= '#f300a2'
                         onPress={() => this.props.navigation.navigate('NewPostUpload')}
                     />
