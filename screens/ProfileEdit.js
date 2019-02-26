@@ -6,7 +6,7 @@ import { uploadPhoto } from '../utils/Photos'
 import { ImagePicker } from 'expo';
 
 
-export default class Loading extends React.Component {
+export default class ProfileEdit extends React.Component {
     // authenticate user
     componentDidMount() {
         users_ref = firebase.firestore().collection("users");
@@ -28,6 +28,36 @@ export default class Loading extends React.Component {
                 }
             );
         }.bind(this)).catch ((error) => {console.error(error);});
+
+    }
+
+    componentWillMount() {
+        console.log("inside component will mount in profile edit")
+    }
+
+    componentWillReceiveProps() {
+        console.log("inside component will receive props in profile edit")
+        this.setState({gotNewPhoto: true})
+        //this.setNewPhotoAsProfile()
+    }
+
+    setNewPhotoAsProfile() {
+        console.log("inside of setNewPhotoAsProfile")
+        console.log("resulturi: " + this.props.navigation.getParam('resulturi', 'NULLVALUE'))
+        console.log(this.props.navigation.state.params)
+        result = this.props.navigation.getParam('resulturi', 'NULLVALUE');
+        if (result != 'NULLVALUE') {
+            this.setState({gotNewPhoto: false, image: result});
+            const path = "ProfilePictures/".concat(firebase.auth().currentUser.uid, ".jpg");
+            console.log(result);
+            console.log(path);
+            return uploadPhoto(result, path).then(function() {
+                this.setState({isImgLoading: true})
+                this.getProfileImage(firebase.auth().currentUser.uid).then(function() {
+                    this.setState({isImgLoading: false})
+                }.bind(this));
+            }.bind(this));
+        }
     }
 
     state = {
@@ -40,6 +70,7 @@ export default class Loading extends React.Component {
         bio: '',
         dob:'',
         isImgLoading: true,
+        gotNewPhoto: false,
     }
 
     handleEdits = () => {
@@ -61,45 +92,30 @@ export default class Loading extends React.Component {
             )
     }
 
-    // set a profile picture
-    pickImage = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            allowsEditing: true,
-            base64: true,
-        });
-
-        if (!result.cancelled) {
-            await this.setState({image: result.uri,});
-            const path = "ProfilePictures/".concat(firebase.auth().currentUser.uid, ".jpg");
-            console.log(result.uri);
-            console.log(path);
-            return uploadPhoto(result.uri, path).then(function() {
-                this.setState({isImgLoading: true})
-                this.getProfileImage(firebase.auth().currentUser.uid).then(function() {
-                    this.setState({isImgLoading: false})
-                }.bind(this));
-            }.bind(this));
-        }
-    };
-
     getProfileImage = async(user) => {
           console.log("in get profile image");
             console.log(user)
             const path = "ProfilePictures/".concat(user, ".jpg");
             console.log(path)
+
             const image_ref = firebase.storage().ref(path);
             const downloadURL = await image_ref.getDownloadURL()
-
-            if (!downloadURL.cancelled) {
-              console.log("testing1")
-              console.log(downloadURL)
-              this.setState({profileImageURL: downloadURL, isImgLoading:false,});
-          }
+            //setNewPhotoAsProfile()
+                if (!downloadURL.cancelled) {
+                  console.log("testing1")
+                  console.log(downloadURL)
+                  this.setState({profileImageURL: downloadURL, isImgLoading:false,});
+                  return downloadURL
+              }
     };
 
     render() {
-        if(this.state.isLoading || this.state.isImgLoading) {
+        if(this.state.isLoading || this.state.isImgLoading ) {
+            //this.getProfileImage(firebase.auth().currentUser.uid)
             return ( false )
+        }
+        if (this.state.gotNewPhoto) {
+            this.setNewPhotoAsProfile()
         }
         if (this.state.finishedEdit) {
             var refreshString = this.state.profileImageURL + this.state.firstname + this.state.lastname + this.state.dob + this.state.email + this.state.interests + this.state.bio
@@ -107,6 +123,7 @@ export default class Loading extends React.Component {
             //I think these parameters are unnecessary because that didn't work but I'm leaving it for now because I'm scared.
             return (this.props.navigation.navigate('Profile', {refresh: refreshString}))
         }
+
         const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 0
         return (
             <View style={styles.container}>
@@ -119,10 +136,10 @@ export default class Loading extends React.Component {
             <ScrollView showsVerticalScrollIndicator={false} >
                 <View style={{flex:1, flexDirection:'column',}} >
                     <View style={{flex:1, paddingTop: 50,}}>
-                        <TouchableHighlight style={styles.outerCircle} onPress={this.pickImage}>
+                        <TouchableHighlight style={styles.outerCircle} onPress={() => this.props.navigation.navigate('ChooseUploadMethod', {returnScreen: 'ProfileEdit'})}>
                           <Image
                               style={styles.innerCircle}
-                              source = {{uri:   this.state.profileImageURL}}
+                              source = {{uri:  this.state.profileImageURL}}
                           />
                         </TouchableHighlight>
                     </View>

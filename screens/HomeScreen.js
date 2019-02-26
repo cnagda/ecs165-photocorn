@@ -9,6 +9,26 @@ import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Rig
 import { getTheme } from '../native-base-theme/components';
 import { custom } from '../native-base-theme/variables/custom';
 import { withNavigation } from 'react-navigation';
+import {ListItem}  from 'react-native-elements'
+
+const list = [
+
+]
+
+//to use list:
+/* inside render:
+<View>
+
+  {
+    list.map((l) => (
+      <ListItem
+        key={l.name}
+        title={l.name}
+      />
+    ))
+  }
+</View>
+*/
 
 
 // upload a given photo to firebase
@@ -109,43 +129,38 @@ export default class HomeScreen extends React.Component {
         this.setState({postList: null})
         var postList = [];
         var postIDs = [];
-        //Get up to 10 most recent posts from users that this user follows
-        follows_ref = firebase.firestore().collection("Follows");               //get the Follows collection
-        var followed = [];                                                      //this will contain the users that this user follows
+
+        //Get up to 10 most recent posts for activity feed
+        follows_ref = firebase.firestore().collection("Follows");                       //get the Follows collection
+        var followed = [];                                                              //this will contain the users that this user follows
         follows_ref
-        .where("userID", "==", firebase.auth().currentUser.uid)                 //look in follows table for this user
+        .where("userID", "==", firebase.auth().currentUser.uid)                         //look in follows table for this user
         .get()
         .then(function(querySnapshot) {
-            querySnapshot.forEach(function(doc) {                               //for each match
-                followed.push(doc.data().followedID);                           //add to followed array
+            querySnapshot.forEach(function(doc) {                                       //for each match
+                followed.push(doc.data().followedID);                                   //add to followed list
             });
-
-
-            posts_ref = firebase.firestore().collection("Posts")                //get the Posts collection
+            posts_ref = firebase.firestore().collection("Posts")                        //get the Posts collection
             var numPosts = 0
             posts_ref
-            .orderBy("timestamp", "desc")                                               //order by time
+            .orderBy("timestamp", "desc")                                               //order by time descending
             .get()
             .then(function(querySnapshot) {
-                querySnapshot.forEach(function(doc) {                           //for each match
-                    if ((followed.includes(doc.data().userID) || (firebase.auth().currentUser.uid == doc.data().userID)) && numPosts < 10) {  //if this post's poster is followed by this user
+                querySnapshot.forEach(function(doc) {                                   //for each match
+                    if ((followed.includes(doc.data().userID) ||
+                            (firebase.auth().currentUser.uid == doc.data().userID))
+                            && numPosts < 10) {                                         //if the post should be in the feed
                         console.log("user followed: " + doc.data().userID)
                         postIDs.push(doc.data().postID);
+                        list.push({name: doc.data().userID});
                         numPosts++
                     }
-
                 });
+
                 postIDs.forEach(function(thisPostID) {
                     postList.push(<PostView postID={thisPostID}/>);
-                    // postList.push(<PostView postID={thisPostID} toProfile={this.toProfile}/>);
                 })
-
-                console.log(postIDs)
-                //postList = postIDs.map((id)=> <PostView postID={id} />)
-                console.log("here")
-
-                console.log(postList)
-                this.setState(
+                this.setState(                                                          //set states to rerender
                     {
                         currentUser: currUser,
                         name: firstName,
@@ -173,6 +188,25 @@ export default class HomeScreen extends React.Component {
             //this.forceUpdate();
         }.bind(this)).catch ((error) => {console.error(error);});
     }
+
+    displayPosts = (postList) => {
+        console.log("getting post list: " + postList)
+
+        if (postList == null) {
+            return (false)
+
+        } else {
+
+             if (Object.keys(postList).length > 0) {
+                return postList
+            } else {
+                return <View style = {{alignItems: 'center', justifyContent: 'center', height:50, width: 50}}></View>
+                //<Button title="Oops, the unicorns are sleeping. Refresh now." onPress={this._onRefresh} color=  '#f300a2'/>
+            }
+        }
+
+
+    };
 
 
 
