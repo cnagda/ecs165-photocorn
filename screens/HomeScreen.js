@@ -56,6 +56,8 @@ const list = [
     },
 ]
 
+var searchResults = []
+
 export default class HomeScreen extends React.Component {
     // initialize state
     constructor(props) {
@@ -67,7 +69,6 @@ export default class HomeScreen extends React.Component {
             postList: null,
             refreshing: false,
             query: '',
-            searchResults: [],
         };
     }
 
@@ -186,15 +187,15 @@ export default class HomeScreen extends React.Component {
             .get()
             .then(function(querySnapshot) {
                 querySnapshot.forEach(function(doc) {
-                    var result = {
-                        name: doc.data().first
-                    }
                     console.log(doc.data().first);
                     console.log(doc.data().last);
-                    this.state.searchResults.push(result);
+                    searchResults.push({ name: doc.data().first });
+                    searchResults.map((l) =>
+                        console.log(l.name)
+                    )
                 });
             })
-        this.refreshSearchBar
+        this.forceUpdate()
     }
 
     render() {
@@ -207,7 +208,7 @@ export default class HomeScreen extends React.Component {
 
         return (
             <View style={styles.container}>
-                <View style={{flex:1, flexDirection:'row', alignItems:'flex-end'}} >
+                <View style={{flex:1, flexDirection:'row', alignItems: 'flex-end'}} >
                     <Text style={styles.textPink}>
                         Welcome, {this.state.name}!
                     </Text>
@@ -219,7 +220,7 @@ export default class HomeScreen extends React.Component {
                         value={this.state.query}
                     />
                     {
-                        this.state.searchResults.map((l) => (
+                        searchResults.map((l) => (
                             <ListItem
                                 roundAvatar
                                 key={l.name}
