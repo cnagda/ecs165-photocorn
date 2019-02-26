@@ -39,12 +39,8 @@ export default class Search extends React.Component {
         searchResults = []
     }
     updateSearch = (value) => {
-        //this.setState({ query: value });
         searchResults = []
         let currThis = this;
-        console.log("update search\n")
-        console.log("query1: " + value)
-        console.log("query2: " + this.state.query)
         if (value) {
             users_ref = firebase.firestore().collection("users");
             users_ref
@@ -52,39 +48,32 @@ export default class Search extends React.Component {
                 .then(function(querySnapshot) {
                     querySnapshot.forEach(function(doc) {
                         var fullName = doc.data().first + " " + doc.data().last
-
                         if (fullName.toLowerCase().includes(value.toLowerCase())) {
                             const path = "ProfilePictures/".concat(doc.data().uid,".jpg");
-
                             var photourl = "http://i68.tinypic.com/awt7ko.jpg";
-
-                                const image_ref = firebase.storage().ref(path);
-                                let currThis = this;
-                                image_ref.getDownloadURL().then(onResolve, onReject);
-
-
-                                function onResolve(downloadURL) {
-                                    searchResults.push(
-                                        {
-                                            name: fullName,
-                                            userID: doc.data().uid,
-                                            photo: downloadURL,
-                                        }
-                                    );
-                                    currThis.setState({searchResults: searchResults})
-                                }
-                                function onReject(error){
-                                //photo not found
-                                    searchResults.push(
-                                        {
-                                            name: fullName,
-                                            userID: doc.data().uid,
-                                            photo: "http://i68.tinypic.com/awt7ko.jpg",
-                                        }
-                                    );
-                                    currThis.setState({searchResults: searchResults})
-
-                                }
+                            const image_ref = firebase.storage().ref(path);
+                            let currThis = this;
+                            image_ref.getDownloadURL().then(onResolve, onReject);
+                            function onResolve(downloadURL) {
+                                searchResults.push(
+                                    {
+                                        name: fullName,
+                                        userID: doc.data().uid,
+                                        photo: downloadURL,
+                                    }
+                                );
+                                currThis.setState({searchResults: searchResults})
+                            }
+                            function onReject(error){ //photo not found
+                                searchResults.push(
+                                    {
+                                        name: fullName,
+                                        userID: doc.data().uid,
+                                        photo: "http://i68.tinypic.com/awt7ko.jpg",
+                                    }
+                                );
+                                currThis.setState({searchResults: searchResults})
+                            }
                         }
                     }.bind(this));
                 }.bind(this))
@@ -98,10 +87,10 @@ export default class Search extends React.Component {
           query: query
         }, () => {
           if (query && query.length > 1 ) {
-              console.log("it thinks the query is: " + query)
-              console.log("it thinks the state is: " + this.state.query)
               this.updateSearch(query)
-
+          } else {
+              searchResults = []
+              this.setState({searchResults: searchResults})
           }
         })
     };
@@ -128,7 +117,7 @@ export default class Search extends React.Component {
                          >
                          <ScrollView>
                          {
-                             searchResults.map(e => e['name']).map((e, i, final) => final.indexOf(e) === i && i).filter(e => searchResults[e]).map(e => searchResults[e]).map((l) => (
+                             this.state.searchResults.map(e => e['name']).map((e, i, final) => final.indexOf(e) === i && i).filter(e => searchResults[e]).map(e => searchResults[e]).map((l) => (
                                  <ListItem
                                      roundAvatar
                                      leftAvatar={{ source: { uri: l.photo } }}
