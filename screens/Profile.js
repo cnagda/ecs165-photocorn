@@ -1,7 +1,9 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableHighlight, Button, Image } from 'react-native'
+import { View, StyleSheet, TouchableHighlight, Image } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
+// import { Footer, FooterTab, Icon, Button, Text } from 'native-base';
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, Grid, Col } from 'native-base';
 //import { getProfileImage } from '../utils/Photos'
 
 export default class Loading extends React.Component {
@@ -150,11 +152,26 @@ export default class Loading extends React.Component {
         console.log("isAlreadyFollowing: ", isAlreadyFollowing)
         console.log("followedJustNow: ", this.state.followedJustNow)
         if (isEditable) {
-            return <Button title="Edit" onPress={() => this.props.navigation.navigate('ProfileEdit')} color= 'rgba(228,228,228,0.66)'/>;
-        } else if ((this.state.followedJustNow || isAlreadyFollowing) && ! this.state.unfollowedJustNow){
-            return <Button title="UnFollow" onPress={this.handleUnFollow} color= 'rgba(228,228,228,0.66)'/>;
+            // return <Button title="Edit" onPress={() => this.props.navigation.navigate('ProfileEdit')} color= 'rgba(228,228,228,0.66)'/>;
+            return <Button
+                        onPress={() => this.props.navigation.navigate('ProfileEdit')}
+                        style={styles.button}>
+                        <Text>Edit Profile</Text>
+                    </Button>;
+        } else if ((this.state.followedJustNow || isAlreadyFollowing) && ! this.state.unfollowedJustNow) {
+            return <Button
+                        onPress={this.handleUnFollow}
+                        style={styles.button}>
+                        <Text>Unfollow</Text>
+                    </Button>;
+            // return <Button title="UnFollow" onPress={this.handleUnFollow} color= 'rgba(228,228,228,0.66)'/>;
         } else {
-            return <Button title="Follow" onPress={this.handleFollow} color= 'rgba(228,228,228,0.66)'/>;
+            // return <Button title="Follow" onPress={this.handleFollow} color= 'rgba(228,228,228,0.66)'/>;
+            return <Button
+                        onPress={this.handleFollow}
+                        style={styles.button}>
+                        <Text>Follow</Text>
+                    </Button>;
         }
     };
 
@@ -168,6 +185,7 @@ export default class Loading extends React.Component {
         const isAlreadyFollowing = this.state.isAlreadyFollowing;
         console.log("from render: " + isEditable + " " + isAlreadyFollowing)
         return (
+            /*
             <View style={styles.container}>
                 <View style={{flex:1, flexDirection:'row', marginBottom:40, marginLeft:20,}} >
                     <View style={{flex:1, flexDirection:'column'}}>
@@ -180,7 +198,6 @@ export default class Loading extends React.Component {
                     </View>
                     <View style = {styles.followButton} >
                         {this.displayFollowEditButton(isEditable, isAlreadyFollowing)}
-
                     </View>
                 </View>
                 <View style={{flex:2, flexDirection: 'row',marginLeft:20,}}>
@@ -194,7 +211,83 @@ export default class Loading extends React.Component {
                         <Text style={styles.textVal}>{this.state.interests}</Text>
                     </View>
                 </View>
-            </View>
+
+                <Footer style={styles.footer}>
+                    <FooterTab>
+                        <Button
+                            onPress={() => this.props.navigation.navigate('HomeScreen')}>
+                            <Icon name="home" />
+                        </Button>
+                        <Button
+                            onPress={() => this.props.navigation.navigate('NewPostUpload', {userID: firebase.auth().currentUser.uid})}>
+                            <Icon name="add" />
+                        </Button>
+                        <Button>
+                            <Icon name="search" />
+                        </Button>
+                        <Button active>
+                            <Icon style={styles.icon} name="person" />
+                        </Button>
+                    </FooterTab>
+                </Footer>
+            </View>*/
+
+            <Container style={styles.container}>
+                <Content>
+                    <Grid>
+                        <Col>
+                            <Image
+                                style= {styles.circle}
+                                source = {{uri: this.state.profileImageURL}}
+                            />
+                        </Col>
+                        <Col>
+                            {this.displayFollowEditButton(isEditable, isAlreadyFollowing)}
+                        </Col>
+                    </Grid>
+
+                    <Text style = {styles.textMainTwo}>{this.state.firstname} {this.state.lastname}</Text>
+
+                    <View style={{flex:2, flexDirection: 'row',marginLeft:20,}}>
+                        <View style={{flex:1, flexDirection:'column',}} >
+                            <Text style = {styles.textSecond}>Birthday:</Text>
+                            <Text style= {styles.textVal}> {this.state.birthday}</Text>
+                            <Text style={styles.textSecond}>Bio: </Text>
+                            <Text style={styles.textVal}>{this.state.bio}</Text>
+                            <Text style = {styles.textSecond}>Interests: </Text>
+                            <Text style={styles.textVal}>{this.state.interests}</Text>
+                        </View>
+                    </View>
+
+                    <Button transparent
+                        style={{marginLeft: 5}}
+                        onPress={() => firebase.auth().signOut().then(function() {
+                        console.log('Signed Out');
+                        this.props.navigation.navigate('Login')
+                        }.bind(this))}>
+                        <Text style={{color: 'white'}}>Log Out</Text>
+                    </Button>
+                </Content>
+
+                <Footer style={styles.footer}>
+                    <FooterTab>
+                        <Button
+                            onPress={() => this.props.navigation.navigate('HomeScreen')}>
+                            <Icon name="home" />
+                        </Button>
+                        <Button
+                            onPress={() => this.props.navigation.navigate('NewPostUpload', {userID: firebase.auth().currentUser.uid})}>
+                            <Icon name="add" />
+                        </Button>
+                        <Button>
+                            <Icon name="search" />
+                        </Button>
+                        <Button active>
+                            <Icon style={styles.icon} name="person" />
+                        </Button>
+                    </FooterTab>
+                </Footer>
+            </Container>
         )
     }
 }
@@ -203,11 +296,11 @@ export default class Loading extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        flexDirection: 'column',
+        // flex: 1,
+        // flexDirection: 'column',
         fontSize: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
+        // justifyContent: 'center',
+        // alignItems: 'center',
         backgroundColor: COLOR_BACKGRND,
     },
     circle: {
@@ -218,6 +311,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 40,
+        marginLeft: 20
     },
     textMainOne: {
         color: COLOR_PINK,
@@ -229,10 +323,12 @@ const styles = StyleSheet.create({
     textMainTwo: {
         color: COLOR_PINK,
         fontSize: 20,
+        marginLeft: 20,
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 20,
         marginTop:20,
+        fontWeight: 'bold'
     },
     textSecond: {
         color: COLOR_PURPLEPINK,
@@ -256,4 +352,29 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         margin:10,
     },
+    footer: {
+        backgroundColor: COLOR_DGREY,
+        borderTopWidth: 0
+    },
+    footertab: {
+        tabBarActiveTextColor: COLOR_PINK,
+        tabActiveBgColor: 'rgba(255, 255, 255, .4)'
+    },
+    textPink: {
+        color: COLOR_PINK,
+        fontSize: 20,
+        alignItems: 'center',
+        textAlign: 'center',
+        justifyContent: 'center',
+        paddingTop: 40,
+        paddingBottom: 20
+    },
+    icon: {
+        color: COLOR_PINK
+    },
+    button: {
+        backgroundColor: COLOR_PINK,
+        marginTop: 90,
+        marginLeft: 30
+    }
 })
