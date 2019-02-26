@@ -6,7 +6,7 @@ import { uploadPhoto } from '../utils/Photos'
 import { ImagePicker } from 'expo';
 
 
-export default class NewPostUpload extends React.Component {
+export default class NewPostCamera extends React.Component {
     // authenticate user
     componentDidMount() {
 
@@ -44,20 +44,20 @@ export default class NewPostUpload extends React.Component {
 
     }
 
-    getCameraRollPermissions = async() => {
+    getCameraAndCameraRollPermissions = async() => {
         console.log("trying to get camera roll permissions")
         const {  Permissions } = Expo;
         // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
-        const { status, permissions } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+        const { status, permissions } = await Permissions.askAsync(Permissions.CAMERA_ROLL, Permissions.CAMERA);
         console.log("status: " + status)
         return status
     };
 
     // set a profile picture
-    pickImage = async () => {
-        var status = await this.getCameraRollPermissions();
+    takePhoto = async () => {
+        var status = await this.getCameraAndCameraRollPermissions();
         if (status === 'granted') {
-            const result = await ImagePicker.launchImageLibraryAsync({
+            const result = await ImagePicker.launchCameraAsync({
                 allowsEditing: true,
                 base64: true,
                 aspect: [1, 1],
@@ -109,7 +109,7 @@ export default class NewPostUpload extends React.Component {
             <ScrollView showsVerticalScrollIndicator={false} >
                 <View style={{flex:1, flexDirection:'column',}} >
                     <View style={{flex:1, paddingTop: 50,}}>
-                        <TouchableHighlight style={styles.outerSquare} onPress={this.pickImage}>
+                        <TouchableHighlight style={styles.outerSquare} onPress={this.takePhoto}>
                           <Image
                               style={styles.innerSquare}
                               source = {{uri: this.state.uploadedImageURL}}
