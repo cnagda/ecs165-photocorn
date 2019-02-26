@@ -257,7 +257,8 @@ export default class HomeScreen extends React.Component {
                             <Icon style={styles.inactiveicon} name="add" />
                         </Button>
 
-                        <Button>
+                        <Button
+                            onPress={() => this.props.navigation.navigate('Search', {userID: firebase.auth().currentUser.uid})}>
                             <Icon style ={styles.inactiveicon} name="search" />
                         </Button>
                         <Button

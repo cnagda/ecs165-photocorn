@@ -15,6 +15,7 @@ import ProfileEdit from './screens/ProfileEdit';
 import NewPostUpload from './screens/NewPostUpload';
 import NewPostCamera from './screens/NewPostCamera'
 import ViewPost from './screens/ViewPost';
+import Search from './screens/Search';
 
 
 // initialize firebase
@@ -41,6 +42,7 @@ const MainStack = createStackNavigator(
         NewPostUpload: NewPostUpload,
         NewPostCamera: NewPostCamera,
         ViewPost: ViewPost,
+        Search: Search,
     },
     {
         initialRouteName: 'Loading',
@@ -60,7 +62,7 @@ export default class App extends React.Component {
     render() {
         return (
             <Root>
-            <AppContainer />
+                <AppContainer />
             </Root>
         );
     }
