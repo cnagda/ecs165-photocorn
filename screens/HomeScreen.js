@@ -180,7 +180,8 @@ export default class HomeScreen extends React.Component {
 
     updateSearch = (value) => {
         this.setState({ query: value });
-        console.log(this.state.query)
+        console.log("update search\n\n\n")
+        console.log("query: " + value)
         users_ref = firebase.firestore().collection("users");
         users_ref
             .where("first", "==", value)
@@ -192,18 +193,22 @@ export default class HomeScreen extends React.Component {
                     var fullName = doc.data().first;
                     const path = "ProfilePictures/".concat(doc.data().uid,".jpg");
                     const image_ref = firebase.storage().ref(path);
-                    fullName += " ";
-                    fullName += doc.data().last;
-                    searchResults.push(
-                        {
-                            name: fullName,
-                            userID: doc.data().uid,
-                            photo: image_ref
-                        }
-                    );
-                    searchResults.map((l) =>
-                        console.log(l.name)
-                    )
+                    image_ref.getDownloadURL().then(function(downloadURL) {
+                        console.log("imageref is: " + image_ref)
+                        console.log("downloadurl: " + downloadURL)
+                        fullName += " ";
+                        fullName += doc.data().last;
+                        searchResults.push(
+                            {
+                                name: fullName,
+                                userID: doc.data().uid,
+                                photo: downloadURL,
+                            }
+                        );
+                        searchResults.map((l) =>
+                            console.log(l.name)
+                        )
+                    })
                 });
             })
 
@@ -277,7 +282,7 @@ export default class HomeScreen extends React.Component {
                         searchResults.map((l) => (
                             <ListItem
                                 roundAvatar
-                                leftAvatar={{ source: { uri: l.photo }}}
+                                leftAvatar={{ source: { uri: l.photo } }}
                                 key={l.name}
                                 title={l.name}
                                 onPress={() => this.props.navigation.navigate('Profile', {userID: l.userID})}
