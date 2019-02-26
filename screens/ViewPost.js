@@ -20,15 +20,12 @@ export default class ViewPost extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <View style={{flex:9}}>
                     <PostView postID={this.props.navigation.getParam("postID", "")} />
-                </View>
-                <View style={{flex:1}}>
+
                     <Button
                         title="Back" color= '#f300a2'
                         onPress={() => this.props.navigation.pop(2)}
                     />
-                </View>
             </View>
 
         )

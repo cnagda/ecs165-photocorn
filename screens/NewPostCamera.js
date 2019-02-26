@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableHighlight, Button, TextInput, ScrollView, Image, Platform, KeyboardAvoidingView } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, Button, TextInput, ScrollView, Image, Platform, KeyboardAvoidingView, Dimensions } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK} from './../components/commonstyle';
 import { uploadPhoto } from '../utils/Photos'
@@ -95,7 +95,7 @@ export default class NewPostCamera extends React.Component {
 
     render() {
         if (this.state.finishedPost) {
-            return (this.props.navigation.navigate('ViewPost', {postID:this.state.photoID}))
+            return (this.props.navigation.navigate('HomeScreen', {userID: firebase.auth().currentUser.uid}))
         }
         const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 0
         return (
@@ -108,7 +108,7 @@ export default class NewPostCamera extends React.Component {
             >
             <ScrollView showsVerticalScrollIndicator={false} >
                 <View style={{flex:1, flexDirection:'column',}} >
-                    <View style={{flex:1, paddingTop: 50,}}>
+                    <View style={{flex:1, paddingTop: 40,}}>
                         <TouchableHighlight style={styles.outerSquare} onPress={this.takePhoto}>
                           <Image
                               style={styles.innerSquare}
@@ -153,7 +153,7 @@ export default class NewPostCamera extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 40,
+        //paddingTop: 40,
         flexDirection: 'column',
         fontSize: 20,
         justifyContent: 'center',
@@ -161,8 +161,8 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_BACKGRND,
     },
     outerSquare: {
-        width: 300,
-        height: 300,
+        width:  Dimensions.get('window').width * 0.9,
+        height:  Dimensions.get('window').width * 0.9,
         backgroundColor: COLOR_DGREY,
         alignItems: 'center',
         justifyContent: 'center',
@@ -170,15 +170,15 @@ const styles = StyleSheet.create({
     },
 
     innerSquare: {
-        width: 300,
-        height: 300,
+        width:  Dimensions.get('window').width * 0.9,
+        height:  Dimensions.get('window').width * 0.9,
         backgroundColor: COLOR_DGREY,
         alignItems: 'center',
         justifyContent: 'center'
     },
     textInput: {
         height: 40,
-        width: 300,
+        width: Dimensions.get('window').width * 0.9,
         color: COLOR_PINK,
         marginTop: 20,
         backgroundColor: COLOR_DGREY,
