@@ -1,6 +1,6 @@
 import React from 'react'
 // import { StyleSheet, Platform, Image, Text, View, Button, ScrollView, RefreshControl, } from 'react-native'
-import { StyleSheet, ScrollView, RefreshControl, TextInput, View, KeyboardAvoidingView } from 'react-native'
+import { StyleSheet, Platform, ScrollView, RefreshControl, TextInput, View, KeyboardAvoidingView } from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
@@ -81,7 +81,6 @@ export default class Search extends React.Component {
                 }.bind(this))
             }
             return searchResults
-
         }
 
     handleUpdate = async(query) => {
@@ -182,17 +181,14 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_BACKGRND,
     },
     content: {
-        alignItems: 'center',
+        //alignItems: 'center',
     },
     footer: {
         backgroundColor: COLOR_DGREY,
         borderTopWidth: 0
     },
     footertab: {
-        tabBarActiveTextColor: COLOR_PINK,
         backgroundColor: COLOR_DGREY,
-        tabActiveBgColor: 'transparent',
-        activeTab: COLOR_LGREY,
     },
     welcome: {
         color: COLOR_LGREY,
@@ -217,7 +213,8 @@ const styles = StyleSheet.create({
         marginTop: 20,
         backgroundColor: COLOR_DGREY,
         paddingLeft: 10,
-        borderRadius: 12
+        borderRadius: 12,
+        alignContent: 'center'
     },
 
 })

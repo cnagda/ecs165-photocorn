@@ -282,17 +282,14 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_BACKGRND,
     },
     content: {
-        alignItems: 'center',
+        //alignItems: 'center',
     },
     footer: {
         backgroundColor: COLOR_DGREY,
         borderTopWidth: 0
     },
     footertab: {
-        tabBarActiveTextColor: COLOR_PINK,
         backgroundColor: COLOR_DGREY,
-        tabActiveBgColor: 'transparent',
-        activeTab: COLOR_LGREY,
     },
     welcome: {
         color: COLOR_LGREY,

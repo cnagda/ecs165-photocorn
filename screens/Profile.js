@@ -372,10 +372,7 @@ const styles = StyleSheet.create({
         borderTopWidth: 0
     },
     footertab: {
-        tabBarActiveTextColor: COLOR_PINK,
         backgroundColor: COLOR_DGREY,
-        tabActiveBgColor: COLOR_LGREY,
-        activeTab: COLOR_LGREY,
     },
     textPink: {
         color: COLOR_PINK,
