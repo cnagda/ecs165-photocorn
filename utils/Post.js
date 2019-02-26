@@ -6,6 +6,17 @@ import { Button } from 'native-base';
 import { withNavigation } from 'react-navigation';
 import {LinearGradient} from 'expo'
 
+const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+Date.prototype.tstring = function() {
+  var month = monthNames[this.getMonth()];
+  var day = this.getDate();
+  var hh = this.getHours();
+  var mm = this.getMinutes();
+
+  return ["Posted on ", month, ' ', day, " at ", hh, ":", mm].join('');
+};
 
 class PostView extends React.Component {
 
@@ -24,9 +35,11 @@ class PostView extends React.Component {
         post_ref.doc(this.props.postID).get().then(function(doc) {
             photo_ref = firebase.firestore().collection("Photo");
             photo_ref.doc(this.props.postID).get().then(function(doc2) {
-                console.log(doc2.data())
+                console.log(doc2.data());
                 users_ref = firebase.firestore().collection("users");
                 users_ref.doc(doc.data().userID).get().then(function(doc1) {
+                    timestamp = doc.data().timestamp.toDate();
+                    // time_string = "Posted on " + timestamp.getMonth() " at " timestamp.getMinute();
                     this.setState({
                         name: doc1.data().first + " " + doc1.data().last,
                         postUser: doc.data().userID,
@@ -34,12 +47,12 @@ class PostView extends React.Component {
                         numComments: doc.data().numComments,
                         tags: doc.data().tags,
                         imageUri: doc2.data().imageUri,
-                        timestamp: doc.data().timestamp,
+                        timestamp: timestamp.tstring(),
                     });
                     console.log("caption " + doc.data().caption)
                     console.log("postid " + this.props.postID)
                     console.log("imageuri " + doc2.data().imageUri)
-                    console.log("timestamp " + doc.data().timestamp)
+                    console.log("timestamp " + timestamp.tstring())
                 }.bind(this))
             }.bind(this))
             this.getProfileImage(doc.data().userID);
@@ -75,18 +88,19 @@ class PostView extends React.Component {
             <LinearGradient
               colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
               style={styles.backBox}>
-                    <View style = {{height: 50, flexDirection: 'row', marginLeft: 10}}>
-                        <View style={{flex: 1, flexDirection: 'row'}}>
+                    <View style = {{height: 80, flexDirection: 'row', marginLeft: 10}}>
+                        <View style={{flex: 2, flexDirection: 'row'}}>
                             <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
                                 <Image style={styles.profile} source={{uri: this.state.profileImageURL}}/>
                             </View>
                         </View>
-                        <View style = {{flex: 5, flexDirection: 'row'}}>
+                        <View style = {{flex: 6, flexDirection: 'row'}}>
                             <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
                                 <Button transparent
                                     onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
                                     <Text style = {styles.posterName}>{this.state.name}</Text>
                                 </Button>
+                                <Text style={{color: COLOR_LGREY, marginTop: -10}}>{this.state.timestamp}</Text>
                             </View>
                         </View>
                     </View>
@@ -156,11 +170,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     profile: {
-        height: 40,
-        width: 40,
+        height: 54,
+        width: 54,
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 40/2,
+        borderRadius: 54/2,
+        marginTop: 10,
     },
     posterName: {
         color: COLOR_PINK,
