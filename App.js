@@ -13,7 +13,7 @@ import Profile from './screens/Profile';
 import ProfileEdit from './screens/ProfileEdit';
 import NewPostUpload from './screens/NewPostUpload';
 import ViewPost from './screens/ViewPost';
-
+import Analyze from './screens/Analyze';
 
 // initialize firebase
 var config = {
@@ -22,7 +22,8 @@ var config = {
     databaseURL: "https://expo-insta-app.firebaseio.com",
     projectId: "expo-insta-app",
     storageBucket: "expo-insta-app.appspot.com",
-    messagingSenderId: "713043675850"
+    messagingSenderId: "713043675850",
+    GOOGLE_CLOUD_VISION_API_KEY: "blabla"
 };
 firebase.initializeApp(config);
 
@@ -38,6 +39,7 @@ const MainStack = createStackNavigator(
         ProfileEdit: ProfileEdit,
         NewPostUpload: NewPostUpload,
         ViewPost: ViewPost,
+        Analyze: Analyze,
     },
     {
         initialRouteName: 'Loading',

@@ -292,6 +292,11 @@ export default class HomeScreen extends React.Component {
                     <Button title="New Post Upload" color= '#f300a2'
                         onPress={() => this.props.navigation.navigate('NewPostUpload')}
                     />
+
+                    <Button title="Analyze photo" color= '#f300a2'
+                        onPress={() => this.props.navigation.navigate('Analyze')}
+                    />
+
                     <Button title="View Emma's Profile" color= '#f300a2'
                         onPress={() => this.props.navigation.navigate('Profile', {userID: 'qZC2oLFxa8NgzyesghbtmujjQcO2'})}
                     />
