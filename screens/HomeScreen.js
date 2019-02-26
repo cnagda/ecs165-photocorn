@@ -227,7 +227,7 @@ export default class HomeScreen extends React.Component {
                 <Content style={styles.content}
                          refreshControl={ <RefreshControl refreshing={this.state.refreshing}
                          onRefresh={this._onRefresh} /> }>
-                    <Text style={styles.textPink}>
+                    <Text style={styles.welcome}>
                         Welcome, {this.state.name}!
                     </Text>
 
@@ -293,9 +293,10 @@ const styles = StyleSheet.create({
         tabActiveBgColor: 'transparent',
         activeTab: COLOR_LGREY,
     },
-    textPink: {
-        color: COLOR_PINK,
+    welcome: {
+        color: COLOR_LGREY,
         fontSize: 20,
+        fontWeight: 'bold',
         alignItems: 'center',
         textAlign: 'center',
         justifyContent: 'center',
