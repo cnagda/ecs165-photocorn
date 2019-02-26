@@ -1,8 +1,8 @@
 import React from 'react'
 import * as firebase from 'firebase';
-import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
-import { AppRegistry, StyleSheet, Text, View, Dimensions, Image} from 'react-native'
-import { Button } from 'native-base';
+import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_PURPLE, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
+import { AppRegistry, StyleSheet, Text, View, Dimensions, Image } from 'react-native'
+import { Button, Grid, Col } from 'native-base';
 import { withNavigation } from 'react-navigation';
 import {LinearGradient} from 'expo'
 
@@ -88,14 +88,14 @@ class PostView extends React.Component {
             <LinearGradient
               colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
               style={styles.backBox}>
-                    <View style = {{height: 80, flexDirection: 'row', marginLeft: 10}}>
+                    <View style = {{height: 68, flexDirection: 'row', marginLeft: 10}}>
                         <View style={{flex: 2, flexDirection: 'row'}}>
                             <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
                                 <Image style={styles.profile} source={{uri: this.state.profileImageURL}}/>
                             </View>
                         </View>
-                        <View style = {{flex: 6, flexDirection: 'row'}}>
-                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
+                        <View style = {{flex: 6, flexDirection: 'row', justifyContent: 'center'}}>
+                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start'}}>
                                 <Button transparent
                                     onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
                                     <Text style = {styles.posterName}>{this.state.name}</Text>
@@ -104,16 +104,15 @@ class PostView extends React.Component {
                             </View>
                         </View>
                     </View>
-                    <View style = {{flexDirection: 'row'}}>
 
+                    <View style = {{flexDirection: 'row'}}>
                         <Image
                             style={styles.image}
                             source = {{uri: this.state.imageUri}}
                         />
                     </View>
 
-
-                    <View style = {{flexDirection: 'row'}}>
+                    <View style = {{flexDirection: 'row', paddingTop: 10}}>
                         <View style={{flex: 1, flexDirection: 'row'}}>
                             <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
                                 <Text style = {styles.smallInfoLeft}>Liked by </Text>
@@ -129,9 +128,9 @@ class PostView extends React.Component {
 
 
                 </LinearGradient>
-                <View style={{height: 80, width: Dimensions.get('window').width, alignItems: 'center', flexDirection: 'column', flex: 1}}>
-                    <Text style = {styles.posterName}>Tags: {this.state.tags}</Text>
-                    <Text style = {styles.smallInfoLeft}>{this.state.caption}</Text>
+                <View style={{height: 80, width: Dimensions.get('window').width, flexDirection: 'column', flex: 1, paddingTop: 10}}>
+                    <Text style = {styles.tags}>{this.state.tags}</Text>
+                    <Text style = {styles.caption}>{this.state.caption}</Text>
                 </View>
             </View>
         )
@@ -148,9 +147,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'flex-start',
         backgroundColor: COLOR_BACKGRND,
+        marginBottom: 10
     },
     backBox: {
-        height: Dimensions.get('window').width + 75,
+        // height: Dimensions.get('window').width + 75,
         width: Dimensions.get('window').width,
         flexDirection: 'column',
         fontSize: 20,
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 54/2,
-        marginTop: 10,
+        marginTop: 0,
     },
     posterName: {
         color: COLOR_PINK,
@@ -184,13 +184,25 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     smallInfoLeft: {
+        color: 'white',
+        fontSize: 15,
+        marginLeft: 20,
+        alignItems: 'flex-start'
+    },
+    caption: {
         color: COLOR_LGREY,
         fontSize: 15,
         marginLeft: 20,
         alignItems: 'flex-start'
     },
+    tags: {
+        color: COLOR_PURPLE,
+        fontSize: 15,
+        marginLeft: 20,
+        alignItems: 'flex-start'
+    },
     smallInfoRight: {
-        color: COLOR_LGREY,
+        color: 'white',
         fontSize: 15,
         marginRight: 20,
         alignItems: 'flex-end'
