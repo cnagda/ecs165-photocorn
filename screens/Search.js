@@ -18,6 +18,8 @@ var CANCEL_INDEX = 2;
 
 var searchResults = []
 
+//remove duplicates from https://reactgo.com/removeduplicateobjects/
+
 
 export default class Search extends React.Component {
     // initialize state
