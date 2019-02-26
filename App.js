@@ -4,6 +4,7 @@ import { AppLoading, Asset, Font, Icon } from 'expo';
 import * as firebase from 'firebase';
 import { createStackNavigator, createAppContainer } from 'react-navigation'
 import { COLOR_BACKGRND } from './components/commonstyle';
+import { Root } from 'native-base';
 
 import Login from './screens/Login';
 import Signup from './screens/Signup';
@@ -59,6 +60,10 @@ const AppContainer = createAppContainer(MainStack);
 
 export default class App extends React.Component {
     render() {
-        return <AppContainer />;
+        return (
+            <Root>
+            <AppContainer />
+            </Root>
+        );
     }
 }

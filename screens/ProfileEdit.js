@@ -4,7 +4,10 @@ import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK} from './../components/commonstyle';
 import { uploadPhoto } from '../utils/Photos'
 import { ImagePicker } from 'expo';
+import { Container, Content, ActionSheet, Root } from 'native-base';
 
+var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
+var CANCEL_INDEX = 2;
 
 export default class ProfileEdit extends React.Component {
     // authenticate user
@@ -37,15 +40,15 @@ export default class ProfileEdit extends React.Component {
 
     componentWillReceiveProps() {
         console.log("inside component will receive props in profile edit")
-        this.setState({gotNewPhoto: true})
+
         //this.setNewPhotoAsProfile()
     }
 
-    setNewPhotoAsProfile() {
+    setNewPhotoAsProfile = async(resultloc) => {
         console.log("inside of setNewPhotoAsProfile")
-        console.log("resulturi: " + this.props.navigation.getParam('resulturi', 'NULLVALUE'))
-        console.log(this.props.navigation.state.params)
-        result = this.props.navigation.getParam('resulturi', 'NULLVALUE');
+        console.log("resulturi: " + resultloc)
+        //console.log(this.props.navigation.state.params)
+        result = resultloc;
         if (result != 'NULLVALUE') {
             this.setState({gotNewPhoto: false, image: result});
             const path = "ProfilePictures/".concat(firebase.auth().currentUser.uid, ".jpg");
@@ -71,7 +74,87 @@ export default class ProfileEdit extends React.Component {
         dob:'',
         isImgLoading: true,
         gotNewPhoto: false,
+        image: null,
     }
+
+    handleUploadPhoto = async() => {
+        console.log ("trying to handle upload photo")
+        var status = await this.getCameraRollPermissions();
+        if (status === 'granted') {
+            //var resultloc = await this.pickImage();
+            //console.log("resulturi: " + resultloc)
+            //console.log("return screen: " + this.props.navigation.getParam('returnScreen', "NULLVALUE"))
+            //await this.setNewPhotoAsProfile(resultloc)
+            this.pickImage().then(function(resultloc) {
+                console.log("made it here: " + resultloc)
+                this.setNewPhotoAsProfile(resultloc)
+            }.bind(this))
+        }
+        this.setState({isImgLoading: false,})
+    }
+
+    handleTakePhoto = async() => {
+        console.log ("trying to handle take photo")
+        var status = await this.getCameraAndCameraRollPermissions();
+        if (status === 'granted') {
+            //var resultloc = await this.takePhoto();
+            //console.log(resultloc)
+            //setNewPhotoAsProfile(resultloc)
+            this.takePhoto().then(function(resultloc) {
+                console.log("made it here: " + resultloc)
+                this.setNewPhotoAsProfile(resultloc)
+            }.bind(this))
+        }
+        this.setState({isImgLoading: false,})
+    }
+
+
+    getCameraRollPermissions = async() => {
+        console.log("trying to get camera roll permissions")
+        const {  Permissions } = Expo;
+        // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
+        const { status, permissions } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+        console.log("status: " + status)
+        return status
+    };
+
+    getCameraAndCameraRollPermissions = async() => {
+        console.log("trying to get camera roll permissions")
+        const {  Permissions } = Expo;
+        // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
+        const { status, permissions } = await Permissions.askAsync(Permissions.CAMERA_ROLL, Permissions.CAMERA);
+        console.log("status: " + status)
+        return status
+    };
+
+    // set a profile picture
+    pickImage = async () => {
+        console.log("trying to launch image picker")
+        const result = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,
+            base64: true,
+            aspect: [1, 1],
+        });
+
+        if (!result.cancelled) {
+            console.log(result.uri)
+            return result.uri
+        }
+    };
+
+    takePhoto = async () => {
+        console.log("trying to launch image picker")
+        const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            base64: true,
+            aspect: [1, 1],
+        });
+
+        if (!result.cancelled) {
+            console.log(result.uri)
+            return result.uri
+        }
+    };
 
     handleEdits = () => {
         const { email, password, firstname, lastname, dob, interests, bio } = this.state
@@ -114,9 +197,6 @@ export default class ProfileEdit extends React.Component {
             //this.getProfileImage(firebase.auth().currentUser.uid)
             return ( false )
         }
-        if (this.state.gotNewPhoto) {
-            this.setNewPhotoAsProfile()
-        }
         if (this.state.finishedEdit) {
             var refreshString = this.state.profileImageURL + this.state.firstname + this.state.lastname + this.state.dob + this.state.email + this.state.interests + this.state.bio
             console.log('here' + refreshString)
@@ -126,6 +206,10 @@ export default class ProfileEdit extends React.Component {
 
         const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 0
         return (
+            <Root>
+            <Container style={styles.container}>
+                <Content style={styles.content}>
+
             <View style={styles.container}>
             <KeyboardAvoidingView
                 style={styles.container}
@@ -136,7 +220,22 @@ export default class ProfileEdit extends React.Component {
             <ScrollView showsVerticalScrollIndicator={false} >
                 <View style={{flex:1, flexDirection:'column',}} >
                     <View style={{flex:1, paddingTop: 50,}}>
-                        <TouchableHighlight style={styles.outerCircle} onPress={() => this.props.navigation.navigate('ChooseUploadMethod', {returnScreen: 'ProfileEdit'})}>
+                        <TouchableHighlight style={styles.outerCircle} onPress={() =>
+                            ActionSheet.show(
+                              {
+                                options: BUTTONS,
+                                cancelButtonIndex: CANCEL_INDEX,
+                                title: "Photo Upload Method"
+                              },
+                              buttonIndex => {
+                                //this.props.navigation.navigate(LOCATIONS[buttonIndex], {userID: firebase.auth().currentUser.uid});
+                                if (buttonIndex === 0) {
+                                    this.handleTakePhoto()
+                                } else if (buttonIndex===1) {
+                                    this.handleUploadPhoto()
+                                }
+                              }
+                          )}>
                           <Image
                               style={styles.innerCircle}
                               source = {{uri:  this.state.profileImageURL}}
@@ -214,6 +313,9 @@ export default class ProfileEdit extends React.Component {
             </ScrollView>
             </KeyboardAvoidingView>
             </View>
+            </Content>
+            </Container>
+            </Root>
         )
     }
 }
@@ -292,5 +394,11 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         marginTop: 30,
+    },
+    container: {
+        backgroundColor: COLOR_BACKGRND,
+    },
+    content: {
+        alignItems: 'center',
     },
 })

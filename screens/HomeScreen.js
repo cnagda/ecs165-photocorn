@@ -5,11 +5,15 @@ import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 import PostView from '../utils/Post'
-import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text } from 'native-base';
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, ActionSheet, Root } from 'native-base';
 import { getTheme } from '../native-base-theme/components';
 import { custom } from '../native-base-theme/variables/custom';
 import { withNavigation } from 'react-navigation';
 import {ListItem}  from 'react-native-elements'
+
+var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
+var LOCATIONS = ["NewPostCamera", "NewPostUpload", "HomeScreen"]
+var CANCEL_INDEX = 2;
 
 const list = [
 
@@ -218,6 +222,7 @@ export default class HomeScreen extends React.Component {
         console.log("inside render " + this.state.postList)
 
         return (
+            <Root>
             <Container style={styles.container}>
                 <Content style={styles.content}
                          refreshControl={ <RefreshControl refreshing={this.state.refreshing}
@@ -229,25 +234,42 @@ export default class HomeScreen extends React.Component {
                     {this.state.postList}
                 </Content>
 
+
                 <Footer style={styles.footer}>
-                    <FooterTab>
-                        <Button active>
+                    <FooterTab style={styles.footertab}>
+
+                        <Button active style={{backgroundColor: 'transparent'}}>
                             <Icon style={styles.icon} name="home" />
                         </Button>
+
                         <Button
-                            onPress={() => this.props.navigation.navigate('NewPostUpload', {userID: firebase.auth().currentUser.uid})}>
-                            <Icon name="add" />
+                            onPress= {() =>
+                                ActionSheet.show(
+                                  {
+                                    options: BUTTONS,
+                                    cancelButtonIndex: CANCEL_INDEX,
+                                    title: "How do you want to upload?"
+                                  },
+                                  buttonIndex => {
+                                    this.props.navigation.navigate(LOCATIONS[buttonIndex], {userID: firebase.auth().currentUser.uid});
+                                  }
+                              )}>
+                            <Icon style={styles.inactiveicon} name="add" />
                         </Button>
+
                         <Button>
-                            <Icon name="search" />
+                            <Icon style ={styles.inactiveicon} name="search" />
                         </Button>
                         <Button
                             onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
-                            <Icon name="person" />
+                            <Icon style ={styles.inactiveicon} name="person" />
                         </Button>
+
                     </FooterTab>
                 </Footer>
+
             </Container>
+            </Root>
         );
     }
 
@@ -267,7 +289,9 @@ const styles = StyleSheet.create({
     },
     footertab: {
         tabBarActiveTextColor: COLOR_PINK,
-        tabActiveBgColor: 'rgba(255, 255, 255, .4)'
+        backgroundColor: COLOR_DGREY,
+        tabActiveBgColor: 'transparent',
+        activeTab: COLOR_LGREY,
     },
     textPink: {
         color: COLOR_PINK,
@@ -280,5 +304,8 @@ const styles = StyleSheet.create({
     },
     icon: {
         color: COLOR_PINK
+    },
+    inactiveicon: {
+        color: COLOR_LGREY
     }
 })
