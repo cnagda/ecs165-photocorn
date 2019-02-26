@@ -189,12 +189,67 @@ export default class HomeScreen extends React.Component {
                 querySnapshot.forEach(function(doc) {
                     console.log(doc.data().first);
                     console.log(doc.data().last);
-                    searchResults.push({ name: doc.data().first });
+                    var fullName = doc.data().first;
+                    const path = "ProfilePictures/".concat(doc.data().uid,".jpg");
+                    const image_ref = firebase.storage().ref(path);
+                    fullName += " ";
+                    fullName += doc.data().last;
+                    searchResults.push(
+                        {
+                            name: fullName,
+                            userID: doc.data().uid,
+                            photo: image_ref
+                        }
+                    );
                     searchResults.map((l) =>
                         console.log(l.name)
                     )
                 });
             })
+
+        /*
+        for (var i = 0; i < searchResults.length-1; i++) {
+            if (searchResults[i].userID != null) {
+                profile_pix_ref = firebase.firestore().collection("ProfilePicture");
+                profile_pix_ref
+                    .where("userID", "==", searchResults[i].userID)
+                    .get()
+                    .then(function(querySnapshot) {
+                        querySnapshot.forEach(function(doc) {
+                            searchResults.push(
+                                {
+                                    name: user.name,
+                                    userID: user.userID,
+                                    photoID: doc.data().photoID
+                                }
+                            );
+                        });
+                    })
+                searchResults.splice(i,1);
+            }
+        }
+        for (var i = 0; i < searchResults.length-1; i++) {
+            if (searchResults[i].photoID != null) {
+                photo_ref = firebase.firestore().collection("Photo");
+                photo_ref
+                    .where("photoID", "==", searchResults[i].photoID)
+                    .get()
+                    .then(function(querySnapshot) {
+                        querySnapShot.forEach(function(doc) {
+                            searchResults.push(
+                                {
+                                    name: user.name,
+                                    userID: user.userID,
+                                    photoID: user.photoID,
+                                    imageURI: doc.data().imageUri
+                                }
+                            );
+                        });
+                    })
+                searchResults.splice(i,1);
+            }
+        }
+        :w*/
         this.forceUpdate()
     }
 
@@ -203,7 +258,6 @@ export default class HomeScreen extends React.Component {
             return ( false )
         }
         console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
-
         console.log("inside render " + this.state.postList)
 
         return (
@@ -223,8 +277,10 @@ export default class HomeScreen extends React.Component {
                         searchResults.map((l) => (
                             <ListItem
                                 roundAvatar
+                                leftAvatar={{ source: { uri: l.photo }}}
                                 key={l.name}
                                 title={l.name}
+                                onPress={() => this.props.navigation.navigate('Profile', {userID: l.userID})}
                             />
                         ))
                     }
