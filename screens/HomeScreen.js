@@ -224,7 +224,7 @@ export default class HomeScreen extends React.Component {
         return (
             <Root>
             <Container style={styles.container}>
-                <Content style={styles.content}
+                <Content contentContainerStylestyle={styles.content}
                          refreshControl={ <RefreshControl refreshing={this.state.refreshing}
                          onRefresh={this._onRefresh} /> }>
                     <Text style={styles.welcome}>
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_BACKGRND,
     },
     content: {
-        //alignItems: 'center',
+        alignItems: 'center',
     },
     footer: {
         backgroundColor: COLOR_DGREY,

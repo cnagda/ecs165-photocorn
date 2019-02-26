@@ -103,10 +103,12 @@ export default class Search extends React.Component {
         return (
             <Root>
             <Container style={styles.container}>
-                <Content style={styles.content}>
+                <Content contentContainerStyle={styles.content}>
                 <View style={{flex: 1, flexDirection:'column', marginTop: 50}}>
                          <TextInput
-                             style={styles.search} placeholder={"SEARCH"}
+                             style={styles.search}
+                             placeholder={"Search"}
+                             placeholderTextColor='#f300a2'
                              onChangeText={query => this.handleUpdate(query) }
                              value={this.state.query}
                          />
@@ -125,6 +127,10 @@ export default class Search extends React.Component {
                                      key={l.name}
                                      title={l.name}
                                      onPress={() => this.props.navigation.navigate('Profile', {userID: l.userID})}
+                                     containerStyle={styles.result}
+                                     titleStyle={styles.resultText}
+                                     chevronColor='white'
+                                     chevron
                                  />
                              ))
                          }
@@ -181,7 +187,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_BACKGRND,
     },
     content: {
-        //alignItems: 'center',
+        alignItems: 'center',
     },
     footer: {
         backgroundColor: COLOR_DGREY,
@@ -214,7 +220,13 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_DGREY,
         paddingLeft: 10,
         borderRadius: 12,
-        alignContent: 'center'
     },
-
+    result: {
+        backgroundColor: COLOR_DGREY,
+        borderRadius: 12,
+        marginTop: 10,
+    },
+    resultText: {
+        color: COLOR_PINK
+    }
 })
