@@ -7,52 +7,16 @@ import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK 
 import PostView from '../utils/Post'
 
 
-// upload a given photo to firebase
-function uploadPhoto(uri, uploadUri) {
-    return new Promise(async (res, rej) => {
-        // const response = await fetch(uri);
-        // console.log(response);
-        // const blob = await response.blob();
-        blob = new Promise((resolve, reject) => {
-            var xhr = new XMLHttpRequest();
-            xhr.onerror = reject;
-            xhr.onreadystatechange = () => {
-                if (xhr.readyState === 4) {
-                    resolve(xhr.response);
-                }
-            };
-            xhr.responseType = 'blob'; // convert type
-            xhr.open('GET', uri);
-            xhr.send();
-        });
-
-        // dereference blob and upload
-        blob.then(blob_val => {
-            console.log(blob_val)
-            const ref = firebase.storage().ref(uploadUri);
-            const unsubscribe = ref.put(blob_val).on(
-                    'state_changed',
-                    state => {},
-                    err => {
-                    unsubscribe();
-                    rej(err);
-                    console.log("put blob in storage")
-                },
-                async () => {
-                    unsubscribe();
-                    const url = await ref.getDownloadURL();
-                    res(url);
-                },
-            );
-        });
-    });
-}
-
 const list = [
     {
         name: 'Amy Farha',
         avatar_url: 'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
         subtitle: 'Vice President'
+    },
+    {
+        name: 'Chris Jackson',
+        avatar_url: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
+        subtitle: 'Vice Chairman'
     },
 ]
 
@@ -186,15 +150,10 @@ export default class HomeScreen extends React.Component {
             .get()
             .then(function(querySnapshot) {
                 querySnapshot.forEach(function(doc) {
-                    var result = {
-                        name: doc.data().first
-                    }
                     console.log(doc.data().first);
                     console.log(doc.data().last);
-                    this.state.searchResults.push(result);
                 });
             })
-        this.refreshSearchBar
     }
 
     render() {
@@ -219,9 +178,10 @@ export default class HomeScreen extends React.Component {
                         value={this.state.query}
                     />
                     {
-                        this.state.searchResults.map((l) => (
+                        list.map((l) => (
                             <ListItem
                                 roundAvatar
+                                avatar={{uri: l.avatar_url}}
                                 key={l.name}
                                 title={l.name}
                             />
@@ -252,16 +212,9 @@ export default class HomeScreen extends React.Component {
                             title="Log Out"
                             color= '#f300a2'
                             onPress={() => firebase.auth().signOut().then(function() {
-                                    console.log('Signed Out');
-                                    this.props.navigation.navigate('Login')
+                            console.log('Signed Out');
+                            this.props.navigation.navigate('Login')
                             }.bind(this))}
-                        />
-                    </View>
-                    <View style={{flex:1, flexDirection:'column',}}>
-                        <Button
-                            title="Search"
-                            color= '#f300a2'
-                            onPress={() => this.props.navigation.navigate('Search')}
                         />
                     </View>
                 </View>
