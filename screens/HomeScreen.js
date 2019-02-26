@@ -1,9 +1,14 @@
 import React from 'react'
-import { StyleSheet, Platform, Image, Text, View, Button, ScrollView, RefreshControl, } from 'react-native'
+// import { StyleSheet, Platform, Image, Text, View, Button, ScrollView, RefreshControl, } from 'react-native'
+import { StyleSheet, ScrollView, RefreshControl } from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 import PostView from '../utils/Post'
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text } from 'native-base';
+import { getTheme } from '../native-base-theme/components';
+import { custom } from '../native-base-theme/variables/custom';
+import { withNavigation } from 'react-navigation';
 
 
 // upload a given photo to firebase
@@ -96,6 +101,10 @@ export default class HomeScreen extends React.Component {
 
     }
 
+    toProfile(prof) {
+        this.props.navigation.navigate('Profile', { prof });
+    }
+
     getPosts(numPosts, currUser, firstName){
         this.setState({postList: null})
         var postList = [];
@@ -127,7 +136,8 @@ export default class HomeScreen extends React.Component {
 
                 });
                 postIDs.forEach(function(thisPostID) {
-                    postList.push(<PostView postID={thisPostID} />);
+                    postList.push(<PostView postID={thisPostID}/>);
+                    // postList.push(<PostView postID={thisPostID} toProfile={this.toProfile}/>);
                 })
 
                 console.log(postIDs)
@@ -171,68 +181,70 @@ export default class HomeScreen extends React.Component {
             return ( false )
         }
         console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
-
         console.log("inside render " + this.state.postList)
 
         return (
-            <View style={styles.container}>
-                <View style={{flex:1, flexDirection:'row',alignItems:'flex-end'}} >
+            <Container style={styles.container}>
+                <Content style={styles.content}
+                         refreshControl={ <RefreshControl refreshing={this.state.refreshing}
+                         onRefresh={this._onRefresh} /> }>
                     <Text style={styles.textPink}>
                         Welcome, {this.state.name}!
                     </Text>
 
-                </View>
-                <View style={{flex:1, flexDirection:'column',}}>
-                    <Button title="New Post Upload" color= '#f300a2'
-                        onPress={() => this.props.navigation.navigate('NewPostUpload')}
-                    />
-                    <Button title="View Emma's Profile" color= '#f300a2'
-                        onPress={() => this.props.navigation.navigate('Profile', {userID: 'qZC2oLFxa8NgzyesghbtmujjQcO2'})}
-                    />
-                </View>
-                <View style={{flex: 7, flexDirection: 'column'}}>
-                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom:40}}
-                                refreshControl={ <RefreshControl refreshing={this.state.refreshing} onRefresh={this._onRefresh} /> }>
-                        {this.state.postList}
-                    </ScrollView>
+                    {this.state.postList}
+                </Content>
 
-                </View>
-                <View style={{flex:1, flexDirection: 'row',alignItems:'flex-end', marginLeft: 10, marginRight: 10,}}>
-                    <View style={{flex:1, flexDirection:'column',marginRight:10,}}>
-                        <Button title="View Profile" color= '#f300a2'
-                            onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}
-                        />
-                    </View>
-                    <View style={{flex:1, flexDirection:'column',}}>
+                <Footer style={styles.footer}>
+                    <FooterTab>
+                        <Button active>
+                            <Icon style={styles.icon} name="home" />
+                        </Button>
                         <Button
-                            title="Log Out"
-                            color= '#f300a2'
-                            onPress={() => firebase.auth().signOut().then(function() {
-                            console.log('Signed Out');
-                            this.props.navigation.navigate('Login')
-                            }.bind(this))}
-                        />
-                    </View>
-                </View>
-            </View>
-        )
+                            onPress={() => this.props.navigation.navigate('NewPostUpload', {userID: firebase.auth().currentUser.uid})}>
+                            <Icon name="add" />
+                        </Button>
+                        <Button>
+                            <Icon name="search" />
+                        </Button>
+                        <Button
+                            onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
+                            <Icon name="person" />
+                        </Button>
+                    </FooterTab>
+                </Footer>
+            </Container>
+        );
     }
 
 }
 
+
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        flexDirection: 'column',
-        fontSize: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
         backgroundColor: COLOR_BACKGRND,
+    },
+    content: {
+        alignItems: 'center',
+    },
+    footer: {
+        backgroundColor: COLOR_DGREY,
+        borderTopWidth: 0
+    },
+    footertab: {
+        tabBarActiveTextColor: COLOR_PINK,
+        tabActiveBgColor: 'rgba(255, 255, 255, .4)'
     },
     textPink: {
         color: COLOR_PINK,
         fontSize: 20,
         alignItems: 'center',
+        textAlign: 'center',
         justifyContent: 'center',
+        paddingTop: 40,
+        paddingBottom: 20
     },
+    icon: {
+        color: COLOR_PINK
+    }
 })

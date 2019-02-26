@@ -1,22 +1,17 @@
 import React from 'react'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
-import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View,
-  Dimensions,
-  Image
-} from 'react-native'
-
+import { AppRegistry, StyleSheet, Text, View, Dimensions, Image} from 'react-native'
+import { Button } from 'native-base';
+import { withNavigation } from 'react-navigation';
 import {LinearGradient} from 'expo'
 
 
-export default class PostView extends React.Component {
+class PostView extends React.Component {
 
     constructor(props) {
         super(props);
+        // this.toProfile = this.toProfile.bind(this);
 
         this.state = {
           isImgLoading: true,
@@ -57,6 +52,10 @@ export default class PostView extends React.Component {
 
     }
 
+    toProfile(prof) {
+        this.props.toProfile(prof);
+    }
+
     getProfileImage = async(user) => {
             const path = "ProfilePictures/".concat(user, ".jpg");
             const image_ref = firebase.storage().ref(path);
@@ -76,7 +75,7 @@ export default class PostView extends React.Component {
             <LinearGradient
               colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
               style={styles.backBox}>
-                    <View style = {{height: 50, flexDirection: 'row'}}>
+                    <View style = {{height: 50, flexDirection: 'row', marginLeft: 10}}>
                         <View style={{flex: 1, flexDirection: 'row'}}>
                             <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
                                 <Image style={styles.profile} source={{uri: this.state.profileImageURL}}/>
@@ -84,7 +83,10 @@ export default class PostView extends React.Component {
                         </View>
                         <View style = {{flex: 5, flexDirection: 'row'}}>
                             <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
-                                <Text style = {styles.posterName}>{this.state.name}</Text>
+                                <Button transparent
+                                    onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
+                                    <Text style = {styles.posterName}>{this.state.name}</Text>
+                                </Button>
                             </View>
                         </View>
                     </View>
@@ -122,6 +124,7 @@ export default class PostView extends React.Component {
     }
 }
 
+export default withNavigation(PostView);
 
 const styles = StyleSheet.create({
     container: {
