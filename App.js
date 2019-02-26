@@ -4,6 +4,7 @@ import { AppLoading, Asset, Font, Icon } from 'expo';
 import * as firebase from 'firebase';
 import { createStackNavigator, createAppContainer } from 'react-navigation'
 import { COLOR_BACKGRND } from './components/commonstyle';
+import { Root } from 'native-base';
 
 import Login from './screens/Login';
 import Signup from './screens/Signup';
@@ -14,7 +15,6 @@ import ProfileEdit from './screens/ProfileEdit';
 import NewPostUpload from './screens/NewPostUpload';
 import NewPostCamera from './screens/NewPostCamera'
 import ViewPost from './screens/ViewPost';
-import ChooseUploadMethod from './screens/ChooseUploadMethod';
 
 
 // initialize firebase
@@ -41,7 +41,6 @@ const MainStack = createStackNavigator(
         NewPostUpload: NewPostUpload,
         NewPostCamera: NewPostCamera,
         ViewPost: ViewPost,
-        ChooseUploadMethod: ChooseUploadMethod,
     },
     {
         initialRouteName: 'Loading',
@@ -59,6 +58,10 @@ const AppContainer = createAppContainer(MainStack);
 
 export default class App extends React.Component {
     render() {
-        return <AppContainer />;
+        return (
+            <Root>
+            <AppContainer />
+            </Root>
+        );
     }
 }

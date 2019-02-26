@@ -270,19 +270,19 @@ export default class Loading extends React.Component {
                 </Content>
 
                 <Footer style={styles.footer}>
-                    <FooterTab>
+                    <FooterTab style={styles.footertab}>
                         <Button
                             onPress={() => this.props.navigation.navigate('HomeScreen')}>
-                            <Icon name="home" />
+                            <Icon style ={styles.inactiveicon} name="home" />
                         </Button>
                         <Button
                             onPress={() => this.props.navigation.navigate('NewPostUpload', {userID: firebase.auth().currentUser.uid})}>
-                            <Icon name="add" />
+                            <Icon style ={styles.inactiveicon} name="add" />
                         </Button>
                         <Button>
-                            <Icon name="search" />
+                            <Icon style ={styles.inactiveicon} name="search" />
                         </Button>
-                        <Button active>
+                        <Button active style={{backgroundColor: 'transparent'}}>
                             <Icon style={styles.icon} name="person" />
                         </Button>
                     </FooterTab>
@@ -358,7 +358,9 @@ const styles = StyleSheet.create({
     },
     footertab: {
         tabBarActiveTextColor: COLOR_PINK,
-        tabActiveBgColor: 'rgba(255, 255, 255, .4)'
+        backgroundColor: COLOR_DGREY,
+        tabActiveBgColor: COLOR_LGREY,
+        activeTab: COLOR_LGREY,
     },
     textPink: {
         color: COLOR_PINK,
@@ -376,5 +378,8 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_PINK,
         marginTop: 90,
         marginLeft: 30
+    },
+    inactiveicon: {
+        color: COLOR_LGREY
     }
 })
