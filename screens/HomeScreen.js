@@ -4,6 +4,26 @@ import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 import PostView from '../utils/Post'
+import {ListItem}  from 'react-native-elements'
+
+const list = [
+
+]
+
+//to use list:
+/* inside render:
+<View>
+
+  {
+    list.map((l) => (
+      <ListItem
+        key={l.name}
+        title={l.name}
+      />
+    ))
+  }
+</View>
+*/
 
 
 // upload a given photo to firebase
@@ -123,6 +143,7 @@ export default class HomeScreen extends React.Component {
                             && numPosts < 10) {                                         //if the post should be in the feed
                         console.log("user followed: " + doc.data().userID)
                         postIDs.push(doc.data().postID);
+                        list.push({name: doc.data().userID});
                         numPosts++
                     }
                 });
@@ -214,6 +235,7 @@ export default class HomeScreen extends React.Component {
                         <View >
                             {this.displayPosts(this.state.postList)}
                         </View>
+
                     </ScrollView>
 
                 </View>
