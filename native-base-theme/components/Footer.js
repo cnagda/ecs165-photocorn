@@ -110,7 +110,7 @@ export default (variables /*: * */ = variable) => {
         : undefined,
     height: variables.footerHeight,
     paddingBottom: variables.footerPaddingBottom,
-    elevation: 3,
+    elevation: 0,
     left: 0,
     right: 0
   };

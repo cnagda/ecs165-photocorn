@@ -224,7 +224,7 @@ export default class HomeScreen extends React.Component {
         return (
             <Root>
             <Container style={styles.container}>
-                <Content style={styles.content}
+                <Content contentContainerStylestyle={styles.content}
                          refreshControl={ <RefreshControl refreshing={this.state.refreshing}
                          onRefresh={this._onRefresh} /> }>
                     <Text style={styles.welcome}>
@@ -257,7 +257,8 @@ export default class HomeScreen extends React.Component {
                             <Icon style={styles.inactiveicon} name="add" />
                         </Button>
 
-                        <Button>
+                        <Button
+                            onPress={() => this.props.navigation.navigate('Search', {userID: firebase.auth().currentUser.uid})}>
                             <Icon style ={styles.inactiveicon} name="search" />
                         </Button>
                         <Button
@@ -288,10 +289,7 @@ const styles = StyleSheet.create({
         borderTopWidth: 0
     },
     footertab: {
-        tabBarActiveTextColor: COLOR_PINK,
         backgroundColor: COLOR_DGREY,
-        tabActiveBgColor: 'transparent',
-        activeTab: COLOR_LGREY,
     },
     welcome: {
         color: COLOR_LGREY,

@@ -1,9 +1,10 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableHighlight, Button, TextInput, ScrollView, Image, Platform, KeyboardAvoidingView, Dimensions } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, TextInput, ScrollView, Image, Platform, KeyboardAvoidingView, Dimensions } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK} from './../components/commonstyle';
 import { uploadPhoto } from '../utils/Photos'
 import { ImagePicker } from 'expo';
+import { Button } from 'native-base';
 
 
 export default class NewPostCamera extends React.Component {
@@ -133,11 +134,9 @@ export default class NewPostCamera extends React.Component {
                             autoCapitalize="none"
                         />
                         <View style = {styles.doneButton} >
-                            <Button
-                                title="Post"
-                                onPress={this.handlePost}
-                                color= '#f300a2'
-                            />
+                            <Button style={{backgroundColor: '#f300a2', width: 100, justifyContent: 'center'}} onPress={this.handlePost}>
+                                <Text style={{color: 'white'}}>Post</Text>
+                            </Button>
                         </View>
                     </View>
                 </View>
@@ -182,12 +181,14 @@ const styles = StyleSheet.create({
         color: COLOR_PINK,
         marginTop: 20,
         backgroundColor: COLOR_DGREY,
+        paddingLeft: 10,
+        borderRadius: 12
     },
     doneButton: {
         alignItems: 'stretch',
         justifyContent: 'center',
-        flex: 1,
-        flexDirection: 'column',
+        // flex: 1,
+        flexDirection: 'row',
         marginTop: 30,
     },
 })
