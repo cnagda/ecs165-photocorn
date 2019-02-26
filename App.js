@@ -15,7 +15,6 @@ import ProfileEdit from './screens/ProfileEdit';
 import NewPostUpload from './screens/NewPostUpload';
 import NewPostCamera from './screens/NewPostCamera'
 import ViewPost from './screens/ViewPost';
-import ChooseUploadMethod from './screens/ChooseUploadMethod';
 
 
 // initialize firebase
@@ -42,7 +41,6 @@ const MainStack = createStackNavigator(
         NewPostUpload: NewPostUpload,
         NewPostCamera: NewPostCamera,
         ViewPost: ViewPost,
-        ChooseUploadMethod: ChooseUploadMethod,
     },
     {
         initialRouteName: 'Loading',
