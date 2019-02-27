@@ -5,11 +5,14 @@ import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 import PostView from '../utils/Post'
-import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, ActionSheet, Root } from 'native-base';
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, TabHeading,
+         Icon, Text, ActionSheet, Root, Tabs, Tab, ScrollableTab, Heading } from 'native-base';
 import { getTheme } from '../native-base-theme/components';
 import { custom } from '../native-base-theme/variables/custom';
 import { withNavigation } from 'react-navigation';
 import {ListItem}  from 'react-native-elements'
+import SearchNames from './SearchNames'
+import SearchTags from './SearchTags'
 
 var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
 var LOCATIONS = ["NewPostCamera", "NewPostUpload", "HomeScreen"]
@@ -22,129 +25,22 @@ var searchResults = []
 
 
 export default class Search extends React.Component {
-    // initialize state
-    constructor(props) {
-        super(props);
-        this.state = {query: '', searchResults: []}
-    }
-
-    // authenticate user
-    componentDidMount() {
-
-    }
-    componentWillReceiveProps() {
-        this.setState({query: ''})
-        searchResults = []
-
-    }
-    componentWillUnmount() {
-        searchResults = []
-    }
-    updateSearch = (value) => {
-        searchResults = []
-        let currThis = this;
-        if (value) {
-            users_ref = firebase.firestore().collection("users");
-            users_ref
-                .get()
-                .then(function(querySnapshot) {
-                    querySnapshot.forEach(function(doc) {
-                        var fullName = doc.data().first + " " + doc.data().last
-                        if (fullName.toLowerCase().includes(value.toLowerCase())) {
-                            const path = "ProfilePictures/".concat(doc.data().uid,".jpg");
-                            var photourl = "http://i68.tinypic.com/awt7ko.jpg";
-                            const image_ref = firebase.storage().ref(path);
-                            let currThis = this;
-                            image_ref.getDownloadURL().then(onResolve, onReject);
-                            function onResolve(downloadURL) {
-                                searchResults.push(
-                                    {
-                                        name: fullName,
-                                        userID: doc.data().uid,
-                                        photo: downloadURL,
-                                    }
-                                );
-                                currThis.setState({searchResults: searchResults})
-                            }
-                            function onReject(error){ //photo not found
-                                searchResults.push(
-                                    {
-                                        name: fullName,
-                                        userID: doc.data().uid,
-                                        photo: "http://i68.tinypic.com/awt7ko.jpg",
-                                    }
-                                );
-                                currThis.setState({searchResults: searchResults})
-                            }
-                        }
-                    }.bind(this));
-                }.bind(this))
-            }
-            return searchResults
-        }
-
-    handleUpdate = async(query) => {
-        this.setState({
-          query: query
-        }, () => {
-          if (query && query.length > 1 ) {
-              this.updateSearch(query)
-          } else {
-              searchResults = []
-              this.setState({searchResults: searchResults})
-          }
-        })
-    };
-
-
     render() {
 
         const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 0
         return (
             <Root>
             <Container style={styles.container}>
+                <Header hasTabs/>
                 <Content contentContainerStyle={styles.content}>
-                <View style={{flex: 1, flexDirection:'column', marginTop: 50}}>
-                        <View style={{marginTop:30}}>
-                                <Button style={{backgroundColor: '#f300a2', width: 170, justifyContent: 'center'}} onPress={() => this.props.navigation.navigate('SearchTags')}>
-                                    <Text style={{color: 'white'}}>Tag Search</Text>
-                                </Button>
-                        </View>
-                         <TextInput
-                             style={styles.search}
-                             placeholder={"Search"}
-                             placeholderTextColor='#f300a2'
-                             onChangeText={query => this.handleUpdate(query) }
-                             value={this.state.query}
-                         />
-                         <KeyboardAvoidingView
-                             style={styles.container}
-                             keyboardVerticalOffset = {keyboardVerticalOffset}
-                             behavior="padding"
-                             enabled
-                         >
-                         <ScrollView>
-                         {
-                             this.state.searchResults.map(e => e['name']).map((e, i, final) => final.indexOf(e) === i && i).filter(e => searchResults[e]).map(e => searchResults[e]).map((l) => (
-                                 <ListItem
-                                     roundAvatar
-                                     leftAvatar={{ source: { uri: l.photo } }}
-                                     key={l.name}
-                                     title={l.name}
-                                     onPress={() => this.props.navigation.navigate('Profile', {userID: l.userID})}
-                                     containerStyle={styles.result}
-                                     titleStyle={styles.resultText}
-                                     chevronColor='white'
-                                     chevron
-                                 />
-                             ))
-                         }
-                         </ScrollView>
-
-
-                         </KeyboardAvoidingView>
-
-                        </View>
+                <Tabs renderTabBar={()=> <ScrollableTab />}>
+                    <Tab heading={ <TabHeading><Text>People</Text></TabHeading>}>
+                        <SearchNames />
+                    </Tab>
+                    <Tab heading={ <TabHeading><Text>Tags</Text></TabHeading>}>
+                        <SearchTags />
+                    </Tab>
+                </Tabs>
                 </Content>
 
 
@@ -236,5 +132,8 @@ const styles = StyleSheet.create({
     },
     resultText: {
         color: COLOR_PINK
+    },
+    tabs: {
+        backgroundColor: COLOR_DGREY
     }
 })
