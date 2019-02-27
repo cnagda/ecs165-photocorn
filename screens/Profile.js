@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableHighlight, Image } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 // import { Footer, FooterTab, Icon, Button, Text } from 'native-base';
-import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, Grid, Col, ActionSheet } from 'native-base';
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, Grid, Col, ActionSheet, Root } from 'native-base';
 //import { getProfileImage } from '../utils/Photos'
 
 var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
@@ -235,7 +235,7 @@ export default class Loading extends React.Component {
                     </FooterTab>
                 </Footer>
             </View>*/
-
+            <Root>
             <Container style={styles.container}>
                 <Content>
                     <Grid>
@@ -303,6 +303,7 @@ export default class Loading extends React.Component {
                     </FooterTab>
                 </Footer>
             </Container>
+            </Root>
         )
     }
 }

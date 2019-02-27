@@ -32,7 +32,7 @@ export default class Signup extends React.Component {
     // set user information in firebase
     handleSignUp = () => {
         // create user
-        const { email, password, firstname, lastname, dob } = this.state
+        const { email, password, firstname, lastname, dob, username } = this.state
         firebase
         .auth()
         .createUserWithEmailAndPassword(email, password)
@@ -107,7 +107,7 @@ export default class Signup extends React.Component {
                         autoCapitalize="none"
                         style={styles.textInput}
                         onChangeText={username => this.setState({ username })}
-                        value={this.state.lastname}
+                        value={this.state.username}
                   />
                   <TextInput
                         placeholder="Birthday"

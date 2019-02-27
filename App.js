@@ -16,6 +16,8 @@ import NewPostUpload from './screens/NewPostUpload';
 import NewPostCamera from './screens/NewPostCamera'
 import ViewPost from './screens/ViewPost';
 import Search from './screens/Search';
+import SearchTags from './screens/SearchTags';
+import SearchPostView from './screens/SearchPostView'
 
 
 // initialize firebase
@@ -43,6 +45,8 @@ const MainStack = createStackNavigator(
         NewPostCamera: NewPostCamera,
         ViewPost: ViewPost,
         Search: Search,
+        SearchTags: SearchTags,
+        SearchPostView: SearchPostView,
     },
     {
         initialRouteName: 'Loading',

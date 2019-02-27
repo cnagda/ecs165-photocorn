@@ -39,6 +39,27 @@ export default class NewPostCamera extends React.Component {
                 photoID: photoID,
                 imageUri: uploadedImageURL,
             }).then(function() {
+                tagArr = tags.split(" ")
+                console.log(tagArr)
+                tagArr.forEach(function(tag) {
+                    console.log(tag)
+
+                    firebase.firestore().collection("Tags").doc(tag).get().then(function(doc) {
+                        postIDList = []
+                        if (doc.exists) {
+                            postIDList = doc.data().posts;
+                            console.log(doc.data())
+                        }
+                        console.log(postIDList)
+                        postIDList.push(photoID)
+                        console.log(postIDList)
+                        firebase.firestore().collection("Tags").doc(tag).set({
+                            posts: postIDList,
+                            tag: tag
+                        })
+                    })
+
+                })
                 this.setState({finishedPost: true});
             }.bind(this))
         }.bind(this))
