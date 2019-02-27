@@ -32,12 +32,12 @@ export default class Search extends React.Component {
             <Root>
             <Container style={styles.container}>
                 <Header style={{backgroundColor: COLOR_DGREY, height: 20}} hasTabs/>
-                
-                <Tabs renderTabBar={()=> <ScrollableTab style={{backgroundColor: COLOR_DGREY}} />}>
-                    <Tab heading={ <TabHeading  style={{backgroundColor: 'transparent'}}><Text>People</Text></TabHeading>} >
+
+                <Tabs renderTabBar={()=> <ScrollableTab style={{backgroundColor: COLOR_DGREY}}/>}>
+                    <Tab heading={ <TabHeading  style={{backgroundColor: 'transparent'}}><Text style={{color: COLOR_PINK}}>People</Text></TabHeading>} >
                         <SearchNames />
                     </Tab>
-                    <Tab heading={ <TabHeading style={{backgroundColor: 'transparent'}}><Text>Tags</Text></TabHeading>}>
+                    <Tab heading={ <TabHeading style={{backgroundColor: 'transparent'}}><Text style={{color: COLOR_PINK}}>Tags</Text></TabHeading>}>
                         <SearchTags />
                     </Tab>
                 </Tabs>

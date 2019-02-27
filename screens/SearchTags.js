@@ -129,42 +129,6 @@ class SearchTags extends React.Component {
                          </KeyboardAvoidingView>
                         </View>
                 </Content>
-
-
-                <Footer style={styles.footer}>
-                    <FooterTab style={styles.footertab}>
-
-                        <Button
-                            onPress={() => this.props.navigation.navigate('HomeScreen', {userID: firebase.auth().currentUser.uid})}>
-                            <Icon style={styles.inactiveicon} name="home" />
-                        </Button>
-
-                        <Button
-                            onPress= {() =>
-                                ActionSheet.show(
-                                  {
-                                    options: BUTTONS,
-                                    cancelButtonIndex: CANCEL_INDEX,
-                                    title: "How do you want to upload?"
-                                  },
-                                  buttonIndex => {
-                                    this.props.navigation.navigate(LOCATIONS[buttonIndex], {userID: firebase.auth().currentUser.uid});
-                                  }
-                              )}>
-                            <Icon style={styles.inactiveicon} name="add" />
-                        </Button>
-
-                        <Button active style={{backgroundColor: 'transparent'}}>
-                            <Icon style ={styles.icon} name="search" />
-                        </Button>
-                        <Button
-                            onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
-                            <Icon style ={styles.inactiveicon} name="person" />
-                        </Button>
-
-                    </FooterTab>
-                </Footer>
-
             </Container>
             </Root>
         );
