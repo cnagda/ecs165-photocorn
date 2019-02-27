@@ -5,6 +5,7 @@ import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK
 import { uploadPhoto } from '../utils/Photos'
 import { ImagePicker } from 'expo';
 import { Button, Content } from 'native-base';
+import vision from "react-cloud-vision-api";
 
 export default class NewPostUpload extends React.Component {
     // authenticate user
@@ -61,19 +62,26 @@ export default class NewPostUpload extends React.Component {
                 allowsEditing: true,
                 base64: true,
                 aspect: [1, 1],
-            });
-            const vision = require('react-cloud-vision-api')
-            vision.init({auth: 'AIzaSyD3yoe5pFlzna3E4EgkbCSOLv3A5hHqNfg'})
-            const req = new vision.Request({
-                image: new vision.Image({
-                    base64: result,
-                }),
-                features: [
-                    new vision.Feature('LABEL_DETECTION', 10),
-                ]
-            })//.then(function(results) {console.log(results)})
-            console.log("Before features");
-            console.log(req.labels[0]);
+            }).then(function() {
+                console.log("Before request")
+                const vision = require('react-cloud-vision-api')
+                vision.init({auth: 'AIzaSyD3yoe5pFlzna3E4EgkbCSOLv3A5hHqNfg'})
+                const req = new vision.Request({
+                    image: new vision.Image({
+                        base64: result.uri,
+                    }),
+                    features: [
+                        new vision.Feature('LABEL_DETECTION', 10),
+                    ]
+                })
+                console.log("Before features");
+                vision.annotate(req).then((res) => {
+                    console.log(JSON.stringify(res.responses))
+                }, (e) => {
+                    console.log('Error: ', e)
+                })
+                console.log("After features")
+            })
 
             if (!result.cancelled) {
                 await this.setState({image: result.uri,});
