@@ -10,16 +10,14 @@ import { getTheme } from '../native-base-theme/components';
 import { custom } from '../native-base-theme/variables/custom';
 import { withNavigation } from 'react-navigation';
 import {ListItem}  from 'react-native-elements'
+import ImgToBase64 from 'react-native-image-base64'
 
 var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
 var LOCATIONS = ["NewPostCamera", "NewPostUpload", "HomeScreen"]
 var CANCEL_INDEX = 2;
-
-
 var searchResults = []
 
 //remove duplicates from https://reactgo.com/removeduplicateobjects/
-
 
 export default class Search extends React.Component {
     // initialize state
@@ -30,7 +28,18 @@ export default class Search extends React.Component {
 
     // authenticate user
     componentDidMount() {
-
+        console.log("Test");
+        var img = ImgToBase64.getBase64String('/home/users/Scott/Downloads/train.jpg')
+        const vision = require('react-cloud-vision-api')
+        vision.init({auth: 'AIzaSyD3yoe5pFlzna3E4EgkbCSOLv3A5hHqNfg'})
+        const req = new vision.Request({
+            image: new vision.Image({
+                base64: img,
+            }),
+            features: [
+                new vision.Feature('LABEL_DETECTION', 10),
+            ]
+        })
     }
     componentWillReceiveProps() {
         this.setState({query: ''})
