@@ -28,18 +28,7 @@ export default class Search extends React.Component {
 
     // authenticate user
     componentDidMount() {
-        console.log("Test");
-        var img = ImgToBase64.getBase64String('/home/users/Scott/Downloads/train.jpg')
-        const vision = require('react-cloud-vision-api')
-        vision.init({auth: 'AIzaSyD3yoe5pFlzna3E4EgkbCSOLv3A5hHqNfg'})
-        const req = new vision.Request({
-            image: new vision.Image({
-                base64: img,
-            }),
-            features: [
-                new vision.Feature('LABEL_DETECTION', 10),
-            ]
-        })
+
     }
     componentWillReceiveProps() {
         this.setState({query: ''})

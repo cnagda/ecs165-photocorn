@@ -6,7 +6,6 @@ import { uploadPhoto } from '../utils/Photos'
 import { ImagePicker } from 'expo';
 import { Button, Content } from 'native-base';
 
-
 export default class NewPostUpload extends React.Component {
     // authenticate user
     componentDidMount() {
@@ -63,6 +62,18 @@ export default class NewPostUpload extends React.Component {
                 base64: true,
                 aspect: [1, 1],
             });
+            const vision = require('react-cloud-vision-api')
+            vision.init({auth: 'AIzaSyD3yoe5pFlzna3E4EgkbCSOLv3A5hHqNfg'})
+            const req = new vision.Request({
+                image: new vision.Image({
+                    base64: result,
+                }),
+                features: [
+                    new vision.Feature('LABEL_DETECTION', 10),
+                ]
+            })//.then(function(results) {console.log(results)})
+            console.log("Before features");
+            console.log(req.labels[0]);
 
             if (!result.cancelled) {
                 await this.setState({image: result.uri,});
