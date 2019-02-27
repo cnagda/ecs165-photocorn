@@ -21,7 +21,7 @@ var searchResults = []
 //remove duplicates from https://reactgo.com/removeduplicateobjects/
 
 
-export default class Search extends React.Component {
+export default class SearchTags extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
@@ -44,38 +44,24 @@ export default class Search extends React.Component {
         searchResults = []
         let currThis = this;
         if (value) {
-            users_ref = firebase.firestore().collection("users");
+            users_ref = firebase.firestore().collection("Tags");
             users_ref
                 .get()
                 .then(function(querySnapshot) {
                     querySnapshot.forEach(function(doc) {
-                        var fullName = doc.data().first + " " + doc.data().last
-                        if (fullName.toLowerCase().includes(value.toLowerCase())) {
-                            const path = "ProfilePictures/".concat(doc.data().uid,".jpg");
-                            var photourl = "http://i68.tinypic.com/awt7ko.jpg";
-                            const image_ref = firebase.storage().ref(path);
+                        //var fullName = doc.data().first + " " + doc.data().last
+                        if (doc.data().tag.toLowerCase().includes(value.toLowerCase())) {
+
                             let currThis = this;
-                            image_ref.getDownloadURL().then(onResolve, onReject);
-                            function onResolve(downloadURL) {
+
                                 searchResults.push(
                                     {
-                                        name: fullName,
-                                        userID: doc.data().uid,
-                                        photo: downloadURL,
+                                        tag: doc.data().tag
                                     }
                                 );
-                                currThis.setState({searchResults: searchResults})
-                            }
-                            function onReject(error){ //photo not found
-                                searchResults.push(
-                                    {
-                                        name: fullName,
-                                        userID: doc.data().uid,
-                                        photo: "http://i68.tinypic.com/awt7ko.jpg",
-                                    }
-                                );
-                                currThis.setState({searchResults: searchResults})
-                            }
+                                currThis.setState({searchResults: searchResults, postarray: doc.data().posts})
+
+
                         }
                     }.bind(this));
                 }.bind(this))
@@ -106,9 +92,9 @@ export default class Search extends React.Component {
                 <Content contentContainerStyle={styles.content}>
                 <View style={{flex: 1, flexDirection:'column', marginTop: 50}}>
                         <View style={{marginTop:30}}>
-                                <Button style={{backgroundColor: '#f300a2', width: 170, justifyContent: 'center'}} onPress={() => this.props.navigation.navigate('SearchTags')}>
-                                    <Text style={{color: 'white'}}>Tag Search</Text>
-                                </Button>
+                            <Button style={{backgroundColor: '#f300a2', width: 170, justifyContent: 'center'}} onPress={() =>this.props.navigation.navigate('Search')}>
+                                <Text style={{color: 'white'}}>People Search</Text>
+                            </Button>
                         </View>
                          <TextInput
                              style={styles.search}
@@ -127,11 +113,10 @@ export default class Search extends React.Component {
                          {
                              this.state.searchResults.map(e => e['name']).map((e, i, final) => final.indexOf(e) === i && i).filter(e => searchResults[e]).map(e => searchResults[e]).map((l) => (
                                  <ListItem
-                                     roundAvatar
-                                     leftAvatar={{ source: { uri: l.photo } }}
-                                     key={l.name}
-                                     title={l.name}
-                                     onPress={() => this.props.navigation.navigate('Profile', {userID: l.userID})}
+
+                                     key={l.tag}
+                                     title={l.tag}
+                                     onPress={() => this.props.navigation.navigate('SearchPostView', {postarray: this.state.postarray})}
                                      containerStyle={styles.result}
                                      titleStyle={styles.resultText}
                                      chevronColor='white'
@@ -143,7 +128,6 @@ export default class Search extends React.Component {
 
 
                          </KeyboardAvoidingView>
-
                         </View>
                 </Content>
 
