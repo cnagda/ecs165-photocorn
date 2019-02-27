@@ -21,7 +21,7 @@ var searchResults = []
 //remove duplicates from https://reactgo.com/removeduplicateobjects/
 
 
-export default class SearchTags extends React.Component {
+class SearchTags extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
@@ -167,6 +167,8 @@ export default class SearchTags extends React.Component {
     }
 
 }
+
+export default withNavigation(SearchTags);
 
 
 const styles = StyleSheet.create({
