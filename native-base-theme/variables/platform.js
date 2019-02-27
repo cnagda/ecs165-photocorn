@@ -233,8 +233,8 @@ export default {
   tabDefaultBg: platform === "ios" ? COLOR_DGREY : COLOR_DGREY,
   topTabBarTextColor: platform === "ios" ? COLOR_LGREY : COLOR_LGREY,
   topTabBarActiveTextColor: platform === "ios" ? COLOR_PINK : COLOR_PINK,
-  topTabBarBorderColor: platform === "ios" ? "#a7a6ab" : "#fff",
-  topTabBarActiveBorderColor: platform === "ios" ? "#007aff" : "#fff",
+  topTabBarBorderColor: platform === "ios" ? "transparent" : "transparent",
+  topTabBarActiveBorderColor: platform === "ios" ? "transparent" : "transparent",
 
   // Tabs
   tabBgColor: COLOR_DGREY,
