@@ -82,14 +82,25 @@ export default class SearchPostView extends React.Component {
         return (
             <Root>
             <Container style={styles.container}>
+                <Header>
+                    <Left>
+                        <Button transparent
+                            onPress={() => this.props.navigation.goBack()}>
+                            <Icon name='arrow-back'
+                                  styles={{color: COLOR_PINK}}/>
+                        </Button>
+                    </Left>
+                    <Body>
+                        <Title>{"#" + this.props.navigation.getParam('tag', '')}</Title>
+                    </Body>
+                    <Right />
+                </Header>
+
                 <Content contentContainerStylestyle={styles.content}>
                     <View style={{flex:1, marginTop: 50, justifyContent: 'center'}}>
                     <View>
                     {this.state.postList}
                     </View>
-                    <Button style={{backgroundColor: '#f300a2', width: 170, justifyContent: 'center'}} onPress={() =>this.props.navigation.navigate('HomeScreen')}>
-                        <Text style={{color: 'white'}}>Done</Text>
-                    </Button>
                     </View>
                 </Content>
 

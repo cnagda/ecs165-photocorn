@@ -82,6 +82,10 @@ class SearchTags extends React.Component {
         })
     };
 
+    handleSelect(tag) {
+        this.props.navigation.navigate('SearchPostView', {postarray: this.state.postarray, tag: tag});
+    }
+
 
     render() {
 
@@ -111,7 +115,7 @@ class SearchTags extends React.Component {
 
                                      key={l.tag}
                                      title={l.tag}
-                                     onPress={() => this.props.navigation.navigate('SearchPostView', {postarray: this.state.postarray})}
+                                     onPress={() => this.handleSelect(l.tag)}
                                      containerStyle={styles.result}
                                      titleStyle={styles.resultText}
                                      chevronColor='white'
