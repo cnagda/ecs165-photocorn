@@ -52,14 +52,14 @@ class SearchTags extends React.Component {
                         //var fullName = doc.data().first + " " + doc.data().last
                         if (doc.data().tag.toLowerCase().includes(value.toLowerCase())) {
 
-                            let currThis = this;
-
-                                searchResults.push(
-                                    {
-                                        tag: doc.data().tag
-                                    }
-                                );
-                                currThis.setState({searchResults: searchResults, postarray: doc.data().posts})
+                            searchResults.push(
+                                {
+                                    tag: doc.data().tag,
+                                    postarray: doc.data().posts
+                                }
+                            );
+                            console.log(searchResults)
+                            this.setState({searchResults: searchResults})
 
 
                         }
@@ -82,8 +82,8 @@ class SearchTags extends React.Component {
         })
     };
 
-    handleSelect(tag) {
-        this.props.navigation.navigate('SearchPostView', {postarray: this.state.postarray, tag: tag});
+    handleSelect(tag, postarr) {
+        this.props.navigation.navigate('SearchPostView', {postarray: postarr, tag: tag});
     }
 
 
@@ -110,12 +110,12 @@ class SearchTags extends React.Component {
                          >
                          <ScrollView>
                          {
-                             this.state.searchResults.map(e => e['name']).map((e, i, final) => final.indexOf(e) === i && i).filter(e => searchResults[e]).map(e => searchResults[e]).map((l) => (
+                             this.state.searchResults.map(e => e['tag']).map((e, i, final) => final.indexOf(e) === i && i).filter(e => searchResults[e]).map(e => searchResults[e]).map((l) => (
                                  <ListItem
 
                                      key={l.tag}
                                      title={l.tag}
-                                     onPress={() => this.handleSelect(l.tag)}
+                                     onPress={() => this.handleSelect(l.tag, l.postarray)}
                                      containerStyle={styles.result}
                                      titleStyle={styles.resultText}
                                      chevronColor='white'

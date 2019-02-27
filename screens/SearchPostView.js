@@ -1,6 +1,6 @@
 import React from 'react'
 // import { StyleSheet, Platform, Image, Text, View, Button, ScrollView, RefreshControl, } from 'react-native'
-import { StyleSheet, ScrollView, RefreshControl, View } from 'react-native'
+import { StyleSheet, ScrollView, RefreshControl, View, Platform , StatusBar} from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
@@ -82,16 +82,16 @@ export default class SearchPostView extends React.Component {
         return (
             <Root>
             <Container style={styles.container}>
-                <Header>
+                <Header style={{backgroundColor: COLOR_DGREY, height: 80, paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : undefined}}>
                     <Left>
                         <Button transparent
-                            onPress={() => this.props.navigation.goBack()}>
+                            onPress={() => this.props.navigation.goBack()} styles={{marginTop: 10}}>
                             <Icon name='arrow-back'
                                   styles={{color: COLOR_PINK}}/>
                         </Button>
                     </Left>
                     <Body>
-                        <Title>{"#" + this.props.navigation.getParam('tag', '')}</Title>
+                        <Title >{"#" + this.props.navigation.getParam('tag', '')}</Title>
                     </Body>
                     <Right />
                 </Header>

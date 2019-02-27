@@ -1,6 +1,6 @@
 import React from 'react'
 // import { StyleSheet, Platform, Image, Text, View, Button, ScrollView, RefreshControl, } from 'react-native'
-import { StyleSheet, Platform, ScrollView, RefreshControl, TextInput, View, KeyboardAvoidingView } from 'react-native'
+import { StyleSheet, Platform, ScrollView, RefreshControl, TextInput, View, KeyboardAvoidingView, StatusBar } from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
@@ -31,9 +31,9 @@ export default class Search extends React.Component {
         return (
             <Root>
             <Container style={styles.container}>
-                <Header style={{backgroundColor: COLOR_DGREY, height: 20}} hasTabs/>
+                <Header style={{backgroundColor: COLOR_DGREY, height: 20, borderBottomWidth: 0, toolbarDefaultBorder: 0, borderBottomColor: 'transparent', paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : undefined}} hasTabs/>
 
-                <Tabs renderTabBar={()=> <ScrollableTab style={{backgroundColor: COLOR_DGREY}}/>}>
+                <Tabs renderTabBar={()=> <ScrollableTab underlineStyle={{backgroundColor: COLOR_LGREY}} style={{backgroundColor: COLOR_DGREY, borderBottomWidth: 0,}}/>}>
                     <Tab heading={ <TabHeading  style={{backgroundColor: 'transparent'}}><Text style={{color: COLOR_PINK}}>People</Text></TabHeading>} >
                         <SearchNames />
                     </Tab>
