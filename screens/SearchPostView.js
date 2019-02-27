@@ -82,7 +82,7 @@ export default class SearchPostView extends React.Component {
         return (
             <Root>
             <Container style={styles.container}>
-                <Header style={{backgroundColor: COLOR_DGREY, height: 80, paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : undefined}}>
+                <Header style={{backgroundColor: COLOR_DGREY, height: 80, borderBottomWidth: 0, paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : undefined}}>
                     <Left>
                         <Button transparent
                             onPress={() => this.props.navigation.goBack()} styles={{marginTop: 10}}>
@@ -91,7 +91,7 @@ export default class SearchPostView extends React.Component {
                         </Button>
                     </Left>
                     <Body>
-                        <Title >{"#" + this.props.navigation.getParam('tag', '')}</Title>
+                        <Title style={{color: 'white'}}>{"#" + this.props.navigation.getParam('tag', '')}</Title>
                     </Body>
                     <Right />
                 </Header>
