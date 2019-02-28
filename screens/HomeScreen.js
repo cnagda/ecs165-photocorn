@@ -1,9 +1,38 @@
 import React from 'react'
-import { StyleSheet, Platform, Image, Text, View, Button, ScrollView } from 'react-native'
+// import { StyleSheet, Platform, Image, Text, View, Button, ScrollView, RefreshControl, } from 'react-native'
+import { StyleSheet, ScrollView, RefreshControl } from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 import PostView from '../utils/Post'
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, ActionSheet, Root } from 'native-base';
+import { getTheme } from '../native-base-theme/components';
+import { custom } from '../native-base-theme/variables/custom';
+import { withNavigation } from 'react-navigation';
+import {ListItem}  from 'react-native-elements'
+
+var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
+var LOCATIONS = ["NewPostCamera", "NewPostUpload", "HomeScreen"]
+var CANCEL_INDEX = 2;
+
+const list = [
+
+]
+
+//to use list:
+/* inside render:
+<View>
+
+  {
+    list.map((l) => (
+      <ListItem
+        key={l.name}
+        title={l.name}
+      />
+    ))
+  }
+</View>
+*/
 
 
 // upload a given photo to firebase
@@ -48,11 +77,13 @@ function uploadPhoto(uri, uploadUri) {
 }
 
 
+
+
 export default class HomeScreen extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
-        this.state = {currentUser: null, name: "user", isLoading: true, postList: null,}
+        this.state = {currentUser: null, name: "user", isLoading: true, postList: null, refreshing: false,}
     }
 
     // authenticate user
@@ -64,6 +95,7 @@ export default class HomeScreen extends React.Component {
 
             this.setState({
                 isLoading: false,
+                postList: null,  //this may be bad because I'm relying on getPosts to take longer so test it with this removed later
             })
 
             console.log("does it work here? " + this.state.postList)
@@ -84,6 +116,7 @@ export default class HomeScreen extends React.Component {
 
             this.setState({
                 isLoading: false,
+                postList: null, //this may be bad because I'm relying on getPosts to take longer so test it with this removed later
             })
 
             console.log("does it work here? " + this.state.postList)
@@ -92,45 +125,46 @@ export default class HomeScreen extends React.Component {
 
     }
 
+    toProfile(prof) {
+        this.props.navigation.navigate('Profile', { prof });
+    }
+
     getPosts(numPosts, currUser, firstName){
+        this.setState({postList: null})
         var postList = [];
         var postIDs = [];
-        //Get up to 10 most recent posts from users that this user follows
-        follows_ref = firebase.firestore().collection("Follows");               //get the Follows collection
-        var followed = [];                                                      //this will contain the users that this user follows
+
+        //Get up to 10 most recent posts for activity feed
+        follows_ref = firebase.firestore().collection("Follows");                       //get the Follows collection
+        var followed = [];                                                              //this will contain the users that this user follows
         follows_ref
-        .where("userID", "==", firebase.auth().currentUser.uid)                 //look in follows table for this user
+        .where("userID", "==", firebase.auth().currentUser.uid)                         //look in follows table for this user
         .get()
         .then(function(querySnapshot) {
-            querySnapshot.forEach(function(doc) {                               //for each match
-                followed.push(doc.data().followedID);                           //add to followed array
+            querySnapshot.forEach(function(doc) {                                       //for each match
+                followed.push(doc.data().followedID);                                   //add to followed list
             });
-
-
-            posts_ref = firebase.firestore().collection("Posts")                //get the Posts collection
-
+            posts_ref = firebase.firestore().collection("Posts")                        //get the Posts collection
+            var numPosts = 0
             posts_ref
-            .orderBy("timestamp")                                               //order by time
-            .limit(numPosts)                                                          //get up to 10
+            .orderBy("timestamp", "desc")                                               //order by time descending
             .get()
             .then(function(querySnapshot) {
-                querySnapshot.forEach(function(doc) {                           //for each match
-                    if (followed.includes(doc.data().userID) || (currUser == doc.data().userID)) {  //if this post's poster is followed by this user
+                querySnapshot.forEach(function(doc) {                                   //for each match
+                    if ((followed.includes(doc.data().userID) ||
+                            (firebase.auth().currentUser.uid == doc.data().userID))
+                            && numPosts < 10) {                                         //if the post should be in the feed
                         console.log("user followed: " + doc.data().userID)
                         postIDs.push(doc.data().postID);
+                        list.push({name: doc.data().userID});
+                        numPosts++
                     }
-
                 });
+
                 postIDs.forEach(function(thisPostID) {
-                    postList.push(<PostView postID={thisPostID} />);
+                    postList.push(<PostView postID={thisPostID}/>);
                 })
-
-                console.log(postIDs)
-                //postList = postIDs.map((id)=> <PostView postID={id} />)
-                console.log("here")
-
-                console.log(postList)
-                this.setState(
+                this.setState(                                                          //set states to rerender
                     {
                         currentUser: currUser,
                         name: firstName,
@@ -141,73 +175,136 @@ export default class HomeScreen extends React.Component {
         }.bind(this))
     }
 
+    _onRefresh = () => {
+        this.setState({refreshing: true, postList: null});
+        users_ref = firebase.firestore().collection("users");
+        users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
+            console.log("inside get " + firebase.auth().currentUser.uid)
+            this.getPosts(10, firebase.auth().currentUser, doc.data().first);
+
+            this.setState({
+                isLoading: false,
+                refreshing: false,
+            })
+
+            console.log("refresh " + this.state.postList)
+            this.forceUpdate()
+            //this.forceUpdate();
+        }.bind(this)).catch ((error) => {console.error(error);});
+    }
+
+    displayPosts = (postList) => {
+        console.log("getting post list: " + postList)
+
+        if (postList == null) {
+            return (false)
+
+        } else {
+
+             if (Object.keys(postList).length > 0) {
+                return postList
+            } else {
+                return <View style = {{alignItems: 'center', justifyContent: 'center', height:50, width: 50}}></View>
+                //<Button title="Oops, the unicorns are sleeping. Refresh now." onPress={this._onRefresh} color=  '#f300a2'/>
+            }
+        }
+
+
+    };
+
+
 
     render() {
         if(this.state.isLoading) {
             return ( false )
         }
         console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
-
         console.log("inside render " + this.state.postList)
 
         return (
-            <View style={styles.container}>
-                <View style={{flex:1, flexDirection:'row',alignItems:'flex-end'}} >
-                    <Text style={styles.textPink}>
+            <Root>
+            <Container style={styles.container}>
+                <Content contentContainerStylestyle={styles.content}
+                         refreshControl={ <RefreshControl refreshing={this.state.refreshing}
+                         onRefresh={this._onRefresh} /> }>
+                    <Text style={styles.welcome}>
                         Welcome, {this.state.name}!
                     </Text>
 
-                </View>
-                <View style={{flex:1, flexDirection:'column',}}>
-                    <Button title="New Post Upload" color= '#f300a2'
-                        onPress={() => this.props.navigation.navigate('NewPostUpload')}
-                    />
-                    <Button title="View Emma's Profile" color= '#f300a2'
-                        onPress={() => this.props.navigation.navigate('Profile', {userID: 'qZC2oLFxa8NgzyesghbtmujjQcO2'})}
-                    />
-                </View>
-                <View style={{flex: 7, flexDirection: 'column'}}>
-                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom:40}}>
-                        {this.state.postList}
-                    </ScrollView>
+                    {this.state.postList}
+                </Content>
 
-                </View>
-                <View style={{flex:1, flexDirection: 'row',alignItems:'flex-end', marginLeft: 10, marginRight: 10,}}>
-                    <View style={{flex:1, flexDirection:'column',marginRight:10,}}>
-                        <Button title="View Profile" color= '#f300a2'
-                            onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}
-                        />
-                    </View>
-                    <View style={{flex:1, flexDirection:'column',}}>
+
+                <Footer style={styles.footer}>
+                    <FooterTab style={styles.footertab}>
+
+                        <Button active style={{backgroundColor: 'transparent'}}>
+                            <Icon style={styles.icon} name="home" />
+                        </Button>
+
                         <Button
-                            title="Log Out"
-                            color= '#f300a2'
-                            onPress={() => firebase.auth().signOut().then(function() {
-                            console.log('Signed Out');
-                            this.props.navigation.navigate('Login')
-                            }.bind(this))}
-                        />
-                    </View>
-                </View>
-            </View>
-        )
+                            onPress= {() =>
+                                ActionSheet.show(
+                                  {
+                                    options: BUTTONS,
+                                    cancelButtonIndex: CANCEL_INDEX,
+                                    title: "How do you want to upload?"
+                                  },
+                                  buttonIndex => {
+                                    this.props.navigation.navigate(LOCATIONS[buttonIndex], {userID: firebase.auth().currentUser.uid});
+                                  }
+                              )}>
+                            <Icon style={styles.inactiveicon} name="add" />
+                        </Button>
+
+                        <Button
+                            onPress={() => this.props.navigation.navigate('Search', {userID: firebase.auth().currentUser.uid})}>
+                            <Icon style ={styles.inactiveicon} name="search" />
+                        </Button>
+                        <Button
+                            onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
+                            <Icon style ={styles.inactiveicon} name="person" />
+                        </Button>
+
+                    </FooterTab>
+                </Footer>
+
+            </Container>
+            </Root>
+        );
     }
 
 }
 
+
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        flexDirection: 'column',
-        fontSize: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
         backgroundColor: COLOR_BACKGRND,
     },
-    textPink: {
-        color: COLOR_PINK,
-        fontSize: 20,
+    content: {
         alignItems: 'center',
-        justifyContent: 'center',
     },
+    footer: {
+        backgroundColor: COLOR_DGREY,
+        borderTopWidth: 0
+    },
+    footertab: {
+        backgroundColor: COLOR_DGREY,
+    },
+    welcome: {
+        color: COLOR_LGREY,
+        fontSize: 20,
+        fontWeight: 'bold',
+        alignItems: 'center',
+        textAlign: 'center',
+        justifyContent: 'center',
+        paddingTop: 40,
+        paddingBottom: 20
+    },
+    icon: {
+        color: COLOR_PINK
+    },
+    inactiveicon: {
+        color: COLOR_LGREY
+    }
 })

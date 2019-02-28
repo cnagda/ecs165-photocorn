@@ -1,11 +1,12 @@
 import React from 'react';
 import { Header } from 'react-navigation';
-import { StyleSheet, ScrollView, Text, TextInput, KeyboardAvoidingView, View, Button, Platform } from 'react-native';
+import { StyleSheet, ScrollView, Text, TextInput, KeyboardAvoidingView, View, Platform } from 'react-native';
 import { ImagePicker } from 'expo';
 import * as firebase from 'firebase';
 import 'firebase/firestore';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 import { uploadPhoto } from '../utils/Photos';
+import { Item, Input, Button } from 'native-base';
 
 export default class Signup extends React.Component {
     // initialize state
@@ -31,7 +32,7 @@ export default class Signup extends React.Component {
     // set user information in firebase
     handleSignUp = () => {
         // create user
-        const { email, password, firstname, lastname, dob } = this.state
+        const { email, password, firstname, lastname, dob, username } = this.state
         firebase
         .auth()
         .createUserWithEmailAndPassword(email, password)
@@ -48,6 +49,7 @@ export default class Signup extends React.Component {
             firebase.firestore().collection("users").doc(user.uid).set({
                 first: firstname,
                 last: lastname,
+                username: username,
                 email: email,
                 dob: dob,
                 uid: user.uid,
@@ -100,6 +102,14 @@ export default class Signup extends React.Component {
                         value={this.state.lastname}
                   />
                   <TextInput
+                        placeholder="Username"
+                        placeholderTextColor='#f300a2'
+                        autoCapitalize="none"
+                        style={styles.textInput}
+                        onChangeText={username => this.setState({ username })}
+                        value={this.state.username}
+                  />
+                  <TextInput
                         placeholder="Birthday"
                         placeholderTextColor='#f300a2'
                         autoCapitalize="none"
@@ -125,14 +135,15 @@ export default class Signup extends React.Component {
                         onChangeText={password => this.setState({ password })}
                         value={this.state.password}
                   />
-                  <View style={{marginTop:40}}>
-                    <Button title="Create Account" color= '#f300a2' onPress={this.handleSignUp} />
+                  <View style={{marginTop:30}}>
+                    <Button style={{backgroundColor: '#f300a2', width: 170, justifyContent: 'center'}} onPress={this.handleSignUp}>
+                        <Text style={{color: 'white'}}>Create Account</Text>
+                    </Button>
                   </View>
-                  <View style={{margin:20}}>
-                    <Button
-                      title="Already signed up? Log In" color= '#f300a2'
-                      onPress={() => this.props.navigation.navigate('Login')}
-                    />
+                  <View style={{margin:0}}>
+                      <Button transparent onPress={() => this.props.navigation.navigate('Login')}>
+                          <Text style={{color: '#f300a2'}}>Already signed up? Log in.</Text>
+                      </Button>
                   </View>
               </ScrollView>
           </KeyboardAvoidingView>
@@ -160,6 +171,8 @@ const styles = StyleSheet.create({
         color: COLOR_PINK,
         marginTop: 20,
         backgroundColor: COLOR_DGREY,
+        paddingLeft: 10,
+        borderRadius: 12
     },
 
     title: {

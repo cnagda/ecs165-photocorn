@@ -1,5 +1,6 @@
 import React from 'react'
-import { StyleSheet, Text, TextInput, View, Button } from 'react-native'
+import { StyleSheet, Text, TextInput, View } from 'react-native'
+import { Button } from 'native-base'
 import * as firebase from 'firebase';
 import 'firebase/firestore';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
@@ -37,17 +38,15 @@ export default class Login extends React.Component {
                 onChangeText={password => this.setState({ password })}
                 value={this.state.password}
             />
-            <View style={{margin: 10}}>
-                <Button
-                    title="Login" color= '#f300a2'
-                    onPress={this.handleLogin}
-                />
+            <View style={{marginTop: 30}}>
+                <Button style={{backgroundColor: '#f300a2', width: 130, justifyContent: 'center'}} onPress={this.handleLogin}>
+                    <Text style={{color: 'white'}}>Login</Text>
+                </Button>
             </View>
-            <View stye={{margin: 10}}>
-                <Button
-                    title="No account? No problem. Sign Up" color= '#f300a2'
-                    onPress={() => this.props.navigation.navigate('Signup')}
-                />
+            <View stye={{margin: 0}}>
+                <Button transparent onPress={() => this.props.navigation.navigate('Signup')}>
+                    <Text style={{color: '#f300a2'}}>No account? Sign up here.</Text>
+                </Button>
             </View>
         </View>
         )
@@ -71,6 +70,8 @@ const styles = StyleSheet.create({
         color: COLOR_PINK,
         marginTop: 20,
         backgroundColor: COLOR_DGREY,
+        borderRadius: 12,
+        paddingLeft: 10
     },
 
     title: {

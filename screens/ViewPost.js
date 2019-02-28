@@ -7,7 +7,8 @@ import {
   Text,
   View,
   Dimensions,
-  Image
+  Image,
+  Button,
 } from 'react-native'
 
 import PostView from '../utils/Post'
@@ -19,8 +20,14 @@ export default class ViewPost extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <PostView postID={this.props.navigation.getParam("postID", "")} />
+                    <PostView postID={this.props.navigation.getParam("postID", "")} />
+
+                    <Button
+                        title="Back" color= '#f300a2'
+                        onPress={() => this.props.navigation.pop(2)}
+                    />
             </View>
+
         )
     }
 }
