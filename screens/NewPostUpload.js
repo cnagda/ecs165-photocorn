@@ -55,6 +55,35 @@ export default class NewPostUpload extends React.Component {
     };
 
     // set a profile picture
+    // pickImage = async () => {
+    //     var status = await this.getCameraRollPermissions();
+    //     if (status === 'granted') {
+    //         const result = await ImagePicker.launchImageLibraryAsync({
+    //             allowsEditing: true,
+    //             base64: true,
+    //             aspect: [1, 1],
+    //         }).then(function() {
+    //             console.log("Before request")
+    //             this.setState({image: result.uri,});
+    //             this.submitToGoogle()
+    //             console.log("After request")
+    //         }).then(function() {
+    //             if (!result.cancelled) {
+    //                 const path = "Posts/".concat(this.state.photoID, ".jpg");
+    //                 console.log(result.uri);
+    //                 console.log(path);
+    //                 return uploadPhoto(result.uri, path).then(function() {
+    //                     this.setState({isImgLoading: true})
+    //                     this.getUploadedImage(this.state.photoID).then(function() {
+    //                         this.setState({isImgLoading: false})
+    //                     }.bind(this));
+    //                 }.bind(this));
+    //             }
+    //         })
+    //     }
+    // };
+
+
     pickImage = async () => {
         var status = await this.getCameraRollPermissions();
         if (status === 'granted') {
@@ -62,29 +91,31 @@ export default class NewPostUpload extends React.Component {
                 allowsEditing: true,
                 base64: true,
                 aspect: [1, 1],
-            }).then(function() {
-                console.log("Before request")
-                this.setState({image: result.uri,});
-                this.submitToGoogle()
-                console.log("After request")
-            }).then(function() {
-                if (!result.cancelled) {
-                    const path = "Posts/".concat(this.state.photoID, ".jpg");
-                    console.log(result.uri);
-                    console.log(path);
-                    return uploadPhoto(result.uri, path).then(function() {
-                        this.setState({isImgLoading: true})
-                        this.getUploadedImage(this.state.photoID).then(function() {
-                            this.setState({isImgLoading: false})
-                        }.bind(this));
+            });
+
+
+            console.log("Before request")
+            this.setState({image: result.uri,});
+            if (!result.cancelled) {
+
+                const path = "Posts/".concat(this.state.photoID, ".jpg");
+                console.log(result.uri);
+                console.log(path);
+                return uploadPhoto(result.uri, path).then(function() {
+                    this.setState({isImgLoading: true, base64: result.base64})
+                    this.getUploadedImage(this.state.photoID).then(function() {
+                        this.setState({isImgLoading: false})
+                        this.submitToGoogle()
                     }.bind(this));
-                }
-            })
+                }.bind(this));
+            }
         }
     };
 
     submitToGoogle = async () => {
         console.log("In submitToGoogle")
+        imageURI = this.state.image
+        imageURIb64 = this.state.base64
         try {
             this.setState({ uploading: true });
             let body = JSON.stringify({
@@ -103,9 +134,8 @@ export default class NewPostUpload extends React.Component {
                             { type: "WEB_DETECTION", maxResults: 5 }
                         ],
                         image: {
-                            source: {
-                                imageUri: this.state.image
-                            }
+                            content: imageURIb64
+
                         }
                     }
                 ]
