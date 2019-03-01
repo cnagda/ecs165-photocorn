@@ -62,20 +62,76 @@ export default class NewPostUpload extends React.Component {
                 allowsEditing: true,
                 base64: true,
                 aspect: [1, 1],
-            });
-
-            if (!result.cancelled) {
-                await this.setState({image: result.uri,});
-                const path = "Posts/".concat(this.state.photoID, ".jpg");
-                console.log(result.uri);
-                console.log(path);
-                return uploadPhoto(result.uri, path).then(function() {
-                    this.setState({isImgLoading: true})
-                    this.getUploadedImage(this.state.photoID).then(function() {
-                        this.setState({isImgLoading: false})
+            }).then(function() {
+                console.log("Before request")
+                this.setState({image: result.uri,});
+                this.submitToGoogle()
+                console.log("After request")
+            }).then(function() {
+                if (!result.cancelled) {
+                    const path = "Posts/".concat(this.state.photoID, ".jpg");
+                    console.log(result.uri);
+                    console.log(path);
+                    return uploadPhoto(result.uri, path).then(function() {
+                        this.setState({isImgLoading: true})
+                        this.getUploadedImage(this.state.photoID).then(function() {
+                            this.setState({isImgLoading: false})
+                        }.bind(this));
                     }.bind(this));
-                }.bind(this));
-            }
+                }
+            })
+        }
+    };
+
+    submitToGoogle = async () => {
+        console.log("In submitToGoogle")
+        try {
+            this.setState({ uploading: true });
+            let body = JSON.stringify({
+                requests: [
+                    {
+                        features: [
+                            { type: "LABEL_DETECTION", maxResults: 10 },
+                            { type: "LANDMARK_DETECTION", maxResults: 5 },
+                            { type: "FACE_DETECTION", maxResults: 5 },
+                            { type: "LOGO_DETECTION", maxResults: 5 },
+                            { type: "TEXT_DETECTION", maxResults: 5 },
+                            { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
+                            { type: "SAFE_SEARCH_DETECTION", maxResults: 5 },
+                            { type: "IMAGE_PROPERTIES", maxResults: 5 },
+                            { type: "CROP_HINTS", maxResults: 5 },
+                            { type: "WEB_DETECTION", maxResults: 5 }
+                        ],
+                        image: {
+                            source: {
+                                imageUri: this.state.image
+                            }
+                        }
+                    }
+                ]
+            });
+            console.log("Created body")
+            let response = await fetch(
+                "https://vision.googleapis.com/v1/images:annotate?key=" +
+                "AIzaSyD3yoe5pFlzna3E4EgkbCSOLv3A5hHqNfg",
+                {
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json"
+                    },
+                    method: "POST",
+                    body: body
+                }
+            );
+            console.log("Made response")
+            let responseJson = await response.json();
+            console.log(responseJson);
+            this.setState({
+                googleResponse: responseJson,
+                uploading: false
+            });
+        } catch (error) {
+            console.log(error);
         }
     };
 
