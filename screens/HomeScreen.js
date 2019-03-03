@@ -12,7 +12,8 @@ import { withNavigation } from 'react-navigation';
 import {ListItem}  from 'react-native-elements'
 
 var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
-var LOCATIONS = ["NewPostCamera", "NewPostUpload", "HomeScreen"]
+var LOCATIONS = ["NewPost", "NewPost", "HomeScreen"]
+var METHOD = ["camera", "upload", "none"]
 var CANCEL_INDEX = 2;
 
 const list = [
@@ -251,7 +252,7 @@ export default class HomeScreen extends React.Component {
                                     title: "How do you want to upload?"
                                   },
                                   buttonIndex => {
-                                    this.props.navigation.navigate(LOCATIONS[buttonIndex], {userID: firebase.auth().currentUser.uid});
+                                    this.props.navigation.navigate(LOCATIONS[buttonIndex], {method: METHOD[buttonIndex]});
                                   }
                               )}>
                             <Icon style={styles.inactiveicon} name="add" />
