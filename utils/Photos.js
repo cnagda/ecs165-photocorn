@@ -37,3 +37,27 @@ export function uploadPhoto(uri, uploadUri) {
         });
     });
 }
+
+// Create a new tag document for each tag in the uploaded image.
+// (or upload the corresponding existing tag document if the document is Already
+// in the database)
+export function uploadTags(labels, postID) {
+    labels.forEach(function(currTag) {
+     firebase.firestore().collection("Tags").doc(currTag).get().then(function(doc){
+         console.log(currTag)
+         postIDList = []
+         if (doc.exists) {
+             postIDList = doc.data().posts;
+             console.log(doc.data())
+         }
+         postIDList.push(postID)
+
+         firebase.firestore().collection("Tags").doc(currTag).set({
+             posts: postIDList,
+             tag: currTag,
+         })
+     })
+
+  })
+
+};

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableHighlight, TextInput, ScrollView, Imag
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK} from './../components/commonstyle';
 import { uploadPhoto } from '../utils/Photos'
+import { uploadTags } from '../utils/Photos'
 import { ImagePicker } from 'expo';
 import { Button, Content } from 'native-base';
 
@@ -20,6 +21,7 @@ export default class NewPostUpload extends React.Component {
         isImgLoading: true,
         photoID: firebase.auth().currentUser.uid + Date.now(),
         caption: '',
+        imageTags: [],
         numComments: 0,
         userID: firebase.auth().currentUser.uid,
     }
@@ -105,7 +107,16 @@ export default class NewPostUpload extends React.Component {
                     this.setState({isImgLoading: true, base64: result.base64})
                     this.getUploadedImage(this.state.photoID).then(function() {
                         this.setState({isImgLoading: false})
-                        this.submitToGoogle()
+                        this.submitToGoogle().then(function() {
+                            console.log("submitted to google, about to add tags.")
+
+
+                          //  for (var k in labels){
+                            //  currTag = labels[k]["description"]
+                            //  console.log(currTag)
+
+                        }
+                      )
                     }.bind(this));
                 }.bind(this));
             }
@@ -122,16 +133,7 @@ export default class NewPostUpload extends React.Component {
                 requests: [
                     {
                         features: [
-                            { type: "LABEL_DETECTION", maxResults: 10 },
-                            { type: "LANDMARK_DETECTION", maxResults: 5 },
-                            { type: "FACE_DETECTION", maxResults: 5 },
-                            { type: "LOGO_DETECTION", maxResults: 5 },
-                            { type: "TEXT_DETECTION", maxResults: 5 },
-                            { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
-                            { type: "SAFE_SEARCH_DETECTION", maxResults: 5 },
-                            { type: "IMAGE_PROPERTIES", maxResults: 5 },
-                            { type: "CROP_HINTS", maxResults: 5 },
-                            { type: "WEB_DETECTION", maxResults: 5 }
+                            { type: "LABEL_DETECTION", maxResults: 10 }
                         ],
                         image: {
                             content: imageURIb64
@@ -155,9 +157,24 @@ export default class NewPostUpload extends React.Component {
             );
             console.log("Made response")
             let responseJson = await response.json();
-            console.log(responseJson);
+
+              //["labelAnnotations"]
+            //console.log(Object.keys(responseJson["responses"]["0"]))
+
+            // Get the image labels
+            labels = responseJson["responses"]["0"]["labelAnnotations"]
+
+            parsedLabels = []
+
+            for (var k in labels){
+              currTag = labels[k]
+              console.log(currTag["description"])
+              parsedLabels.push(currTag["description"])
+            }
+
+              uploadTags(parsedLabels, this.state.photoID)
+
             this.setState({
-                googleResponse: responseJson,
                 uploading: false
             });
         } catch (error) {
