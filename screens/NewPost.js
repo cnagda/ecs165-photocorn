@@ -52,7 +52,7 @@ export default class NewPost extends React.Component {
                 imageUri: uploadedImageURL,
             }).then(function() {
                 console.log("length: " + tags.length)
-                if (tags.length > 0) {
+                //if (tags.length > 0) {
                     tagArr = tags.split(" ")
                     console.log(tagArr)
                     tagArr.forEach(function(tag) {
@@ -74,7 +74,7 @@ export default class NewPost extends React.Component {
                         })
 
                     })
-                }
+                //}
 
                 this.setState({finishedPost: true});
             }.bind(this))
