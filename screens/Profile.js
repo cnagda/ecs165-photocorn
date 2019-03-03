@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet, TouchableHighlight, Image } from 'react-native'
+import { View, StyleSheet, TouchableHighlight, Image, FlatList, Dimensions } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 // import { Footer, FooterTab, Icon, Button, Text } from 'native-base';
@@ -11,6 +11,8 @@ var LOCATIONS = ["NewPost", "NewPost", "HomeScreen"]
 var METHOD = ["camera", "upload", "none"]
 var CANCEL_INDEX = 2;
 
+urlList = []
+
 export default class Loading extends React.Component {
 
 
@@ -19,18 +21,20 @@ export default class Loading extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
+        this.state = {isLoading: true,
+                isImgLoading: true,
+              photoList: this.getPhotos(this.props.navigation.getParam('userID', firebase.auth().currentUser.uid)),
 
-        this.state = {
-          isLoading: true,
-          isImgLoading: true,
-       }
+        }
+        this.renderItem = this.renderItem.bind(this)
+
     }
 
     getUserInfo = async(users_ref) => {
         console.log("inside get user info")
         users_ref.doc(this.state.userViewing).get().then(function(doc) {
             this.getProfileImage(this.state.userViewing);
-
+            //this.getPhotos();
             this.setState(
                 {
                     firstname: doc.data().first,
@@ -48,7 +52,7 @@ export default class Loading extends React.Component {
     };
 
     // authenticate user
-    componentWillMount() {
+    componentDidMount() {
         console.log("in component did mount")
         currentUserVar = firebase.auth().currentUser.uid;
         userViewingVar = this.props.navigation.getParam('userID', firebase.auth().currentUser.uid);
@@ -82,7 +86,9 @@ export default class Loading extends React.Component {
             users_ref = firebase.firestore().collection("users");
             users_ref.doc(this.state.userViewing).get().then(function(doc) {
                 this.getProfileImage(this.state.userViewing);
-
+                //this.getPhotos(this.state.userViewing).then(function(photolist) {
+                //    this.setState({photoList: photolist})
+                //}.bind(this))
                 this.setState(
                     {
                         firstname: doc.data().first,
@@ -114,6 +120,75 @@ export default class Loading extends React.Component {
          this.getUserInfo(users_ref)
         console.log("in component will receive props")
     }
+
+
+    getPhotos (user){
+        var postIDs = [];
+        //var urlList = [];
+        var photoIDList = [];
+
+
+
+
+        //Get all photos from a user by getting all postids from a user (postid is same as photoid)
+        posts_ref = firebase.firestore().collection("Posts")                        //get the Posts collection
+        posts_ref
+        .orderBy("timestamp", "desc")                                               //order by time descending
+        .get()
+        .then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {                                   //for each post
+                if (user == doc.data().userID) {         //if the post was made by current user
+                    postIDs.push(doc.data().postID);
+                    photo_ref = firebase.firestore().collection("Photo").doc(doc.data().postID);
+                    photoIDList.push({key: doc.data().postID})
+                    photo_ref.get().then(function(doc1) {
+                        if (doc1.exists) {
+                            urlList.push(doc1.data().imageUri)
+                            console.log("pushed " + doc1.data().imageUri)
+                        } else {
+                            urlList.push("http://i68.tinypic.com/awt7ko.jpg")
+                            console.log("pushed " + "http://i68.tinypic.com/awt7ko.jpg")
+                        }
+
+                    })
+
+                }
+            });
+            console.log("List of photos I will send: " + postIDs)
+            this.setState(                                                          //set states to rerender
+                {
+                    photoList: postIDs, urlList: urlList, photoIDList: photoIDList,
+                }
+            );
+        }.bind(this))
+        return postIDs;
+    }
+
+    renderItem({ item, index }) {
+
+        console.log(index)
+        //console.log("this is the photodata: " + this.state.photoIDList)
+        //console.log(item.key)
+        if (urlList.length > index) {
+            var uri = urlList[index]
+            //console.log(uri)
+
+            return <View style={{
+                    flex: 1,
+                    width: Dimensions.get('window').width/3,
+                    height: Dimensions.get('window').width/3,
+                    backgroundColor: COLOR_BACKGRND,
+                }}>
+                <TouchableHighlight onPress={() => this.props.navigation.navigate('StalkerView', {postdata: this.state.photoIDList, index: index})}>
+                  <Image style={{width: Dimensions.get('window').width/3, height: Dimensions.get('window').width/3}} source = {{uri: uri}} defaultSource={"http://i68.tinypic.com/awt7ko.jpg"} />
+                  </TouchableHighlight>
+                </View>
+        }
+
+
+
+  }
+
 
     getProfileImage = async(user) => {
           console.log("in get profile image");
@@ -272,6 +347,9 @@ export default class Loading extends React.Component {
                         }.bind(this))}>
                         <Text style={{color: 'white'}}>Log Out</Text>
                     </Button>
+                    <View style={{flex:2, flexDirection: 'column'}}>
+                    <FlatList contentContainerStyle={styles.list} data={this.state.photoIDList} renderItem={this.renderItem} initialNumToRender={8}/>
+                    </View>
                 </Content>
 
                 <Footer style={styles.footer}>
@@ -395,5 +473,10 @@ const styles = StyleSheet.create({
     },
     inactiveicon: {
         color: COLOR_LGREY
+    },
+    list: {
+        justifyContent: 'center',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
     }
 })

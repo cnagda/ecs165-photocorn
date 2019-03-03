@@ -19,6 +19,7 @@ import Search from './screens/Search';
 import SearchTags from './screens/SearchTags';
 import SearchPostView from './screens/SearchPostView';
 import NewPost from './screens/NewPost';
+import StalkerView from './screens/StalkerView'
 
 
 // initialize firebase
@@ -49,6 +50,7 @@ const MainStack = createStackNavigator(
         SearchTags: SearchTags,
         SearchPostView: SearchPostView,
         NewPost: NewPost,
+        StalkerView: StalkerView,
     },
     {
         initialRouteName: 'Loading',
