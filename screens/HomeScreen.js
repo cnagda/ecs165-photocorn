@@ -1,5 +1,4 @@
 import React from 'react'
-// import { StyleSheet, Platform, Image, Text, View, Button, ScrollView, RefreshControl, } from 'react-native'
 import { StyleSheet, ScrollView, RefreshControl } from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
@@ -15,32 +14,11 @@ var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
 var LOCATIONS = ["NewPostCamera", "NewPostUpload", "HomeScreen"]
 var CANCEL_INDEX = 2;
 
-const list = [
-
-]
-
-//to use list:
-/* inside render:
-<View>
-
-  {
-    list.map((l) => (
-      <ListItem
-        key={l.name}
-        title={l.name}
-      />
-    ))
-  }
-</View>
-*/
-
+const list = []
 
 // upload a given photo to firebase
 function uploadPhoto(uri, uploadUri) {
     return new Promise(async (res, rej) => {
-        // const response = await fetch(uri);
-        // console.log(response);
-        // const blob = await response.blob();
         blob = new Promise((resolve, reject) => {
             var xhr = new XMLHttpRequest();
             xhr.onerror = reject;
@@ -77,8 +55,6 @@ function uploadPhoto(uri, uploadUri) {
 }
 
 
-
-
 export default class HomeScreen extends React.Component {
     // initialize state
     constructor(props) {
@@ -93,40 +69,34 @@ export default class HomeScreen extends React.Component {
             console.log("inside get " + firebase.auth().currentUser.uid)
             this.getPosts(10, firebase.auth().currentUser, doc.data().first);
 
+            // this may be bad because I'm relying on getPosts to take
+            // longer so test it with this removed later
             this.setState({
                 isLoading: false,
-                postList: null,  //this may be bad because I'm relying on getPosts to take longer so test it with this removed later
+                postList: null
             })
 
             console.log("does it work here? " + this.state.postList)
-            //this.forceUpdate();
         }.bind(this)).catch ((error) => {console.error(error);});
 
     }
 
-
-
     componentWillReceiveProps(newprops) {
-
         console.log("in component will receive props")
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
             console.log("inside get " + firebase.auth().currentUser.uid)
             this.getPosts(10, firebase.auth().currentUser, doc.data().first);
 
+            // this may be bad because I'm relying on getPosts to take
+            // longer so test it with this removed later
             this.setState({
                 isLoading: false,
-                postList: null, //this may be bad because I'm relying on getPosts to take longer so test it with this removed later
+                postList: null
             })
 
             console.log("does it work here? " + this.state.postList)
-            //this.forceUpdate();
         }.bind(this)).catch ((error) => {console.error(error);});
-
-    }
-
-    toProfile(prof) {
-        this.props.navigation.navigate('Profile', { prof });
     }
 
     getPosts(numPosts, currUser, firstName){
@@ -134,26 +104,26 @@ export default class HomeScreen extends React.Component {
         var postList = [];
         var postIDs = [];
 
-        //Get up to 10 most recent posts for activity feed
-        follows_ref = firebase.firestore().collection("Follows");                       //get the Follows collection
-        var followed = [];                                                              //this will contain the users that this user follows
+        // get up to 10 most recent posts for activity feed
+        follows_ref = firebase.firestore().collection("Follows"); // get the Follows collection
+        var followed = []; // this will contain the users that this user follows
         follows_ref
-        .where("userID", "==", firebase.auth().currentUser.uid)                         //look in follows table for this user
+        .where("userID", "==", firebase.auth().currentUser.uid) // look in follows table for this user
         .get()
         .then(function(querySnapshot) {
-            querySnapshot.forEach(function(doc) {                                       //for each match
-                followed.push(doc.data().followedID);                                   //add to followed list
+            querySnapshot.forEach(function(doc) { // for each match
+                followed.push(doc.data().followedID); // add to followed list
             });
-            posts_ref = firebase.firestore().collection("Posts")                        //get the Posts collection
+            posts_ref = firebase.firestore().collection("Posts") // get the Posts collection
             var numPosts = 0
             posts_ref
-            .orderBy("timestamp", "desc")                                               //order by time descending
+            .orderBy("timestamp", "desc") // order by time descending
             .get()
             .then(function(querySnapshot) {
-                querySnapshot.forEach(function(doc) {                                   //for each match
+                querySnapshot.forEach(function(doc) { //for each match
                     if ((followed.includes(doc.data().userID) ||
                             (firebase.auth().currentUser.uid == doc.data().userID))
-                            && numPosts < 10) {                                         //if the post should be in the feed
+                            && numPosts < 10) { //if the post should be in the feed
                         console.log("user followed: " + doc.data().userID)
                         postIDs.push(doc.data().postID);
                         list.push({name: doc.data().userID});
@@ -164,7 +134,8 @@ export default class HomeScreen extends React.Component {
                 postIDs.forEach(function(thisPostID) {
                     postList.push(<PostView postID={thisPostID}/>);
                 })
-                this.setState(                                                          //set states to rerender
+                // set states to rerender
+                this.setState(
                     {
                         currentUser: currUser,
                         name: firstName,
@@ -204,9 +175,7 @@ export default class HomeScreen extends React.Component {
              if (Object.keys(postList).length > 0) {
                 return postList
             } else {
-                return 
-                // return <View style = {{alignItems: 'center', justifyContent: 'center', height:50, width: 50}}></View>
-                // <Button title="Oops, the unicorns are sleeping. Refresh now." onPress={this._onRefresh} color=  '#f300a2'/>
+                return
             }
         }
 
@@ -224,57 +193,55 @@ export default class HomeScreen extends React.Component {
 
         return (
             <Root>
-            <Container style={styles.container}>
-                <Content contentContainerStylestyle={styles.content}
-                         refreshControl={ <RefreshControl refreshing={this.state.refreshing}
-                         onRefresh={this._onRefresh} /> }>
-                    <Text style={styles.welcome}>
-                        Welcome, {this.state.name}!
-                    </Text>
+                <Container style={styles.container}>
+                    <Content contentContainerStylestyle={styles.content}
+                             refreshControl={ <RefreshControl refreshing={this.state.refreshing}
+                             onRefresh={this._onRefresh} /> }>
+                        <Text style={styles.welcome}>
+                            Welcome, {this.state.name}!
+                        </Text>
 
-                    {this.state.postList}
-                </Content>
+                        {this.state.postList}
+                    </Content>
 
 
-                <Footer style={styles.footer}>
-                    <FooterTab style={styles.footertab}>
+                    <Footer style={styles.footer}>
+                        <FooterTab style={styles.footertab}>
 
-                        <Button active style={{backgroundColor: 'transparent'}}>
-                            <Icon style={styles.icon} name="home" />
-                        </Button>
+                            <Button active style={{backgroundColor: 'transparent'}}>
+                                <Icon style={styles.icon} name="home" />
+                            </Button>
 
-                        <Button
-                            onPress= {() =>
-                                ActionSheet.show(
-                                  {
-                                    options: BUTTONS,
-                                    cancelButtonIndex: CANCEL_INDEX,
-                                    title: "How do you want to upload?"
-                                  },
-                                  buttonIndex => {
-                                    this.props.navigation.navigate(LOCATIONS[buttonIndex], {userID: firebase.auth().currentUser.uid});
-                                  }
-                              )}>
-                            <Icon style={styles.inactiveicon} name="add" />
-                        </Button>
+                            <Button
+                                onPress= {() =>
+                                    ActionSheet.show(
+                                      {
+                                        options: BUTTONS,
+                                        cancelButtonIndex: CANCEL_INDEX,
+                                        title: "How do you want to upload?"
+                                      },
+                                      buttonIndex => {
+                                        this.props.navigation.navigate(LOCATIONS[buttonIndex], {userID: firebase.auth().currentUser.uid});
+                                      }
+                                  )}>
+                                <Icon style={styles.inactiveicon} name="add" />
+                            </Button>
 
-                        <Button
-                            onPress={() => this.props.navigation.navigate('Search', {userID: firebase.auth().currentUser.uid})}>
-                            <Icon style ={styles.inactiveicon} name="search" />
-                        </Button>
-                        <Button
-                            onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
-                            <Icon style ={styles.inactiveicon} name="person" />
-                        </Button>
+                            <Button
+                                onPress={() => this.props.navigation.navigate('Search', {userID: firebase.auth().currentUser.uid})}>
+                                <Icon style ={styles.inactiveicon} name="search" />
+                            </Button>
+                            <Button
+                                onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
+                                <Icon style ={styles.inactiveicon} name="person" />
+                            </Button>
 
-                    </FooterTab>
-                </Footer>
-
-            </Container>
+                        </FooterTab>
+                    </Footer>
+                </Container>
             </Root>
         );
     }
-
 }
 
 

@@ -7,25 +7,6 @@ import { withNavigation } from 'react-navigation';
 import { ListItem }  from 'react-native-elements'
 
 
-// given a post id returns a list of comment strings
-function getComments(postID) {
-    console.log("postID: " + postID)
-    var comments = [];
-    var db = firebase.firestore();
-    var ref = db.collection("Comments");
-    // var query = ref.where("postID", "==", postID)
-
-    ref.get().then(function(results) {
-        // console.log(results);
-        results.forEach(function(doc) {
-            comments.push(doc.data().text)
-        });
-    });
-
-    return comments;
-}
-
-
 class Comments extends React.Component {
     // initialize state
     constructor(props) {
@@ -33,18 +14,34 @@ class Comments extends React.Component {
 
         this.state = {
             comment: '',
-            postID: this.props.navigation.getParam('postID')
+            postID: this.props.navigation.getParam('postID'),
+            comments: [],
         }
     }
 
     componentDidMount() {
         console.log("inside component did mount")
-        // this.getPosts()
-    }
+        var comments = [];
+        var db = firebase.firestore();
+        var ref = db.collection("Comments");
+        var query = ref.where("postID", "==", this.state.postID)
 
-    componentWillReceiveProps(newprops) {
-        // this.getPosts()
-        console.log("inside of componenet will receive props")
+        query.get().then(function(results) {
+            results.forEach(function(doc) {
+                console.log(doc.data());
+                comments.push(
+                    <ListItem
+                        key={doc.data().text}
+                        title={doc.data().text}
+                        containerStyle={styles.comment}
+                        titleStyle={styles.commentText}
+                    />
+                )
+            });
+            this.setState({
+                comments: comments,
+            });
+        }.bind(this))
     }
 
     // store comment in firebase
@@ -62,18 +59,9 @@ class Comments extends React.Component {
         ref.set(commentDoc).then(function() {
             console.log("stored new comment in db");
             this.setState({finishedCommment: true});
+            this.forceUpdate();
             // todo: rerender comments view and jump to top
         });
-    }
-
-    // maps a comment string to a list item
-    toComment = (text, i) => {
-        <ListItem
-            key={i}
-            title={text}
-            containerStyle={styles.comment}
-            titleStyle={styles.commentText}
-        />
     }
 
     render() {
@@ -94,7 +82,7 @@ class Comments extends React.Component {
                 </Header>
 
                 <Content>
-                    {getComments(this.state.postID).map(this.toComment)}
+                    {this.state.comments}
 
                     <Grid>
                         <Row style={{paddingLeft: 10, paddingRight: 10}}>

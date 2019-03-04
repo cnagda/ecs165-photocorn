@@ -114,7 +114,7 @@ class PostView extends React.Component {
                             </Col>
                             <Col size={75} style={{paddingLeft: 10}}>
                                 <Button transparent
-                                    onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}
+                                    onPress={() => this.props.navigation.navigate('Profile', {userID: this.state.postUser})}
                                     style={{marginTop: -5}}>
                                     <Text style = {styles.posterName}>{this.state.name}</Text>
                                 </Button>
