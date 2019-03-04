@@ -13,9 +13,9 @@ function getComments(postID) {
     var comments = [];
     var db = firebase.firestore();
     var ref = db.collection("Comments");
-    var query = ref.where("postID", "==", postID)
+    // var query = ref.where("postID", "==", postID)
 
-    query.get().then(function(results) {
+    ref.get().then(function(results) {
         // console.log(results);
         results.forEach(function(doc) {
             comments.push(doc.data().text)
