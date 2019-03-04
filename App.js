@@ -18,6 +18,7 @@ import ViewPost from './screens/ViewPost';
 import Search from './screens/Search';
 import SearchTags from './screens/SearchTags';
 import SearchPostView from './screens/SearchPostView'
+import Comments from './screens/Comments'
 
 
 // initialize firebase
@@ -47,6 +48,7 @@ const MainStack = createStackNavigator(
         Search: Search,
         SearchTags: SearchTags,
         SearchPostView: SearchPostView,
+        Comments: Comments,
     },
     {
         initialRouteName: 'Loading',

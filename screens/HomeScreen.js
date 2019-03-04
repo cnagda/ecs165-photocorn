@@ -204,8 +204,9 @@ export default class HomeScreen extends React.Component {
              if (Object.keys(postList).length > 0) {
                 return postList
             } else {
-                return <View style = {{alignItems: 'center', justifyContent: 'center', height:50, width: 50}}></View>
-                //<Button title="Oops, the unicorns are sleeping. Refresh now." onPress={this._onRefresh} color=  '#f300a2'/>
+                return 
+                // return <View style = {{alignItems: 'center', justifyContent: 'center', height:50, width: 50}}></View>
+                // <Button title="Oops, the unicorns are sleeping. Refresh now." onPress={this._onRefresh} color=  '#f300a2'/>
             }
         }
 
