@@ -58,13 +58,27 @@ class Comments extends React.Component {
 
         ref.set(commentDoc).then(function() {
             console.log("stored new comment in db");
-            this.setState({finishedCommment: true});
-            this.forceUpdate();
+            this.setState((prevState, props) => {
+                return {
+                    comments: prevState.comments.concat(<ListItem
+                                                      key={prevState.comment}
+                                                      title={prevState.comment}
+                                                      containerStyle={styles.comment}
+                                                      titleStyle={styles.commentText}
+                                                    />),
+                    comment: "",
+                };
+            })
+
+
             // todo: rerender comments view and jump to top
-        });
+            // also sort comments by time or something instead of the random uid....or be bad and put the timestamp in the name so it auto sorts
+
+        }.bind(this));
     }
 
     render() {
+
         return (
             <Container style={styles.container}>
                 <Header>
