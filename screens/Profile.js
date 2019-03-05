@@ -5,6 +5,7 @@ import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK 
 // import { Footer, FooterTab, Icon, Button, Text } from 'native-base';
 import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, Grid, Col, ActionSheet, Root } from 'native-base';
 //import { getProfileImage } from '../utils/Photos'
+import PhotoGrid from '../utils/PhotoGrid'
 
 var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
 var LOCATIONS = ["NewPost", "NewPost", "HomeScreen"]
@@ -26,7 +27,6 @@ export default class Loading extends React.Component {
               photoList: this.getPhotos(this.props.navigation.getParam('userID', firebase.auth().currentUser.uid)),
 
         }
-        this.renderItem = this.renderItem.bind(this)
 
     }
 
@@ -34,7 +34,6 @@ export default class Loading extends React.Component {
         console.log("inside get user info")
         users_ref.doc(this.state.userViewing).get().then(function(doc) {
             this.getProfileImage(this.state.userViewing);
-            //this.getPhotos();
             this.setState(
                 {
                     firstname: doc.data().first,
@@ -86,9 +85,7 @@ export default class Loading extends React.Component {
             users_ref = firebase.firestore().collection("users");
             users_ref.doc(this.state.userViewing).get().then(function(doc) {
                 this.getProfileImage(this.state.userViewing);
-                //this.getPhotos(this.state.userViewing).then(function(photolist) {
-                //    this.setState({photoList: photolist})
-                //}.bind(this))
+                
                 this.setState(
                     {
                         firstname: doc.data().first,
@@ -124,9 +121,6 @@ export default class Loading extends React.Component {
 
     getPhotos (user){
         var postIDs = [];
-        //var urlList = [];
-        var photoIDList = [];
-
 
 
 
@@ -140,7 +134,6 @@ export default class Loading extends React.Component {
                 if (user == doc.data().userID) {         //if the post was made by current user
                     postIDs.push(doc.data().postID);
                     photo_ref = firebase.firestore().collection("Photo").doc(doc.data().postID);
-                    photoIDList.push({key: doc.data().postID})
                     photo_ref.get().then(function(doc1) {
                         if (doc1.exists) {
                             urlList.push(doc1.data().imageUri)
@@ -157,37 +150,13 @@ export default class Loading extends React.Component {
             console.log("List of photos I will send: " + postIDs)
             this.setState(                                                          //set states to rerender
                 {
-                    photoList: postIDs, urlList: urlList, photoIDList: photoIDList,
+                    photoList: postIDs, urlList: urlList,
                 }
             );
         }.bind(this))
         return postIDs;
     }
 
-    renderItem({ item, index }) {
-
-        console.log(index)
-        //console.log("this is the photodata: " + this.state.photoIDList)
-        //console.log(item.key)
-        if (urlList.length > index) {
-            var uri = urlList[index]
-            //console.log(uri)
-
-            return <View style={{
-                    flex: 1,
-                    width: Dimensions.get('window').width/3,
-                    height: Dimensions.get('window').width/3,
-                    backgroundColor: COLOR_BACKGRND,
-                }}>
-                <TouchableHighlight onPress={() => this.props.navigation.navigate('StalkerView', {postdata: this.state.photoIDList, index: index})}>
-                  <Image style={{width: Dimensions.get('window').width/3, height: Dimensions.get('window').width/3}} source = {{uri: uri}} defaultSource={"http://i68.tinypic.com/awt7ko.jpg"} />
-                  </TouchableHighlight>
-                </View>
-        }
-
-
-
-  }
 
 
     getProfileImage = async(user) => {
@@ -265,50 +234,7 @@ export default class Loading extends React.Component {
         const isAlreadyFollowing = this.state.isAlreadyFollowing;
         console.log("from render: " + isEditable + " " + isAlreadyFollowing)
         return (
-            /*
-            <View style={styles.container}>
-                <View style={{flex:1, flexDirection:'row', marginBottom:40, marginLeft:20,}} >
-                    <View style={{flex:1, flexDirection:'column'}}>
-                        <Image
-                          style= {styles.circle}
-                        source = {{uri:   this.state.profileImageURL}}
-                      />
-                        <Text style = {styles.textMainTwo}>{this.state.firstname} {this.state.lastname}</Text>
-                    </View>
-                    <View style = {styles.followButton} >
-                        {this.displayFollowEditButton(isEditable, isAlreadyFollowing)}
-                    </View>
-                </View>
-                <View style={{flex:2, flexDirection: 'row',marginLeft:20,}}>
-                    <View style={{flex:1, flexDirection:'column',}} >
-                        <Text style = {styles.textMainTwo}>About</Text>
-                        <Text style = {styles.textSecond}>Birthday:</Text>
-                        <Text style= {styles.textVal}> {this.state.birthday}</Text>
-                        <Text style={styles.textSecond}>Bio: </Text>
-                        <Text style={styles.textVal}>{this.state.bio}</Text>
-                        <Text style = {styles.textSecond}>Interests: </Text>
-                        <Text style={styles.textVal}>{this.state.interests}</Text>
-                    </View>
-                </View>
-                <Footer style={styles.footer}>
-                    <FooterTab>
-                        <Button
-                            onPress={() => this.props.navigation.navigate('HomeScreen')}>
-                            <Icon name="home" />
-                        </Button>
-                        <Button
-                            onPress={() => this.props.navigation.navigate('NewPostUpload', {userID: firebase.auth().currentUser.uid})}>
-                            <Icon name="add" />
-                        </Button>
-                        <Button>
-                            <Icon name="search" />
-                        </Button>
-                        <Button active>
-                            <Icon style={styles.icon} name="person" />
-                        </Button>
-                    </FooterTab>
-                </Footer>
-            </View>*/
+
             <Root>
             <Container style={styles.container}>
                 <Content>
@@ -346,7 +272,8 @@ export default class Loading extends React.Component {
                         <Text style={{color: 'white'}}>Log Out</Text>
                     </Button>
                     <View style={{flex:2, flexDirection: 'column',alignItems: 'flex-start'}}>
-                    <FlatList contentContainerStyle={styles.list} data={this.state.photoIDList} renderItem={this.renderItem} initialNumToRender={8}/>
+                    {/*<FlatList contentContainerStyle={styles.list} data={this.state.photoIDList} renderItem={this.renderItem} initialNumToRender={8}/>*/}
+                    <PhotoGrid photos={this.state.photoList}/>
                     </View>
                 </Content>
 

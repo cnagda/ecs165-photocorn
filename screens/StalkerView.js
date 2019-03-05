@@ -1,7 +1,6 @@
 import React from 'react'
 // import { StyleSheet, Platform, Image, Text, View, Button, ScrollView, RefreshControl, } from 'react-native'
 import { StyleSheet, ScrollView, RefreshControl, Dimensions, View, FlatList } from 'react-native'
-import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 import PostView from '../utils/Post'
@@ -33,13 +32,12 @@ export default class StalkerView extends React.Component {
 
 
     componentWillReceiveProps(newprops) {
-        this.setState({postdata: this.props.navigation.state.postdata, index: this.props.navigation.state.index})
-
+        
 
     }
 
     renderItem({ item, index }) {
-
+        console.log(item.key)
 
             return <View style={{
                     flex: 1,
@@ -50,7 +48,7 @@ export default class StalkerView extends React.Component {
                   <PostView postID={item.key} />
                 </View>
 
-            //return <Text style={styles.posterName}>HIIIIIII {index}</Text>
+
 
 
   }
