@@ -17,6 +17,7 @@ class Comments extends React.Component {
             postID: this.props.navigation.getParam('postID'),
             comments: [],
         }
+        this.handleComment = this.handleComment.bind(this)
     }
 
     componentDidMount() {
@@ -56,6 +57,9 @@ class Comments extends React.Component {
             timestamp: firebase.firestore.Timestamp.fromDate(new Date())
         };
 
+
+
+
         ref.set(commentDoc).then(function() {
             console.log("stored new comment in db");
             this.setState((prevState, props) => {
@@ -75,6 +79,51 @@ class Comments extends React.Component {
             // also sort comments by time or something instead of the random uid....or be bad and put the timestamp in the name so it auto sorts
 
         }.bind(this));
+
+        firebase.firestore().collection("Updates").where("postid", "==", this.state.postID).where("type", "==", "LIKE/COMMENT").get().then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+                console.log("found one")
+                newnumComments = doc.data().numComments + 1
+                doc.ref.update({
+                    numComments: newnumComments,
+                    actUserComment: firebase.auth().currentUser.uid,
+                    timestampComment:  firebase.firestore.Timestamp.fromDate(new Date()),
+                }).then(function() {
+                    console.log("success")
+                }).catch(function(error) {
+                    console.log("Error updating document: " + error);
+                });
+            })
+        }).then(function() {
+            var regex = new RegExp(/(\@(\w|\b)+)/, 'g')
+            var mentions = this.state.comment.match(regex)
+            if (mentions) {
+                this.state.comment.match(regex).forEach(function(mention) {
+                    console.log("found a mention: " + mention.substr(1))
+                    firebase.firestore().collection("users").where("username", "==", mention.substr(1)).get().then(function(querySnapshot) {
+                        querySnapshot.forEach(function(doc) {
+                            console.log("found a user match for the mention")
+                            firebase.firestore().collection("Updates").add({
+                                type: "MENTION",
+                                postid: this.state.postID,
+                                currUser: doc.data().uid,
+                                timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
+                                actUser: firebase.auth().currentUser.uid,
+                                mentionType: "comment",
+                                text: this.state.comment,
+                            }).then(function(docRef) {
+                                console.log("Document written with ID: ", docRef.id);
+                            })
+                            .catch(function(error) {
+                                console.error("Error adding document: ", error);
+                            });
+                        }.bind(this))
+                    }.bind(this))
+                }.bind(this))
+            }
+        }.bind(this))
+
+
     }
 
     render() {

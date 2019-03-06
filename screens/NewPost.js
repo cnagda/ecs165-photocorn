@@ -38,6 +38,8 @@ export default class NewPost extends React.Component {
 
     handlePost = () => {
         const { uploadedImageURL, photoID, caption, numComments, userID, tags } = this.state
+
+
         firebase.firestore().collection("Posts").doc(photoID).set({
             photoID: photoID,
             postID: photoID,
@@ -76,7 +78,42 @@ export default class NewPost extends React.Component {
                     })
                 //}
 
-                this.setState({finishedPost: true});
+
+            }.bind(this)).then(function() {
+                firebase.firestore().collection("Updates").doc().set({
+                    type: "LIKE/COMMENT",
+                    postid: photoID,
+                    numLikes: 0,
+                    numComments: 0,
+                    currUser: firebase.auth().currentUser.uid,
+                    timestampLike:  firebase.firestore.Timestamp.fromDate(new Date()),
+                    timestampComment:  firebase.firestore.Timestamp.fromDate(new Date()),
+                    actUserComment: "",
+                    actUserLike: "",
+                }).then(function() {
+                    var regex = new RegExp(/(\@(\w|\b)+)/, 'g')
+                    var mentions = caption.match(regex)
+                    if (mentions) {
+                        mentions.forEach(function(mention) {
+                            firebase.firestore().collection("users").where("username", "==", mention.substr(1) ).get().then(function(querySnapshot) {
+                                querySnapshot.forEach(function(doc) {
+                                    firebase.firestore().collection("Updates").doc().set({
+                                        type: "MENTION",
+                                        postid: photoID,
+                                        currUser: doc.data().uid,
+                                        timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
+                                        actUser: firebase.auth().currentUser.uid,
+                                        mentionType: "post",
+                                        text: caption,
+                                    })
+                                }.bind(this))
+                            }.bind(this))
+                        }.bind(this))
+
+                    }
+                    this.setState({finishedPost: true});
+                }.bind(this))
+
             }.bind(this))
         }.bind(this))
 
@@ -142,7 +179,8 @@ export default class NewPost extends React.Component {
             });
 
             if (!result.cancelled) {
-                await this.setState({image: result.uri, });
+                this.setState({base64: result.base64})
+                //await this.setState({image: result.uri,});
                 const path = "Posts/".concat(this.state.photoID, ".jpg");
                 console.log(result.uri);
                 console.log(path);

@@ -98,6 +98,25 @@ class PostView extends React.Component {
             }
     };
 
+    handleLike = () => {
+        console.log("in handle like")
+        firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE/COMMENT").get().then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+                console.log("found one")
+                newnumLikes = doc.data().numLikes + 1
+                doc.ref.update({
+                    numLikes: newnumLikes,
+                    actUserLike: firebase.auth().currentUser.uid,
+                    timestampLike:  firebase.firestore.Timestamp.fromDate(new Date()),
+                }).then(function() {
+                    console.log("success")
+                }).catch(function(error) {
+                    console.log("Error updating document: " + error);
+                });
+            })
+        })
+    }
+
     render() {
         if (Boolean(this.state.isImgLoading) ) {
             return ( false )
@@ -143,7 +162,8 @@ class PostView extends React.Component {
                                     <Icon
                                         type="Feather"
                                         name="heart"
-                                        style={{color: COLOR_LGREY}}/>
+                                        style={{color: COLOR_LGREY}}
+                                        onPress={this.handleLike}/>
                                 </Button>
                                 <Button icon transparent>
                                     <Icon

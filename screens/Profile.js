@@ -85,7 +85,7 @@ export default class Loading extends React.Component {
             users_ref = firebase.firestore().collection("users");
             users_ref.doc(this.state.userViewing).get().then(function(doc) {
                 this.getProfileImage(this.state.userViewing);
-                
+
                 this.setState(
                     {
                         firstname: doc.data().first,
@@ -183,6 +183,12 @@ export default class Loading extends React.Component {
                 this.setState({followedJustNow: true});
                 this.setState({unfollowedJustNow: false});
             }.bind(this))
+            firebase.firestore().collection("Updates").doc().set({
+                actUser: currentUser,
+                currUser: userViewing,
+                type: "FOLLOW",
+                timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
+            })
 
     };
 
@@ -193,6 +199,13 @@ export default class Loading extends React.Component {
                 this.setState({followedJustNow: false});
                 this.setState({unfollowedJustNow: true});
                 console.log("Successfully deleted document in Follows", currentUser)
+            }.bind(this))
+
+            firebase.firestore().collection("Updates").where("currUser", "==", userViewing).where("actUser", "==", currentUser).get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {
+                    console.log("deleting")
+                    doc.ref.delete()
+                }.bind(this))
             }.bind(this))
 
     };
