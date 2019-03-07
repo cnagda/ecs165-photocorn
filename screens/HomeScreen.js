@@ -214,6 +214,11 @@ export default class HomeScreen extends React.Component {
                             </Button>
 
                             <Button
+                                onPress={() => this.props.navigation.navigate('Search', {userID: firebase.auth().currentUser.uid})}>
+                                <Icon style ={styles.inactiveicon} name="search" />
+                            </Button>
+
+                            <Button
                                 onPress= {() =>
                                     ActionSheet.show(
                                       {
@@ -229,9 +234,14 @@ export default class HomeScreen extends React.Component {
                             </Button>
 
                             <Button
-                                onPress={() => this.props.navigation.navigate('Search', {userID: firebase.auth().currentUser.uid})}>
-                                <Icon style ={styles.inactiveicon} name="search" />
+                                onPress={() => this.props.navigation.navigate('Updates', {userID: firebase.auth().currentUser.uid})}>
+                                <Icon
+                                    type="MaterialIcons"
+                                    name="notifications"
+                                    style={{color: COLOR_LGREY}}/>
                             </Button>
+
+
                             <Button
                                 onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
                                 <Icon style ={styles.inactiveicon} name="person" />
