@@ -166,7 +166,7 @@ export default class Loading extends React.Component {
 
     handleFollow = () => {
         const {currentUser, userViewing } = this.state
-            firebase.firestore().collection("Follows").doc(currentUser).set({
+            firebase.firestore().collection("Follows").doc().set({
                 followedID: userViewing,
                 userID: currentUser,
             }).then(function() {
@@ -185,10 +185,14 @@ export default class Loading extends React.Component {
 
     handleUnFollow = () => {
         const {currentUser, userViewing } = this.state
-            firebase.firestore().collection("Follows").doc(currentUser).delete().then(function(){
-                this.setState({followedJustNow: false});
-                this.setState({unfollowedJustNow: true});
-                console.log("Successfully deleted document in Follows", currentUser)
+            firebase.firestore().collection("Follows").where("userID", "==", currentUser).get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {
+                    doc.ref.delete().then(function(){
+                        this.setState({followedJustNow: false});
+                        this.setState({unfollowedJustNow: true});
+                        console.log("Successfully deleted document in Follows", currentUser)
+                    }.bind(this))
+                }.bind(this))
             }.bind(this))
 
             firebase.firestore().collection("Updates").where("currUser", "==", userViewing).where("actUser", "==", currentUser).get().then(function(querySnapshot) {
