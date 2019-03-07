@@ -12,7 +12,7 @@ var LOCATIONS = ["NewPost", "NewPost", "HomeScreen"]
 var METHOD = ["camera", "upload", "none"]
 var CANCEL_INDEX = 2;
 
-urlList = []
+
 
 export default class Loading extends React.Component {
 
@@ -133,24 +133,14 @@ export default class Loading extends React.Component {
             querySnapshot.forEach(function(doc) {                                   //for each post
                 if (user == doc.data().userID) {         //if the post was made by current user
                     postIDs.push(doc.data().postID);
-                    photo_ref = firebase.firestore().collection("Photo").doc(doc.data().postID);
-                    photo_ref.get().then(function(doc1) {
-                        if (doc1.exists) {
-                            urlList.push(doc1.data().imageUri)
-                            console.log("pushed " + doc1.data().imageUri)
-                        } else {
-                            urlList.push("http://i68.tinypic.com/awt7ko.jpg")
-                            console.log("pushed " + "http://i68.tinypic.com/awt7ko.jpg")
-                        }
 
-                    })
 
                 }
             });
             console.log("List of photos I will send: " + postIDs)
             this.setState(                                                          //set states to rerender
                 {
-                    photoList: postIDs, urlList: urlList,
+                    photoList: postIDs,
                 }
             );
         }.bind(this))
@@ -276,14 +266,14 @@ export default class Loading extends React.Component {
                         </View>
                     </View>
 
-                    <Button transparent
+                    {this.props.navigation.getParam('userID', '') == firebase.auth().currentUser.uid ? <Button transparent
                         style={{marginLeft: 5}}
                         onPress={() => firebase.auth().signOut().then(function() {
                         console.log('Signed Out');
                         this.props.navigation.navigate('Login')
                         }.bind(this))}>
                         <Text style={{color: 'white'}}>Log Out</Text>
-                    </Button>
+                    </Button> : null}
                     <View style={{flex:2, flexDirection: 'column',alignItems: 'flex-start'}}>
                     {/*<FlatList contentContainerStyle={styles.list} data={this.state.photoIDList} renderItem={this.renderItem} initialNumToRender={8}/>*/}
                     <PhotoGrid photos={this.state.photoList}/>

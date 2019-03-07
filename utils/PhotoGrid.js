@@ -14,7 +14,7 @@ import { Button, Container, Content } from 'native-base';
 import { Grid, Row, Col } from 'react-native-easy-grid';
 import { withNavigation } from 'react-navigation';
 import {LinearGradient} from 'expo'
-
+import * as firebase from 'firebase';
 
 
 class PhotoGrid extends React.Component {
@@ -27,6 +27,8 @@ class PhotoGrid extends React.Component {
         this.state = {
             isLoading: true,
             ready: false,
+            photoIDList: [],
+            urlList: [],
         }
         this.getPhotoIDList = this.getPhotoIDList.bind(this)
         this.renderItem = this.renderItem.bind(this)
@@ -42,25 +44,75 @@ class PhotoGrid extends React.Component {
     }
 
     componentWillReceiveProps() {
-        "made it into component will receive props in photo grid"
+        console.log("made it into component will receive props in photo grid")
     }
 
     getPhotoIDList = async() => {
         var photoIDList = []
+        var urlList = []
+        var photoList = this.props.photos
 
-        this.props.photos.forEach(function(photo) {
-            photoIDList.push({key: photo})
+        photoList.forEach(function(photo) {
+            console.log("got a photo")
 
-        })
+            // this.setState((prevState, props) => {
+            //     return {
+            //         photoIDList: prevState.photoIDList.concat({key: photo}),
+            //     };
+            // })
+            //photoIDList.push({key: photo})
+            //console.log("pushed photoID: " + this.state.photoIDList)
+            photo_ref = firebase.firestore().collection("Photo").doc(photo);
+            photo_ref.get().then(function(doc1) {
+                if (doc1.exists) {
+
+                    this.setState((prevState, props) => {
+                        return {
+                            photoIDList: prevState.photoIDList.concat({key: photo, image: doc1.data().imageUri}),
+                            urlList: prevState.urlList.concat(doc1.data().imageUri),
+                        };
+                    })
+
+                    // this.setState((prevState, props) => {
+                    //     return {
+                    //         urlList: prevState.urlList.concat(doc1.data().imageUri),
+                    //     };
+                    // })
+                    //urlList.push(doc1.data().imageUri)
+                    console.log("pushed " + doc1.data().imageUri)
+                    console.log("pushed urlList: " + this.state.urlList)
+                } else {
+
+                    this.setState((prevState, props) => {
+                        return {
+                            photoIDList: prevState.photoIDList.concat({key: photo, image:"http://i68.tinypic.com/awt7ko.jpg"}),
+                            urlList: prevState.urlList.concat("http://i68.tinypic.com/awt7ko.jpg"),
+                        };
+                    })
+
+                    // this.setState((prevState, props) => {
+                    //     return {
+                    //         urlList: prevState.urlList.concat("http://i68.tinypic.com/awt7ko.jpg"),
+                    //     };
+                    // })
+                    //urlList.push("http://i68.tinypic.com/awt7ko.jpg")
+                    console.log("pushed " + "http://i68.tinypic.com/awt7ko.jpg")
+                }
+
+            }.bind(this))
+        }.bind(this))
         console.log(photoIDList)
-        await this.setState({photoIDList: photoIDList, })
+        //await this.setState({photoIDList: photoIDList, urlList: urlList })
     }
 
     renderItem({ item, index }) {
 
         console.log(index)
-        if (urlList.length > index) {
-            var uri = urlList[index]
+
+        //var urlList = this.state.urlList
+        //console.log("urllist length: " + urlList.length)
+        if (item.image) {
+            var uri = item.image
 
             return <View style={{
                     flex: 1,

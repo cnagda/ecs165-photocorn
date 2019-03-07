@@ -176,7 +176,6 @@ export default class Updates extends React.Component {
     getActUserProfilePic = async(uid) => {
         const path = "ProfilePictures/".concat(uid,".jpg");
         const image_ref = firebase.storage().ref(path);
-        let currThis = this;
 
         // image_ref.getDownloadURL().then(onResolve, onReject);
         // function onResolve(downloadURL) {
