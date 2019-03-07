@@ -201,8 +201,7 @@ export default class Updates extends React.Component {
         return (
             <Container style={styles.container}>
 
-
-                <Content>
+                <Content contentContainerStyle={styles.content} >
                     {this.state.updates}
                 </Content>
 
@@ -261,7 +260,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_BACKGRND,
     },
     content: {
-        alignItems: 'center',
+        marginTop: 30,
     },
     footer: {
         backgroundColor: COLOR_DGREY,
@@ -275,15 +274,6 @@ const styles = StyleSheet.create({
     },
     inactiveicon: {
         color: COLOR_LGREY
-    },
-    search: {
-        height: 40,
-        width: 300,
-        color: COLOR_PINK,
-        marginTop: 20,
-        backgroundColor: COLOR_DGREY,
-        paddingLeft: 10,
-        borderRadius: 12,
     },
     result: {
         backgroundColor: COLOR_DGREY,
