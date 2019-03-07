@@ -37,7 +37,6 @@ class PhotoGrid extends React.Component {
 
     componentWillMount() {
         console.log("called get photo id list")
-        //console.log("urlList: " + this.props.urls)
         this.getPhotoIDList().then(function() {
             this.setState({ready: true})
         })
@@ -55,13 +54,7 @@ class PhotoGrid extends React.Component {
         photoList.forEach(function(photo) {
             console.log("got a photo")
 
-            // this.setState((prevState, props) => {
-            //     return {
-            //         photoIDList: prevState.photoIDList.concat({key: photo}),
-            //     };
-            // })
-            //photoIDList.push({key: photo})
-            //console.log("pushed photoID: " + this.state.photoIDList)
+
             photo_ref = firebase.firestore().collection("Photo").doc(photo);
             photo_ref.get().then(function(doc1) {
                 if (doc1.exists) {
@@ -73,14 +66,7 @@ class PhotoGrid extends React.Component {
                         };
                     })
 
-                    // this.setState((prevState, props) => {
-                    //     return {
-                    //         urlList: prevState.urlList.concat(doc1.data().imageUri),
-                    //     };
-                    // })
-                    //urlList.push(doc1.data().imageUri)
-                    console.log("pushed " + doc1.data().imageUri)
-                    console.log("pushed urlList: " + this.state.urlList)
+
                 } else {
 
                     this.setState((prevState, props) => {
@@ -90,27 +76,17 @@ class PhotoGrid extends React.Component {
                         };
                     })
 
-                    // this.setState((prevState, props) => {
-                    //     return {
-                    //         urlList: prevState.urlList.concat("http://i68.tinypic.com/awt7ko.jpg"),
-                    //     };
-                    // })
-                    //urlList.push("http://i68.tinypic.com/awt7ko.jpg")
-                    console.log("pushed " + "http://i68.tinypic.com/awt7ko.jpg")
                 }
 
             }.bind(this))
         }.bind(this))
         console.log(photoIDList)
-        //await this.setState({photoIDList: photoIDList, urlList: urlList })
     }
 
     renderItem({ item, index }) {
 
         console.log(index)
 
-        //var urlList = this.state.urlList
-        //console.log("urllist length: " + urlList.length)
         if (item.image) {
             var uri = item.image
 
