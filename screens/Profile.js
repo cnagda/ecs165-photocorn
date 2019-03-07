@@ -296,6 +296,12 @@ export default class Loading extends React.Component {
                             onPress={() => this.props.navigation.navigate('HomeScreen', {userID: firebase.auth().currentUser.uid})}>
                             <Icon style ={styles.inactiveicon} name="home" />
                         </Button>
+
+                        <Button
+                            onPress={() => this.props.navigation.navigate('Search', {userID: firebase.auth().currentUser.uid})}>
+                            <Icon style ={styles.inactiveicon} name="search" />
+                        </Button>
+
                         <Button
                             onPress= {() =>
                                 ActionSheet.show(
@@ -310,10 +316,17 @@ export default class Loading extends React.Component {
                               )}>
                             <Icon style ={styles.inactiveicon} name="add" />
                         </Button>
+
+
                         <Button
-                            onPress={() => this.props.navigation.navigate('Search', {userID: firebase.auth().currentUser.uid})}>
-                            <Icon style ={styles.inactiveicon} name="search" />
+                            onPress={() => this.props.navigation.navigate('Updates', {userID: firebase.auth().currentUser.uid})}>
+                            <Icon
+                                type="MaterialIcons"
+                                name="notifications"
+                                style={{color: COLOR_LGREY}}/>
                         </Button>
+
+
                         <Button active style={{backgroundColor: 'transparent'}}>
                             <Icon style={styles.icon} name="person" />
                         </Button>
