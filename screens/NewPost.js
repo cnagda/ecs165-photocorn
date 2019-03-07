@@ -81,39 +81,44 @@ export default class NewPost extends React.Component {
 
             }.bind(this)).then(function() {
                 firebase.firestore().collection("Updates").doc().set({
-                    type: "LIKE/COMMENT",
+                    type: "LIKE",
                     postid: photoID,
                     numLikes: 0,
-                    numComments: 0,
                     currUser: firebase.auth().currentUser.uid,
-                    timestampLike:  firebase.firestore.Timestamp.fromDate(new Date()),
-                    timestampComment:  firebase.firestore.Timestamp.fromDate(new Date()),
-                    actUserComment: "",
-                    actUserLike: "",
+                    timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
+                    actUser: "",
                 }).then(function() {
-                    var regex = new RegExp(/(\@(\w|\b)+)/, 'g')
-                    var mentions = caption.match(regex)
-                    if (mentions) {
-                        mentions.forEach(function(mention) {
-                            firebase.firestore().collection("users").where("username", "==", mention.substr(1) ).get().then(function(querySnapshot) {
-                                querySnapshot.forEach(function(doc) {
-                                    firebase.firestore().collection("Updates").doc().set({
-                                        type: "MENTION",
-                                        postid: photoID,
-                                        currUser: doc.data().uid,
-                                        timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
-                                        actUser: firebase.auth().currentUser.uid,
-                                        mentionType: "post",
-                                        text: caption,
-                                    })
+                    firebase.firestore().collection("Updates").doc().set({
+                        type: "COMMENT",
+                        postid: photoID,
+                        numComments: 0,
+                        currUser: firebase.auth().currentUser.uid,
+                        timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
+                        actUser: "",
+                    }).then(function() {
+                        var regex = new RegExp(/(\@(\w|\b)+)/, 'g')
+                        var mentions = caption.match(regex)
+                        if (mentions) {
+                            mentions.forEach(function(mention) {
+                                firebase.firestore().collection("users").where("username", "==", mention.substr(1) ).get().then(function(querySnapshot) {
+                                    querySnapshot.forEach(function(doc) {
+                                        firebase.firestore().collection("Updates").doc().set({
+                                            type: "MENTION",
+                                            postid: photoID,
+                                            currUser: doc.data().uid,
+                                            timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
+                                            actUser: firebase.auth().currentUser.uid,
+                                            mentionType: "post",
+                                            text: caption,
+                                        })
+                                    }.bind(this))
                                 }.bind(this))
                             }.bind(this))
-                        }.bind(this))
 
-                    }
-                    this.setState({finishedPost: true});
+                        }
+                        this.setState({finishedPost: true});
+                    }.bind(this))
                 }.bind(this))
-
             }.bind(this))
         }.bind(this))
 

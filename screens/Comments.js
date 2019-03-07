@@ -80,14 +80,14 @@ class Comments extends React.Component {
 
         }.bind(this));
 
-        firebase.firestore().collection("Updates").where("postid", "==", this.state.postID).where("type", "==", "LIKE/COMMENT").get().then(function(querySnapshot) {
+        firebase.firestore().collection("Updates").where("postid", "==", this.state.postID).where("type", "==", "COMMENT").get().then(function(querySnapshot) {
             querySnapshot.forEach(function(doc) {
                 console.log("found one")
                 newnumComments = doc.data().numComments + 1
                 doc.ref.update({
                     numComments: newnumComments,
-                    actUserComment: firebase.auth().currentUser.uid,
-                    timestampComment:  firebase.firestore.Timestamp.fromDate(new Date()),
+                    actUser: firebase.auth().currentUser.uid,
+                    timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
                 }).then(function() {
                     console.log("success")
                 }).catch(function(error) {
@@ -96,6 +96,7 @@ class Comments extends React.Component {
             })
         }).then(function() {
             var regex = new RegExp(/(\@(\w|\b)+)/, 'g')
+            var comment = this.state.comment
             var mentions = this.state.comment.match(regex)
             if (mentions) {
                 this.state.comment.match(regex).forEach(function(mention) {
@@ -110,7 +111,7 @@ class Comments extends React.Component {
                                 timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
                                 actUser: firebase.auth().currentUser.uid,
                                 mentionType: "comment",
-                                text: this.state.comment,
+                                text: comment,
                             }).then(function(docRef) {
                                 console.log("Document written with ID: ", docRef.id);
                             })
