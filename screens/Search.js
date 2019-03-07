@@ -15,7 +15,8 @@ import SearchNames from './SearchNames'
 import SearchTags from './SearchTags'
 
 var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
-var LOCATIONS = ["NewPostCamera", "NewPostUpload", "HomeScreen"]
+var LOCATIONS = ["NewPost", "NewPost", "HomeScreen"]
+var METHOD = ["camera", "upload", "none"]
 var CANCEL_INDEX = 2;
 
 
@@ -52,6 +53,10 @@ export default class Search extends React.Component {
                             <Icon style={styles.inactiveicon} name="home" />
                         </Button>
 
+                        <Button active style={{backgroundColor: 'transparent'}}>
+                            <Icon style ={styles.icon} name="search" />
+                        </Button>
+
                         <Button
                             onPress= {() =>
                                 ActionSheet.show(
@@ -61,15 +66,23 @@ export default class Search extends React.Component {
                                     title: "How do you want to upload?"
                                   },
                                   buttonIndex => {
-                                    this.props.navigation.navigate(LOCATIONS[buttonIndex], {userID: firebase.auth().currentUser.uid});
+                                    this.props.navigation.navigate(LOCATIONS[buttonIndex], {method: METHOD[buttonIndex]});
                                   }
                               )}>
                             <Icon style={styles.inactiveicon} name="add" />
                         </Button>
 
-                        <Button active style={{backgroundColor: 'transparent'}}>
-                            <Icon style ={styles.icon} name="search" />
+
+
+                        <Button
+                            onPress={() => this.props.navigation.navigate('Updates', {userID: firebase.auth().currentUser.uid})}>
+                            <Icon
+                                type="MaterialIcons"
+                                name="notifications"
+                                style={{color: COLOR_LGREY}}/>
                         </Button>
+
+
                         <Button
                             onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
                             <Icon style ={styles.inactiveicon} name="person" />

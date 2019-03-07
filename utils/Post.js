@@ -1,14 +1,17 @@
 import React from 'react'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_PURPLE, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
-import { AppRegistry, StyleSheet, Text, View, Dimensions, Image } from 'react-native'
-import { Button, Grid, Col } from 'native-base';
+import { AppRegistry, StyleSheet, View, Dimensions, Image } from 'react-native'
+import { Button, Grid, Col, Row, Container, Text, Content, Icon } from 'native-base';
 import { withNavigation } from 'react-navigation';
-import {LinearGradient} from 'expo'
+import { LinearGradient } from 'expo'
+
 
 const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+
+// pretty prints a string given a date object
 Date.prototype.tstring = function() {
   var month = monthNames[this.getMonth()];
   var day = this.getDate();
@@ -18,18 +21,41 @@ Date.prototype.tstring = function() {
   return ["Posted on ", month, ' ', day, " at ", hh, ":", mm].join('');
 };
 
-class PostView extends React.Component {
 
+// pretty print a string of space separated tags
+function getTagString(str) {
+    var res = ' '
+
+    // remove extra white space and hashtag symbols
+    try {
+        var tags = str.split(' ');
+        str = str.trim()
+        var regexp = new RegExp('#([^\\s]*)','g');
+        str = str.replace(regexp, 'REPLACED');
+
+        var i;
+        for(i = 0; i < tags.length - 1; i++) {
+            res += '#';
+            res += tags[i]
+            res += ' '
+        }
+    }
+    catch(err) { }
+    return(res);
+}
+
+
+class PostView extends React.Component {
     constructor(props) {
         super(props);
-        // this.toProfile = this.toProfile.bind(this);
 
         this.state = {
-          isImgLoading: true,
-       }
+            isImgLoading: true,
+        }
     }
-    // authenticate user
+
     componentDidMount() {
+        // authenticate user
         postID = this.props.postID;
         post_ref = firebase.firestore().collection("Posts");
         post_ref.doc(this.props.postID).get().then(function(doc) {
@@ -59,31 +85,118 @@ class PostView extends React.Component {
         }.bind(this)).catch ((error) => {console.error(error);});
     }
 
-    componentWillMount() {
+    componentWillMount() {}
 
-
-
-    }
-
-    toProfile(prof) {
-        this.props.toProfile(prof);
-    }
-
+    // given a user id fetch profile picture from storage
     getProfileImage = async(user) => {
             const path = "ProfilePictures/".concat(user, ".jpg");
             const image_ref = firebase.storage().ref(path);
             const downloadURL = await image_ref.getDownloadURL()
 
             if (!downloadURL.cancelled) {
-              this.setState({profileImageURL: downloadURL,isImgLoading:false,});
-          }
+                this.setState({profileImageURL: downloadURL,isImgLoading:false,});
+            }
     };
+
+    handleLike = () => {
+        console.log("in handle like")
+        firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE").get().then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+                console.log("found one")
+                newnumLikes = doc.data().numLikes + 1
+                doc.ref.update({
+                    numLikes: newnumLikes,
+                    actUser: firebase.auth().currentUser.uid,
+                    timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
+                }).then(function() {
+                    console.log("success")
+                }).catch(function(error) {
+                    console.log("Error updating document: " + error);
+                });
+            })
+        })
+    }
 
     render() {
         if (Boolean(this.state.isImgLoading) ) {
             return ( false )
         }
+
         return (
+            <Container style={styles.container}>
+                <Content scrollEnabled={false}>
+                    <Grid>
+                        {/*post header*/}
+                        <Row style={styles.postHeader}>
+                            <Col size={15} style={{paddingLeft: 10}}>
+                                <Image style={styles.profile} source={{uri: this.state.profileImageURL}}/>
+                            </Col>
+                            <Col size={75} style={{paddingLeft: 10}}>
+                                <Button transparent
+                                    onPress={() => this.props.navigation.navigate('Profile', {userID: this.state.postUser})}
+                                    style={{marginTop: -5}}>
+                                    <Text style = {styles.posterName}>{this.state.name}</Text>
+                                </Button>
+                                <Text style={styles.timestamp}>{this.state.timestamp}</Text>
+                            </Col>
+                        </Row>
+
+                        {/*post image*/}
+                        <LinearGradient
+                            colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
+                            style={styles.backBox}>
+                        <Row>
+                            <Image
+                                style={styles.image}
+                                source={{uri: this.state.imageUri}}
+                            />
+                        </Row>
+                        </LinearGradient>
+
+                        {/*post footer*/}
+                        <Col style={styles.postFooter}>
+                            {/*task bar*/}
+                            <Row style={{paddingLeft: 10}}>
+                                <Button icon transparent
+                                    style={{marginLeft: -15}}>
+                                    <Icon
+                                        type="Feather"
+                                        name="heart"
+                                        style={{color: COLOR_LGREY}}
+                                        onPress={this.handleLike}/>
+                                </Button>
+                                <Button icon transparent>
+                                    <Icon
+                                        type="Feather"
+                                        name="message-square"
+                                        style={{color: COLOR_LGREY}}
+                                        onPress={() => this.props.navigation.navigate('Comments', {postID: this.props.postID})}/>
+                                </Button>
+                                <Button icon transparent>
+                                    <Icon
+                                        type="Feather"
+                                        name="info"
+                                        style={{color: COLOR_LGREY}}/>
+                                </Button>
+                            </Row>
+                            {/*likes*/}
+                            <Row style={{paddingLeft: 10, paddingBottom: 3}}>
+                                <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}>Liked by </Text>
+                                <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>chandninagda </Text>
+                                <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}>and </Text>
+                                <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>238 others </Text>
+                            </Row>
+                            {/*caption*/}
+                            <Text style={{paddingLeft: 10, paddingTop: 5}}>
+                                <Text style={styles.caption}>{this.state.caption}</Text>
+                                <Text style={styles.tags}>{getTagString(this.state.tags)}</Text>
+                            </Text>
+                        </Col>
+                    </Grid>
+                </Content>
+            </Container>
+
+            /*
             <View style={styles.container}>
             <LinearGradient
               colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
@@ -124,15 +237,13 @@ class PostView extends React.Component {
                             </View>
                         </View>
                     </View>
-
-
-
                 </LinearGradient>
+
                 <View style={{height: 80, width: Dimensions.get('window').width, flexDirection: 'column', flex: 1, paddingTop: 10}}>
                     <Text style = {styles.tags}>{this.state.tags}</Text>
                     <Text style = {styles.caption}>{this.state.caption}</Text>
                 </View>
-            </View>
+            </View>*/
         )
     }
 }
@@ -141,13 +252,9 @@ export default withNavigation(PostView);
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        flexDirection: 'column',
         fontSize: 20,
-        justifyContent: 'center',
-        alignItems: 'flex-start',
         backgroundColor: COLOR_BACKGRND,
-        marginBottom: 10
+        marginBottom: 20
     },
     backBox: {
         // height: Dimensions.get('window').width + 75,
@@ -166,45 +273,38 @@ const styles = StyleSheet.create({
     image: {
         height: Dimensions.get('window').width,
         width: Dimensions.get('window').width,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     profile: {
         height: 54,
         width: 54,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderRadius: 54/2,
-        marginTop: 0,
+        borderRadius: 54 / 2,
     },
     posterName: {
         color: COLOR_PINK,
         fontSize: 18,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    smallInfoLeft: {
-        color: 'white',
-        fontSize: 15,
-        marginLeft: 20,
-        alignItems: 'flex-start'
     },
     caption: {
         color: COLOR_LGREY,
         fontSize: 15,
-        marginLeft: 20,
-        alignItems: 'flex-start'
     },
     tags: {
-        color: COLOR_PURPLE,
+        color: COLOR_PURPLEPINK,
         fontSize: 15,
-        marginLeft: 20,
-        alignItems: 'flex-start'
+        fontWeight: 'bold'
     },
-    smallInfoRight: {
-        color: 'white',
-        fontSize: 15,
-        marginRight: 20,
-        alignItems: 'flex-end'
+    timestamp: {
+        color: COLOR_LGREY,
+        marginLeft: 16,
+        marginTop: -10
     },
+    postHeader: {
+        paddingBottom: 8,
+        paddingTop: 8,
+        backgroundColor: COLOR_DGREY
+    },
+    postFooter: {
+        paddingBottom: 8,
+        paddingTop: 8,
+        backgroundColor: COLOR_DGREY
+    }
 })

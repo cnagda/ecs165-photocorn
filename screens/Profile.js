@@ -1,14 +1,18 @@
 import React from 'react'
-import { View, StyleSheet, TouchableHighlight, Image } from 'react-native'
+import { View, StyleSheet, TouchableHighlight, Image, FlatList, Dimensions } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 // import { Footer, FooterTab, Icon, Button, Text } from 'native-base';
 import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, Grid, Col, ActionSheet, Root } from 'native-base';
 //import { getProfileImage } from '../utils/Photos'
+import PhotoGrid from '../utils/PhotoGrid'
 
 var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
-var LOCATIONS = ["NewPostCamera", "NewPostUpload", "HomeScreen"]
+var LOCATIONS = ["NewPost", "NewPost", "HomeScreen"]
+var METHOD = ["camera", "upload", "none"]
 var CANCEL_INDEX = 2;
+
+
 
 export default class Loading extends React.Component {
 
@@ -18,18 +22,18 @@ export default class Loading extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
+        this.state = {isLoading: true,
+                isImgLoading: true,
+              photoList: this.getPhotos(this.props.navigation.getParam('userID', firebase.auth().currentUser.uid)),
 
-        this.state = {
-          isLoading: true,
-          isImgLoading: true,
-       }
+        }
+
     }
 
     getUserInfo = async(users_ref) => {
         console.log("inside get user info")
         users_ref.doc(this.state.userViewing).get().then(function(doc) {
             this.getProfileImage(this.state.userViewing);
-
             this.setState(
                 {
                     firstname: doc.data().first,
@@ -47,7 +51,7 @@ export default class Loading extends React.Component {
     };
 
     // authenticate user
-    componentWillMount() {
+    componentDidMount() {
         console.log("in component did mount")
         currentUserVar = firebase.auth().currentUser.uid;
         userViewingVar = this.props.navigation.getParam('userID', firebase.auth().currentUser.uid);
@@ -114,6 +118,37 @@ export default class Loading extends React.Component {
         console.log("in component will receive props")
     }
 
+
+    getPhotos (user){
+        var postIDs = [];
+
+
+
+        //Get all photos from a user by getting all postids from a user (postid is same as photoid)
+        posts_ref = firebase.firestore().collection("Posts")                        //get the Posts collection
+        posts_ref
+        .orderBy("timestamp", "desc")                                               //order by time descending
+        .get()
+        .then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {                                   //for each post
+                if (user == doc.data().userID) {         //if the post was made by current user
+                    postIDs.push(doc.data().postID);
+
+
+                }
+            });
+            console.log("List of photos I will send: " + postIDs)
+            this.setState(                                                          //set states to rerender
+                {
+                    photoList: postIDs,
+                }
+            );
+        }.bind(this))
+        return postIDs;
+    }
+
+
+
     getProfileImage = async(user) => {
           console.log("in get profile image");
             console.log(user)
@@ -138,6 +173,12 @@ export default class Loading extends React.Component {
                 this.setState({followedJustNow: true});
                 this.setState({unfollowedJustNow: false});
             }.bind(this))
+            firebase.firestore().collection("Updates").doc().set({
+                actUser: currentUser,
+                currUser: userViewing,
+                type: "FOLLOW",
+                timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
+            })
 
     };
 
@@ -148,6 +189,13 @@ export default class Loading extends React.Component {
                 this.setState({followedJustNow: false});
                 this.setState({unfollowedJustNow: true});
                 console.log("Successfully deleted document in Follows", currentUser)
+            }.bind(this))
+
+            firebase.firestore().collection("Updates").where("currUser", "==", userViewing).where("actUser", "==", currentUser).get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(doc) {
+                    console.log("deleting")
+                    doc.ref.delete()
+                }.bind(this))
             }.bind(this))
 
     };
@@ -189,52 +237,7 @@ export default class Loading extends React.Component {
         const isAlreadyFollowing = this.state.isAlreadyFollowing;
         console.log("from render: " + isEditable + " " + isAlreadyFollowing)
         return (
-            /*
-            <View style={styles.container}>
-                <View style={{flex:1, flexDirection:'row', marginBottom:40, marginLeft:20,}} >
-                    <View style={{flex:1, flexDirection:'column'}}>
-                        <Image
-                          style= {styles.circle}
-                        source = {{uri:   this.state.profileImageURL}}
-                      />
-                        <Text style = {styles.textMainTwo}>{this.state.firstname} {this.state.lastname}</Text>
 
-                    </View>
-                    <View style = {styles.followButton} >
-                        {this.displayFollowEditButton(isEditable, isAlreadyFollowing)}
-                    </View>
-                </View>
-                <View style={{flex:2, flexDirection: 'row',marginLeft:20,}}>
-                    <View style={{flex:1, flexDirection:'column',}} >
-                        <Text style = {styles.textMainTwo}>About</Text>
-                        <Text style = {styles.textSecond}>Birthday:</Text>
-                        <Text style= {styles.textVal}> {this.state.birthday}</Text>
-                        <Text style={styles.textSecond}>Bio: </Text>
-                        <Text style={styles.textVal}>{this.state.bio}</Text>
-                        <Text style = {styles.textSecond}>Interests: </Text>
-                        <Text style={styles.textVal}>{this.state.interests}</Text>
-                    </View>
-                </View>
-
-                <Footer style={styles.footer}>
-                    <FooterTab>
-                        <Button
-                            onPress={() => this.props.navigation.navigate('HomeScreen')}>
-                            <Icon name="home" />
-                        </Button>
-                        <Button
-                            onPress={() => this.props.navigation.navigate('NewPostUpload', {userID: firebase.auth().currentUser.uid})}>
-                            <Icon name="add" />
-                        </Button>
-                        <Button>
-                            <Icon name="search" />
-                        </Button>
-                        <Button active>
-                            <Icon style={styles.icon} name="person" />
-                        </Button>
-                    </FooterTab>
-                </Footer>
-            </View>*/
             <Root>
             <Container style={styles.container}>
                 <Content>
@@ -263,14 +266,18 @@ export default class Loading extends React.Component {
                         </View>
                     </View>
 
-                    <Button transparent
+                    {this.props.navigation.getParam('userID', '') == firebase.auth().currentUser.uid ? <Button transparent
                         style={{marginLeft: 5}}
                         onPress={() => firebase.auth().signOut().then(function() {
                         console.log('Signed Out');
                         this.props.navigation.navigate('Login')
                         }.bind(this))}>
                         <Text style={{color: 'white'}}>Log Out</Text>
-                    </Button>
+                    </Button> : null}
+                    <View style={{flex:2, flexDirection: 'column',alignItems: 'flex-start'}}>
+                    {/*<FlatList contentContainerStyle={styles.list} data={this.state.photoIDList} renderItem={this.renderItem} initialNumToRender={8}/>*/}
+                    <PhotoGrid photos={this.state.photoList}/>
+                    </View>
                 </Content>
 
                 <Footer style={styles.footer}>
@@ -279,6 +286,12 @@ export default class Loading extends React.Component {
                             onPress={() => this.props.navigation.navigate('HomeScreen', {userID: firebase.auth().currentUser.uid})}>
                             <Icon style ={styles.inactiveicon} name="home" />
                         </Button>
+
+                        <Button
+                            onPress={() => this.props.navigation.navigate('Search', {userID: firebase.auth().currentUser.uid})}>
+                            <Icon style ={styles.inactiveicon} name="search" />
+                        </Button>
+
                         <Button
                             onPress= {() =>
                                 ActionSheet.show(
@@ -288,15 +301,22 @@ export default class Loading extends React.Component {
                                     title: "How do you want to upload?"
                                   },
                                   buttonIndex => {
-                                    this.props.navigation.navigate(LOCATIONS[buttonIndex], {userID: firebase.auth().currentUser.uid});
+                                    this.props.navigation.navigate(LOCATIONS[buttonIndex], {method: METHOD[buttonIndex]});
                                   }
                               )}>
                             <Icon style ={styles.inactiveicon} name="add" />
                         </Button>
+
+
                         <Button
-                            onPress={() => this.props.navigation.navigate('Search', {userID: firebase.auth().currentUser.uid})}>
-                            <Icon style ={styles.inactiveicon} name="search" />
+                            onPress={() => this.props.navigation.navigate('Updates', {userID: firebase.auth().currentUser.uid})}>
+                            <Icon
+                                type="MaterialIcons"
+                                name="notifications"
+                                style={{color: COLOR_LGREY}}/>
                         </Button>
+
+
                         <Button active style={{backgroundColor: 'transparent'}}>
                             <Icon style={styles.icon} name="person" />
                         </Button>
@@ -394,5 +414,10 @@ const styles = StyleSheet.create({
     },
     inactiveicon: {
         color: COLOR_LGREY
+    },
+    list: {
+        justifyContent: 'center',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
     }
 })
