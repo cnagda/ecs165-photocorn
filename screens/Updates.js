@@ -1,12 +1,16 @@
 import React from 'react'
-import { StyleSheet, ScrollView, RefreshControl, View, Platform , StatusBar, TextInput, Dimensions } from 'react-native'
+import { StyleSheet, ScrollView, RefreshControl, View, Platform , StatusBar, TextInput, Dimensions, Image } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 import { Container, Header, Title, Content, Button, Left, Right, Body, Icon, Text, Row, Grid, Col, Footer, FooterTab } from 'native-base';
 import { ListItem }  from 'react-native-elements'
 
+const monthNames1 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+
 Date.prototype.tstring3 = function() {
-  var month = monthNames[this.getMonth()];
+  var month = monthNames1[this.getMonth()];
   var day = this.getDate();
   var hh = this.getHours();
   var mm = this.getMinutes();
@@ -34,64 +38,129 @@ export default class Updates extends React.Component {
             console.log("looked for current users matching this user")
             querySnapshot.forEach(function(doc) {
                 console.log("found an update for this user")
-                niceTimestamp = doc.data().timestamp.toDate().tstring3();
-                timestampkey = doc.data().actUser + doc.data().type + niceTimestamp;
+                var niceTimestamp = doc.data().timestamp.toDate().tstring3();
+                //niceTimestamp = doc.data().timestamp.toDate().toString();
+                var timestampkey = doc.data().actUser + doc.data().type + niceTimestamp;
                 console.log("nice timestamp: " + niceTimestamp)
                 console.log("key: " + timestampkey)
                 actUserUN = ""
-                firebase.firestore().collection("users").doc(doc.data().actUser).get().then(function(doc) {
-                    actUserUN = doc.data().username
+                firebase.firestore().collection("users").doc(doc.data().actUser).get().then(function(doc2) {
+                    actUserUN = doc2.data().username
                     console.log("username: " + doc.data().username)
                 }).then(function() {
                     this.getActUserProfilePic(doc.data().actUser).then(function(avatarurl) {
                         console.log("avatar url: " + avatarurl)
                         switch(doc.data().type) {
                             case "MENTION":
-                                this.getPhoto(doc.data().postid).then(function(photourl){
-                                    console.log("photourl: " + photourl)
+                                console.log("was a mention")
+                                firebase.firestore().collection("Photo").doc(doc.data().postid).get().then(function(doc1) {
+                                    photourl = doc1.data().imageUri
                                     if(doc.data().mentionType == "comment") {
-                                        updates.push(<ListItem
-                                            roundAvatar
-                                            leftAvatar={{ source: { uri: avatarurl } }}
-                                            key={timestampkey}
-                                            title={ actUserUN + " mentioned you in a comment: " + doc.data().text}
-                                            onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
-                                            containerStyle={styles.result}
-                                            subtitleStyle={styles.timeText}
-                                            titleStyle={styles.resultText}
-                                            subtitle={niceTimestamp}
-                                            rightElement={<Image style={styles.smallImg} source={{uri: photourl}}/>}
-                                        />)
+                                        this.setState((prevState, props) => {
+                                            return {
+                                                updates: prevState.updates.concat(<ListItem
+                                                    roundAvatar
+                                                    leftAvatar={{ source: { uri: avatarurl } }}
+                                                    key={timestampkey}
+                                                    title={ actUserUN + " mentioned you in a comment: " + doc.data().text}
+                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    containerStyle={styles.result}
+                                                    subtitleStyle={styles.timeText}
+                                                    titleStyle={styles.resultText}
+                                                    subtitle={niceTimestamp}
+                                                    rightElement={<Image style={styles.smallImg} source={{uri: photourl}}/>}
+                                                />),
+                                            };
+                                        })
                                     } else {
-                                        updates.push(<ListItem
-                                            roundAvatar
-                                            leftAvatar={{ source: { uri: avatarurl } }}
-                                            key={timestampkey}
-                                            title={ actUserUN + " mentioned you in a post: " + doc.data().text}
-                                            onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
-                                            containerStyle={styles.result}
-                                            subtitleStyle={styles.timeText}
-                                            titleStyle={styles.resultText}
-                                            subtitle={niceTimestamp}
-                                            rightElement={<Image style={styles.smallImg} source={{uri: photourl}}/>}
-                                        />)
+                                        this.setState((prevState, props) => {
+                                            return {
+                                                updates: prevState.updates.concat(<ListItem
+                                                    roundAvatar
+                                                    leftAvatar={{ source: { uri: avatarurl } }}
+                                                    key={timestampkey}
+                                                    title={ actUserUN + " mentioned you in a post: " + doc.data().text}
+                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    containerStyle={styles.result}
+                                                    subtitleStyle={styles.timeText}
+                                                    titleStyle={styles.resultText}
+                                                    subtitle={niceTimestamp}
+                                                    rightElement={<Image style={styles.smallImg} source={{uri: photourl}}/>}
+                                                />),
+                                            };
+                                        })
+                                    }
+                                }.bind(this))
+
+                                break;
+                            case "LIKE":
+                                console.log("was a like")
+                                firebase.firestore().collection("Photo").doc(doc.data().postid).get().then(function(doc1) {
+                                    photourl = doc1.data().imageUri
+                                    otherlikes = doc.data().numLikes - 1;
+                                    if(doc.data().numLikes > 0) {
+                                        this.setState((prevState, props) => {
+                                            return {
+                                                updates: prevState.updates.concat(<ListItem
+                                                    roundAvatar
+                                                    leftAvatar={{ source: { uri: avatarurl } }}
+                                                    key={timestampkey}
+                                                    title={ actUserUN + " and " + otherlikes + " others liked your post"}
+                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    containerStyle={styles.result}
+                                                    subtitleStyle={styles.timeText}
+                                                    titleStyle={styles.resultText}
+                                                    subtitle={niceTimestamp}
+                                                    rightElement={<Image style={styles.smallImg} source={{uri: photourl}}/>}
+                                                />),
+                                            };
+                                        })
                                     }
                                 }.bind(this))
                                 break;
-                            case "LIKE":
-                                this.getPhoto(doc.data().postid).then(function(photourl){
-
-                                }.bind(this))
-                                break;
                             case "COMMENT":
-                                this.getPhoto(doc.data().postid).then(function(photourl){
-
+                                console.log("was a comment")
+                                firebase.firestore().collection("Photo").doc(doc.data().postid).get().then(function(doc1) {
+                                    photourl = doc1.data().imageUri
+                                    othercomments = doc.data().numComments - 1;
+                                    if(doc.data().numComments > 0) {
+                                        this.setState((prevState, props) => {
+                                            return {
+                                                updates: prevState.updates.concat(<ListItem
+                                                    roundAvatar
+                                                    leftAvatar={{ source: { uri: avatarurl } }}
+                                                    key={timestampkey}
+                                                    title={ actUserUN + " and " + othercomments + " commented on your post"}
+                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    containerStyle={styles.result}
+                                                    subtitleStyle={styles.timeText}
+                                                    titleStyle={styles.resultText}
+                                                    subtitle={niceTimestamp}
+                                                    rightElement={<Image style={styles.smallImg} source={{uri: photourl}}/>}
+                                                />),
+                                            };
+                                        })
+                                    }
                                 }.bind(this))
                                 break;
                             case "FOLLOW":
+                                this.setState((prevState, props) => {
+                                    return {
+                                        updates: prevState.updates.concat(<ListItem
+                                            roundAvatar
+                                            leftAvatar={{ source: { uri: avatarurl } }}
+                                            key={timestampkey}
+                                            title={ actUserUN + " followed you"}
+                                            onPress={() => this.props.navigation.navigate('Profile', {userID: doc.data().actUser})}
+                                            containerStyle={styles.result}
+                                            subtitleStyle={styles.timeText}
+                                            titleStyle={styles.resultText}
+                                            subtitle={niceTimestamp}
+                                        />),
+                                    };
+                                })
                                 break;
                         }
-                        console.log(updates)
                     }.bind(this))
                 }.bind(this))
             }.bind(this))
@@ -99,27 +168,31 @@ export default class Updates extends React.Component {
             this.setState({
                 updates: updates
             })
-        }.bind(this))
+        }.bind(this)).catch(function(error) {
+            console.log("Error searching document: " + error);
+        });
     }
 
-    getActUserProfilePic = (uid) => {
+    getActUserProfilePic = async(uid) => {
         const path = "ProfilePictures/".concat(uid,".jpg");
         const image_ref = firebase.storage().ref(path);
         let currThis = this;
-        image_ref.getDownloadURL().then(onResolve, onReject);
-        function onResolve(downloadURL) {
-            return downloadURL
-        }
-        function onReject(error){ //photo not found
-            return "http://i68.tinypic.com/awt7ko.jpg"
-        }
+
+        // image_ref.getDownloadURL().then(onResolve, onReject);
+        // function onResolve(downloadURL) {
+        //     console.log("downloadurl: " + downloadURL)
+        //     url = downloadURL
+        // }
+        // function onReject(error){ //photo not found
+        //     url = "http://i68.tinypic.com/awt7ko.jpg"
+        // }
+
+        url = await image_ref.getDownloadURL()
+
+        return url
     }
 
-    getPhoto = (postid) => {
-        firebase.firestore().collection("Photo").doc(postid).get.then(function(doc) {
-            return doc.data().imageUri
-        })
-    }
+
 
 
 
@@ -224,7 +297,7 @@ const styles = StyleSheet.create({
         color: COLOR_LGREY
     },
     smallImg: {
-        width: 50,
-        height: 50,
-    }
+        width: 75,
+        height: 75,
+    },
 })
