@@ -126,12 +126,12 @@ class PostView extends React.Component {
                         <LinearGradient
                             colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
                             style={styles.backBox}>
-                        <Row>
-                            <Image
-                                style={styles.image}
-                                source={{uri: this.state.imageUri}}
-                            />
-                        </Row>
+                            <Row>
+                                <Image
+                                    style={styles.image}
+                                    source={{uri: this.state.imageUri}}
+                                />
+                            </Row>
                         </LinearGradient>
 
                         {/*post footer*/}

@@ -23,44 +23,88 @@ class Comments extends React.Component {
         console.log("inside component did mount")
         var comments = [];
         var db = firebase.firestore();
-        var ref = db.collection("Comments");
-        var query = ref.where("postID", "==", this.state.postID)
+        var com_ref = db.collection("Comments");
+        var com_query = com_ref.where("postID", "==", this.state.postID)
 
-        query.get().then(function(results) {
-            results.forEach(function(doc) {
-                console.log(doc.data());
-                comments.push(
-                    <ListItem
-                        key={doc.data().text}
-                        title={doc.data().text}
-                        containerStyle={styles.comment}
-                        titleStyle={styles.commentText}
-                    />
-                )
+        com_query.get().then(function(results) {
+            const promises = []
+
+            results.forEach(com_doc => {
+                const promise = new Promise((resolve, reject) => {
+                    var user_ref = db.collection("users").doc(com_doc.data().userID);
+                    var comment;
+                    user_ref.get().then(function(user_doc) {
+                        comment =
+                            <ListItem
+                            key={doc.data().text}
+                            title={doc.data().text}
+                            containerStyle={styles.comment}
+                            titleStyle={styles.commentText}
+                            />
+                        resolve(comment);
+                    });
+                });
+                promises.push(promise);
             });
-            this.setState({
-                comments: comments,
-            });
-        }.bind(this))
-    }
+
+            Promise.all(promises).then(comments => {
+                console.log("promise fulfilled");
+                this.setState({
+                    comments: comments,
+                });
+            })
+       }.bind(this))
+   }
+
+   // get user profile picture
+   getAvatar = async(uid) => {
+       const path = "ProfilePictures/".concat(uid, ".jpg");
+       const image_ref = firebase.storage().ref(path);
+       var url = await image_ref.getDownloadURL();
+       return url;
+   }
+
 
     // store comment in firebase
     handleComment = () => {
         var db = firebase.firestore();
         var ref = db.collection("Comments").doc()
-        var commentDoc = {
-            commentID: ref.id,
-            postID: this.state.postID,
-            userID: firebase.auth().currentUser.uid,
-            text: this.state.comment,
-            timestamp: firebase.firestore.Timestamp.fromDate(new Date())
-        };
+        var uid = firebase.auth().currentUser.uid;
 
-        ref.set(commentDoc).then(function() {
-            console.log("stored new comment in db");
-            this.setState({finishedCommment: true});
-            this.forceUpdate();
-            // todo: rerender comments view and jump to top
+        // get user information
+        var user_data;
+        var user_ref = db.collection("users").doc(uid);
+        user_ref.get().then(function(user_doc) {
+            user_data = user_doc.data();
+            this.getAvatar(uid).then(function(avatarurl) {
+                var com_doc = {
+                    commentID: ref.id,
+                    postID: this.state.postID,
+                    text: this.state.comment,
+                    timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
+                    user: {
+                        userID: uid,
+                        username: user_data.username,
+                        avatar: avatarurl
+                    }
+                };
+
+                ref.set(com_doc).then(function() {
+                    console.log("stored new comment in db");
+                    this.setState((prevState, props) => {
+                        return {
+                            comments: prevState.comments.concat(
+                                <ListItem
+                                  key={prevState.comment}
+                                  title={prevState.comment}
+                                  containerStyle={styles.comment}
+                                  titleStyle={styles.commentText}
+                                />),
+                            comment: "",
+                        };
+                    });
+                }.bind(this));
+            });
         });
     }
 
