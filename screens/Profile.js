@@ -68,8 +68,9 @@ export default class Loading extends React.Component {
         console.log(userViewingVar)
         console.log(isEditableVar)
 
-        this.displayFollowerList()
+
         this.displayFollowingList()
+        this.displayFollowerList()
 
         follows_ref = firebase.firestore().collection("Follows");
         follows_ref
@@ -256,16 +257,18 @@ export default class Loading extends React.Component {
     renderItem1({ item, index }) {
         var uid = item.key
         var imageurl1 = item.uri
-        console.log("made it to renderitem: " + uid + imageurl1)
+        var username = item.username
+        console.log("made it to renderitem: " + uid + username)
         if (item.uri) {
             return (<View style={{
                     flex: 1,
                     backgroundColor: COLOR_BACKGRND,
                     width: 90,
-                    height: 90,
-                }}><TouchableHighlight onPress={() => this.props.navigation.navigate('Profile', {userID: uid})}>
+                    height: 110,
+                    alignItems: 'center',
+                }}><TouchableHighlight onPress={() => this.props.navigation.push('Profile', {userID: uid})}>
                   <Image style={styles.smallcircle} source = {{uri: imageurl1}}  />
-                  </TouchableHighlight></View>);
+                  </TouchableHighlight><Text style={{color: COLOR_LGREY, fontSize: 12}}>{username}</Text></View>);
                   //console.log("rendered: " + rendered)
             //rendered = <Text style={styles.textMainOne}>HI</Text>
         }
@@ -278,20 +281,17 @@ export default class Loading extends React.Component {
         firebase.firestore().collection("Follows").where("followedID", "==", this.props.navigation.getParam('userID', firebase.auth().currentUser.uid)).get().then(function(querySnapshot) {
             querySnapshot.forEach(function(doc) {
                 this.getProfileImageSimple(doc.data().userID).then(function(url) {
-                    this.setState((prevState, props) => {
-                        return {
-                            followers: prevState.followers.concat({key: doc.data().userID, uri: url}),
-                        };
-                    })
+                    firebase.firestore().collection("users").doc(doc.data().userID).get().then(function(doc1) {
+                        this.setState((prevState, props) => {
+                            return {
+                                followers: prevState.followers.concat({key: doc.data().userID, uri: url, username: doc1.data().username}),
+                            };
+                        })
+                    }.bind(this))
                 }.bind(this))
-
-                // followers.push({key: doc.data().userID})
                 console.log("pushed a follower of this user")
             }.bind(this))
             console.log("made it out of the querySnapshot forEach: " + followers)
-            //  this.setState({
-            //     followerList: <ScrollView horizontal><FlatList contentContainerStyle={styles.list} data={this.state.followers} renderItem={this.renderItem1} initialNumToRender={8}/></ScrollView>,
-            // })
         }.bind(this))
     };
 
@@ -302,20 +302,18 @@ export default class Loading extends React.Component {
         firebase.firestore().collection("Follows").where("userID", "==", this.props.navigation.getParam('userID', firebase.auth().currentUser.uid)).get().then(function(querySnapshot) {
             querySnapshot.forEach(function(doc) {
                 this.getProfileImageSimple(doc.data().followedID).then(function(url) {
-                    this.setState((prevState, props) => {
-                        return {
-                            pyf: prevState.pyf.concat({key: doc.data().followedID, uri: url}),
-                        };
-                    })
+                    firebase.firestore().collection("users").doc(doc.data().followedID).get().then(function(doc1) {
+                        console.log("here's a username: " + doc1.data().username)
+                        this.setState((prevState, props) => {
+                            return {
+                                pyf: prevState.pyf.concat({key: doc.data().followedID, uri: url, username: doc1.data().username}),
+                            };
+                        })
+                    }.bind(this))
                 }.bind(this))
-
-                //pyf.push({key: doc.data().followedID})
                 console.log("pushed a person this user follows")
             }.bind(this))
             console.log("made it out of the querySnapshot forEach: " + pyf)
-            // this.setState({
-            //      followingList: <ScrollView horizontal><FlatList contentContainerStyle={styles.list} data={this.state.pyf} renderItem={this.renderItem1} initialNumToRender={8}/></ScrollView>,
-            // })
         }.bind(this))
     };
 
@@ -366,9 +364,17 @@ export default class Loading extends React.Component {
                         }.bind(this))}>
                         <Text style={{color: 'white'}}>Log Out</Text>
                     </Button> : null}
+                    <Button transparent
+                        onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.followers, title: "Followers",})}
+                        style={{marginTop: -5}}>
                     <Text style = {styles.textSecond}>Followers: </Text>
+                    </Button>
                     <FlatList horizontal contentContainerStyle={styles.list} data={this.state.followers} renderItem={this.renderItem1} initialNumToRender={2}/>
+                    <Button transparent
+                        onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.pyf, title: "Following",})}
+                        style={{marginTop: -5}}>
                     <Text style = {styles.textSecond}>Following: </Text>
+                    </Button>
                     <FlatList horizontal contentContainerStyle={styles.list} data={this.state.pyf} renderItem={this.renderItem1} initialNumToRender={2}/>
                     <View style={{flex:2, flexDirection: 'column',alignItems: 'flex-start'}}>
                     {/*<FlatList contentContainerStyle={styles.list} data={this.state.photoIDList} renderItem={this.renderItem} initialNumToRender={8}/>*/}
