@@ -57,6 +57,8 @@ class PostView extends React.Component {
     componentDidMount() {
         // authenticate user
         postID = this.props.postID;
+        // Get the user who is viewing the post.
+        userViewingVar = firebase.auth().currentUser.uid;
         post_ref = firebase.firestore().collection("Posts");
         post_ref.doc(this.props.postID).get().then(function(doc) {
             photo_ref = firebase.firestore().collection("Photo");
@@ -66,7 +68,27 @@ class PostView extends React.Component {
                 users_ref.doc(doc.data().userID).get().then(function(doc1) {
                     timestamp = doc.data().timestamp.toDate();
                     // time_string = "Posted on " + timestamp.getMonth() " at " timestamp.getMinute();
+
+                    // Determine if the currentuser (userViewingVar) already likes the post.
+                    reaction_ref = firebase.firestore().collection("Reaction");
+                    reaction_ref
+                    .where("userID", "==", firebase.auth().currentUser.uid)
+                    .get()
+                    .then(function(querySnapshot) {
+                      console.log("in like verification")
+                      alreadyLikedVar = false;
+                      querySnapshot.forEach(function(doc) {
+                          console.log(doc.data().postID);
+                          // If the current user already liked the current post,
+                          // set alreadyLikedVar to true
+                          if(postID == doc.data().postID) {
+                              alreadyLikedVar = true;
+                              console.log("test")
+                          }
+                      });
+
                     this.setState({
+                        currentUser: userViewingVar,
                         name: doc1.data().first + " " + doc1.data().last,
                         postUser: doc.data().userID,
                         caption: doc.data().caption,
@@ -74,11 +96,15 @@ class PostView extends React.Component {
                         tags: doc.data().tags,
                         imageUri: doc2.data().imageUri,
                         timestamp: timestamp.tstring(),
+                        alreadyLikedVar: alreadyLikedVar,
+                        likedJustNow: false,
+                        unlikedJustNow: false
                     });
                     console.log("caption " + doc.data().caption)
                     console.log("postid " + this.props.postID)
                     console.log("imageuri " + doc2.data().imageUri)
                     console.log("timestamp " + timestamp.tstring())
+                  }.bind(this))
                 }.bind(this))
             }.bind(this))
             this.getProfileImage(doc.data().userID);
@@ -98,8 +124,39 @@ class PostView extends React.Component {
             }
     };
 
+    handleUnlike = () => {
+      console.log("in handle unlike")
+      firebase.firestore().collection("Reaction").where("userID", "==", firebase.auth().currentUser.uid).where("postID", "==", this.props.postID).get().then(function(querySnapshot){
+          querySnapshot.forEach(function(doc) {
+            console.log("about to delete doc")
+            doc.ref.delete()
+            console.log("completed unlike")
+
+          })
+      }).then(function(){
+        this.setState({likedJustNow: false});
+        this.setState({unlikedJustNow: true});
+        console.log("unlike finished")
+      }.bind(this))
+    }
+
+      // Todo: Handle update for unLike
+
+
     handleLike = () => {
         console.log("in handle like")
+        // Add a reaction document corresponding to the current user and the current post.
+            firebase.firestore().collection("Reaction").doc().set({
+                  postID: this.props.postID,
+                  userID: firebase.auth().currentUser.uid,
+                  rid: 1,
+                  rtype: 1
+              }).then(function() {
+                  this.setState({likedJustNow: true});
+                  this.setState({unlikedJustNow: false});
+              }.bind(this))
+
+
         firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE").get().then(function(querySnapshot) {
             querySnapshot.forEach(function(doc) {
                 console.log("found one")
@@ -117,10 +174,40 @@ class PostView extends React.Component {
         })
     }
 
+
+
+    displayLikeButton =  (alreadyLikedVar) => {
+        console.log("alraedyLikedVar: ", alreadyLikedVar)
+        console.log("likedJustNow: ", this.state.likedJustNow)
+        console.log("unlikedJustNow: ", this.state.unlikedJustNow)
+        if ((this.state.likedJustNow || alreadyLikedVar) && ! this.state.unlikedJustNow) {
+            return <Button icon transparent
+                        style={{marginLeft: -15}}>
+                        <Icon
+                            type="FontAwesome"
+                            name="heart"
+                            style={{color: COLOR_LGREY}}
+                            onPress={this.handleUnlike}/>
+                    </Button>;
+            // return <Button title="UnFollow" onPress={this.handleUnFollow} color= 'rgba(228,228,228,0.66)'/>;
+        } else {
+            // return <Button title="Follow" onPress={this.handleFollow} color= 'rgba(228,228,228,0.66)'/>;
+            return <Button icon transparent
+                        style={{marginLeft: -15}}>
+                        <Icon
+                            type="Feather"
+                            name="heart"
+                            style={{color: COLOR_LGREY}}
+                            onPress={this.handleLike}/>
+                    </Button>;
+        }
+    };
+
     render() {
         if (Boolean(this.state.isImgLoading) ) {
             return ( false )
         }
+        const  alreadyLikedVar = this.state.alreadyLikedVar
 
         return (
             <Container style={styles.container}>
@@ -157,14 +244,9 @@ class PostView extends React.Component {
                         <Col style={styles.postFooter}>
                             {/*task bar*/}
                             <Row style={{paddingLeft: 10}}>
-                                <Button icon transparent
-                                    style={{marginLeft: -15}}>
-                                    <Icon
-                                        type="Feather"
-                                        name="heart"
-                                        style={{color: COLOR_LGREY}}
-                                        onPress={this.handleLike}/>
-                                </Button>
+
+                                {this.displayLikeButton(alreadyLikedVar)}
+
                                 <Button icon transparent>
                                     <Icon
                                         type="Feather"
