@@ -186,6 +186,7 @@ export default class NewPost extends React.Component {
             if (!result.cancelled) {
                 this.setState({base64: result.base64})
                 //await this.setState({image: result.uri,});
+                this.submitToGoogle();
                 const path = "Posts/".concat(this.state.photoID, ".jpg");
                 console.log(result.uri);
                 console.log(path);
@@ -215,7 +216,6 @@ export default class NewPost extends React.Component {
     };
 
     submitToGoogle = async () => {
-        /*
         console.log("In submitToGoogle")
         imageURI = this.state.image
         imageURIb64 = this.state.base64
@@ -258,15 +258,26 @@ export default class NewPost extends React.Component {
             );
             console.log("Made response")
             let responseJson = await response.json();
-            console.log(responseJson);
+            //console.log(responseJson);
+            // Get the image labels
+            labels = responseJson["responses"]["0"]["labelAnnotations"]
+
+            parsedLabels = []
+
+            for (var k in labels){
+                currTag = labels[k]
+                console.log(currTag["description"])
+                parsedLabels.push(currTag["description"])
+            }
+            //uploadTags(parsedLabels, this.state.photoID)
             this.setState({
-                googleResponse: responseJson,
+                labels: parsedLabels,
                 uploading: false
             });
+
         } catch (error) {
             console.log(error);
         }
-        */
     };
 
 
