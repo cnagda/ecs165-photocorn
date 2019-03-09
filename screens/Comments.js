@@ -103,6 +103,7 @@ class Comments extends React.Component {
 
 
     render() {
+
         return (
             <Container style={styles.container}>
                 <Header>
