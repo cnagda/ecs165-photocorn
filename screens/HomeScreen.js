@@ -8,7 +8,8 @@ import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Rig
 import { getTheme } from '../native-base-theme/components';
 import { custom } from '../native-base-theme/variables/custom';
 import { withNavigation } from 'react-navigation';
-import {ListItem}  from 'react-native-elements'
+import {ListItem}  from 'react-native-elements';
+import { uploadPhoto } from '../utils/Photos';
 
 var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
 var LOCATIONS = ["NewPost", "NewPost", "HomeScreen"]
@@ -18,42 +19,42 @@ var CANCEL_INDEX = 2;
 const list = []
 
 // upload a given photo to firebase
-function uploadPhoto(uri, uploadUri) {
-    return new Promise(async (res, rej) => {
-        blob = new Promise((resolve, reject) => {
-            var xhr = new XMLHttpRequest();
-            xhr.onerror = reject;
-            xhr.onreadystatechange = () => {
-                if (xhr.readyState === 4) {
-                    resolve(xhr.response);
-                }
-            };
-            xhr.responseType = 'blob'; // convert type
-            xhr.open('GET', uri);
-            xhr.send();
-        });
-
-        // dereference blob and upload
-        blob.then(blob_val => {
-            console.log(blob_val)
-            const ref = firebase.storage().ref(uploadUri);
-            const unsubscribe = ref.put(blob_val).on(
-                    'state_changed',
-                    state => {},
-                    err => {
-                    unsubscribe();
-                    rej(err);
-                    console.log("put blob in storage")
-                },
-                async () => {
-                    unsubscribe();
-                    const url = await ref.getDownloadURL();
-                    res(url);
-                },
-            );
-        });
-    });
-}
+// function uploadPhoto(uri, uploadUri) {
+//     return new Promise(async (res, rej) => {
+//         blob = new Promise((resolve, reject) => {
+//             var xhr = new XMLHttpRequest();
+//             xhr.onerror = reject;
+//             xhr.onreadystatechange = () => {
+//                 if (xhr.readyState === 4) {
+//                     resolve(xhr.response);
+//                 }
+//             };
+//             xhr.responseType = 'blob'; // convert type
+//             xhr.open('GET', uri);
+//             xhr.send();
+//         });
+//
+//         // dereference blob and upload
+//         blob.then(blob_val => {
+//             console.log(blob_val)
+//             const ref = firebase.storage().ref(uploadUri);
+//             const unsubscribe = ref.put(blob_val).on(
+//                     'state_changed',
+//                     state => {},
+//                     err => {
+//                     unsubscribe();
+//                     rej(err);
+//                     console.log("put blob in storage")
+//                 },
+//                 async () => {
+//                     unsubscribe();
+//                     const url = await ref.getDownloadURL();
+//                     res(url);
+//                 },
+//             );
+//         });
+//     });
+// }
 
 
 export default class HomeScreen extends React.Component {

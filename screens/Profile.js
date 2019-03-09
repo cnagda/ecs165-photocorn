@@ -178,6 +178,7 @@ export default class Loading extends React.Component {
               this.setState({profileImageURL: downloadURL,isImgLoading:false,});
               return downloadURL
         }
+        return "http://i68.tinypic.com/awt7ko.jpg";
     };
 
     handleFollow = () => {
