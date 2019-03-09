@@ -126,7 +126,7 @@ class SearchNames extends React.Component {
                                      leftAvatar={{ source: { uri: l.photo } }}
                                      key={l.name}
                                      title={l.name}
-                                     onPress={() => this.props.navigation.navigate('Profile', {userID: l.userID})}
+                                     onPress={() => this.props.navigation.push('Profile', {userID: l.userID})}
                                      containerStyle={styles.result}
                                      titleStyle={styles.resultText}
                                      chevronColor='white'

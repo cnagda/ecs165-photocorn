@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, ScrollView, RefreshControl } from 'react-native'
+import { StyleSheet, ScrollView, RefreshControl, FlatList } from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
@@ -60,7 +60,7 @@ export default class HomeScreen extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
-        this.state = {currentUser: null, name: "user", isLoading: true, postList: null, refreshing: false,}
+        this.state = {currentUser: null, name: "user", isLoading: true, postIDs: null, refreshing: false,}
     }
 
     // authenticate user
@@ -68,16 +68,16 @@ export default class HomeScreen extends React.Component {
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
             console.log("inside get " + firebase.auth().currentUser.uid)
-            this.getPosts(10, firebase.auth().currentUser, doc.data().first);
+            this.getPosts(50, firebase.auth().currentUser, doc.data().first);
 
             // this may be bad because I'm relying on getPosts to take
             // longer so test it with this removed later
             this.setState({
                 isLoading: false,
-                postList: null
+                postIDs: null
             })
 
-            console.log("does it work here? " + this.state.postList)
+            console.log("does it work here? " + this.state.postIDs)
         }.bind(this)).catch ((error) => {console.error(error);});
 
     }
@@ -87,22 +87,21 @@ export default class HomeScreen extends React.Component {
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
             console.log("inside get " + firebase.auth().currentUser.uid)
-            this.getPosts(10, firebase.auth().currentUser, doc.data().first);
+            this.getPosts(50, firebase.auth().currentUser, doc.data().first);
 
             // this may be bad because I'm relying on getPosts to take
             // longer so test it with this removed later
             this.setState({
                 isLoading: false,
-                postList: null
+                postIDs: null
             })
 
-            console.log("does it work here? " + this.state.postList)
+            console.log("does it work here? " + this.state.postIDs)
         }.bind(this)).catch ((error) => {console.error(error);});
     }
 
-    getPosts(numPosts, currUser, firstName){
-        this.setState({postList: null})
-        var postList = [];
+    getPosts(numPostsToGet, currUser, firstName){
+        this.setState({postIDs: null})
         var postIDs = [];
 
         // get up to 10 most recent posts for activity feed
@@ -124,23 +123,21 @@ export default class HomeScreen extends React.Component {
                 querySnapshot.forEach(function(doc) { //for each match
                     if ((followed.includes(doc.data().userID) ||
                             (firebase.auth().currentUser.uid == doc.data().userID))
-                            && numPosts < 10) { //if the post should be in the feed
+                            && numPosts < numPostsToGet) { //if the post should be in the feed
                         console.log("user followed: " + doc.data().userID)
-                        postIDs.push(doc.data().postID);
+                        postIDs.push({key: doc.data().postID});
                         list.push({name: doc.data().userID});
                         numPosts++
                     }
                 });
 
-                postIDs.forEach(function(thisPostID) {
-                    postList.push(<PostView postID={thisPostID}/>);
-                })
+
                 // set states to rerender
                 this.setState(
                     {
                         currentUser: currUser,
                         name: firstName,
-                        postList: postList,
+                        postIDs: postIDs,
                     }
                 );
             }.bind(this))
@@ -148,40 +145,26 @@ export default class HomeScreen extends React.Component {
     }
 
     _onRefresh = () => {
-        this.setState({refreshing: true, postList: null});
+        this.setState({refreshing: true, postIDs: null});
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
             console.log("inside get " + firebase.auth().currentUser.uid)
-            this.getPosts(10, firebase.auth().currentUser, doc.data().first);
+            this.getPosts(50, firebase.auth().currentUser, doc.data().first);
 
             this.setState({
                 isLoading: false,
                 refreshing: false,
             })
 
-            console.log("refresh " + this.state.postList)
+            console.log("refresh " + this.state.postIDs)
             this.forceUpdate()
             //this.forceUpdate();
         }.bind(this)).catch ((error) => {console.error(error);});
     }
 
-    displayPosts = (postList) => {
-        console.log("getting post list: " + postList)
-
-        if (postList == null) {
-            return (false)
-
-        } else {
-
-             if (Object.keys(postList).length > 0) {
-                return postList
-            } else {
-                return
-            }
-        }
-
-
-    };
+    renderItem = ({item, index}) => (
+        <PostView postID={item.key}/>
+    );
 
 
 
@@ -190,7 +173,7 @@ export default class HomeScreen extends React.Component {
             return ( false )
         }
         console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
-        console.log("inside render " + this.state.postList)
+        console.log("inside render " + this.state.postIDs)
 
         return (
             <Root>
@@ -202,7 +185,7 @@ export default class HomeScreen extends React.Component {
                             Welcome, {this.state.name}!
                         </Text>
 
-                        {this.state.postList}
+                        <FlatList contentContainerStyle={styles.list} data={this.state.postIDs} renderItem={this.renderItem} initialNumToRender={3}/>
                     </Content>
 
 

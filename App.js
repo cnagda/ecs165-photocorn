@@ -22,6 +22,7 @@ import Comments from './screens/Comments'
 import NewPost from './screens/NewPost';
 import StalkerView from './screens/StalkerView';
 import Updates from './screens/Updates';
+import ListPeople from './screens/ListPeople';
 
 // initialize firebase
 var config = {
@@ -54,6 +55,7 @@ const MainStack = createStackNavigator(
         NewPost: NewPost,
         StalkerView: StalkerView,
         Updates: Updates,
+        ListPeople: ListPeople,
     },
     {
         initialRouteName: 'Loading',

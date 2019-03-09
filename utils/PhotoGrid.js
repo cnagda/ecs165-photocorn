@@ -85,7 +85,7 @@ class PhotoGrid extends React.Component {
 
     renderItem({ item, index }) {
 
-        console.log(index)
+        //console.log(index)
 
         if (item.image) {
             var uri = item.image

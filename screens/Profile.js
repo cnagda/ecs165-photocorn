@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, StyleSheet, TouchableHighlight, Image, FlatList, Dimensions } from 'react-native'
+import { View, StyleSheet, TouchableHighlight, Image, FlatList, Dimensions, ScrollView } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 // import { Footer, FooterTab, Icon, Button, Text } from 'native-base';
@@ -25,8 +25,16 @@ export default class Loading extends React.Component {
         this.state = {isLoading: true,
                 isImgLoading: true,
               photoList: this.getPhotos(this.props.navigation.getParam('userID', firebase.auth().currentUser.uid)),
+              followers: [],
+              pyf: [],
+              followingList: null,
+              followerList: null,
 
         }
+        this.getProfileImage = this.getProfileImage.bind(this)
+        this.renderItem1 = this.renderItem1.bind(this)
+        this.displayFollowerList = this.displayFollowerList.bind(this)
+        this.displayFollowingList = this.displayFollowingList.bind(this)
 
     }
 
@@ -59,6 +67,10 @@ export default class Loading extends React.Component {
         console.log(currentUserVar)
         console.log(userViewingVar)
         console.log(isEditableVar)
+
+
+        this.displayFollowingList()
+        this.displayFollowerList()
 
         follows_ref = firebase.firestore().collection("Follows");
         follows_ref
@@ -115,6 +127,7 @@ export default class Loading extends React.Component {
     componentWillReceiveProps(newprops) {
         users_ref = firebase.firestore().collection("users");
          this.getUserInfo(users_ref)
+
         console.log("in component will receive props")
     }
 
@@ -150,18 +163,19 @@ export default class Loading extends React.Component {
 
 
     getProfileImage = async(user) => {
-          console.log("in get profile image");
-            console.log(user)
-            const path = "ProfilePictures/".concat(user, ".jpg");
-            console.log(path)
-            const image_ref = firebase.storage().ref(path);
-            const downloadURL = await image_ref.getDownloadURL()
+        console.log("in get profile image");
+        console.log(user)
+        var path = "ProfilePictures/".concat(user, ".jpg");
+        console.log(path)
+        var image_ref = firebase.storage().ref(path);
+        var downloadURL = await image_ref.getDownloadURL()
 
-            if (!downloadURL.cancelled) {
+        if (!downloadURL.cancelled) {
               console.log("testing1")
               console.log(downloadURL)
               this.setState({profileImageURL: downloadURL,isImgLoading:false,});
-          }
+              return downloadURL
+        }
     };
 
     handleFollow = () => {
@@ -231,6 +245,78 @@ export default class Loading extends React.Component {
         }
     };
 
+    getProfileImageSimple = async(uid) => {
+        console.log("uid passed to getprofileimagesimple: " + uid)
+        const path1 = "ProfilePictures/".concat(uid,".jpg");
+        const image_ref1 = firebase.storage().ref(path1);
+        var url = await image_ref1.getDownloadURL()
+        console.log("is this a string: " + url)
+        return url
+    }
+
+    renderItem1({ item, index }) {
+        var uid = item.key
+        var imageurl1 = item.uri
+        var username = item.username
+        console.log("made it to renderitem: " + uid + username)
+        if (item.uri) {
+            return (<View style={{
+                    flex: 1,
+                    backgroundColor: COLOR_BACKGRND,
+                    width: 90,
+                    height: 110,
+                    alignItems: 'center',
+                }}><TouchableHighlight onPress={() => this.props.navigation.push('Profile', {userID: uid})}>
+                  <Image style={styles.smallcircle} source = {{uri: imageurl1}}  />
+                  </TouchableHighlight><Text style={{color: COLOR_LGREY, fontSize: 12}}>{username}</Text></View>);
+                  //console.log("rendered: " + rendered)
+            //rendered = <Text style={styles.textMainOne}>HI</Text>
+        }
+    }
+
+    displayFollowerList = () => {
+        this.setState({
+            followers: []
+        })
+        firebase.firestore().collection("Follows").where("followedID", "==", this.props.navigation.getParam('userID', firebase.auth().currentUser.uid)).get().then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+                this.getProfileImageSimple(doc.data().userID).then(function(url) {
+                    firebase.firestore().collection("users").doc(doc.data().userID).get().then(function(doc1) {
+                        this.setState((prevState, props) => {
+                            return {
+                                followers: prevState.followers.concat({key: doc.data().userID, uri: url, username: doc1.data().username}),
+                            };
+                        })
+                    }.bind(this))
+                }.bind(this))
+                console.log("pushed a follower of this user")
+            }.bind(this))
+            console.log("made it out of the querySnapshot forEach: " + followers)
+        }.bind(this))
+    };
+
+    displayFollowingList = () => {
+        this.setState({
+            pyf: []
+        })
+        firebase.firestore().collection("Follows").where("userID", "==", this.props.navigation.getParam('userID', firebase.auth().currentUser.uid)).get().then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+                this.getProfileImageSimple(doc.data().followedID).then(function(url) {
+                    firebase.firestore().collection("users").doc(doc.data().followedID).get().then(function(doc1) {
+                        console.log("here's a username: " + doc1.data().username)
+                        this.setState((prevState, props) => {
+                            return {
+                                pyf: prevState.pyf.concat({key: doc.data().followedID, uri: url, username: doc1.data().username}),
+                            };
+                        })
+                    }.bind(this))
+                }.bind(this))
+                console.log("pushed a person this user follows")
+            }.bind(this))
+            console.log("made it out of the querySnapshot forEach: " + pyf)
+        }.bind(this))
+    };
+
     render() {
         if (Boolean(this.state.isLoading) || Boolean(this.state.isImgLoading) ) {
             console.log("about to return false")
@@ -278,13 +364,26 @@ export default class Loading extends React.Component {
                         }.bind(this))}>
                         <Text style={{color: 'white'}}>Log Out</Text>
                     </Button> : null}
+                    <Button transparent
+                        onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.followers, title: "Followers",})}
+                        style={{marginTop: -5}}>
+                    <Text style = {styles.textSecond}>Followers: </Text>
+                    </Button>
+                    <FlatList horizontal contentContainerStyle={styles.list} data={this.state.followers} renderItem={this.renderItem1} initialNumToRender={2}/>
+                    <Button transparent
+                        onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.pyf, title: "Following",})}
+                        style={{marginTop: -5}}>
+                    <Text style = {styles.textSecond}>Following: </Text>
+                    </Button>
+                    <FlatList horizontal contentContainerStyle={styles.list} data={this.state.pyf} renderItem={this.renderItem1} initialNumToRender={2}/>
                     <View style={{flex:2, flexDirection: 'column',alignItems: 'flex-start'}}>
                     {/*<FlatList contentContainerStyle={styles.list} data={this.state.photoIDList} renderItem={this.renderItem} initialNumToRender={8}/>*/}
+                    <Text style = {styles.textSecond}>Photos: </Text>
                     <PhotoGrid photos={this.state.photoList}/>
                     </View>
                 </Content>
 
-                <Footer style={styles.footer}>
+                {this.props.navigation.getParam('userID', '') == firebase.auth().currentUser.uid ? <Footer style={styles.footer}>
                     <FooterTab style={styles.footertab}>
                         <Button
                             onPress={() => this.props.navigation.navigate('HomeScreen', {userID: firebase.auth().currentUser.uid})}>
@@ -325,7 +424,7 @@ export default class Loading extends React.Component {
                             <Icon style={styles.icon} name="person" />
                         </Button>
                     </FooterTab>
-                </Footer>
+                </Footer> : null}
             </Container>
             </Root>
         )
@@ -352,6 +451,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: 40,
         marginLeft: 20
+    },
+    smallcircle: {
+        width: 80,
+        height: 80,
+        borderRadius: 80 / 2,
+        // backgroundColor: COLOR_DGREY,
+        // alignItems: 'center',
+        // justifyContent: 'center',
+        // marginTop: 40,
+        // marginLeft: 20
     },
     textMainOne: {
         color: COLOR_PINK,
@@ -422,6 +531,5 @@ const styles = StyleSheet.create({
     list: {
         justifyContent: 'center',
         flexDirection: 'row',
-        flexWrap: 'wrap',
     }
 })
