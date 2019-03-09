@@ -34,6 +34,9 @@ export default class NewPost extends React.Component {
         userID: firebase.auth().currentUser.uid,
         tags: '',
         caption: '',
+        labels: null,
+        bucket: '',
+    }
     }
 
     handlePost = () => {
