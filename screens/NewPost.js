@@ -42,6 +42,11 @@ export default class NewPost extends React.Component {
     handlePost = () => {
         const { uploadedImageURL, photoID, caption, numComments, userID, tags, labels } = this.state
 
+        console.log("in handlePost");
+        console.log(labels);
+        while (this.state.labels === null) {
+           // there has to be a better way to do this...
+        }
 
         firebase.firestore().collection("Posts").doc(photoID).set({
             photoID: photoID,
