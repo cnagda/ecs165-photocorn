@@ -5,11 +5,36 @@ import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK
 import { uploadPhoto } from '../utils/Photos'
 import { ImagePicker } from 'expo';
 import { Container, Content, ActionSheet, Root } from 'native-base';
+import {CheckBox} from 'react-native-elements'
 
 var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
 var CANCEL_INDEX = 2;
 
 export default class ProfileEdit extends React.Component {
+
+    constructor(props) {
+        super(props)
+        this.state = {
+            email: '',
+            password: '',
+            errorMessage: null,
+            finishedEdit: false,
+            image: null,
+            interests: '',
+            bio: '',
+            dob:'',
+            isImgLoading: true,
+            gotNewPhoto: false,
+            image: null,
+            animals: false,
+            nature: false,
+            people: false,
+            food: false,
+            tech: false,
+            fitness: false,
+            motivation: false,
+        }
+    }
     // authenticate user
     componentDidMount() {
         users_ref = firebase.firestore().collection("users");
@@ -29,6 +54,14 @@ export default class ProfileEdit extends React.Component {
                     interests: doc.data().interests,
                     username: doc.data().username,
                     isLoading: false,
+                    animals: doc.data().interests.includes("Animals"),
+                    nature: doc.data().interests.includes("Nature"),
+                    people: doc.data().interests.includes("People"),
+                    food: doc.data().interests.includes("Food"),
+                    tech: doc.data().interests.includes("Technology"),
+                    fitness: doc.data().interests.includes("Fitness/Sports"),
+                    motivation: doc.data().interests.includes("Motivational Quotes"),
+
                 }
             );
         }.bind(this)).catch ((error) => {console.error(error);});
@@ -64,19 +97,7 @@ export default class ProfileEdit extends React.Component {
         }
     }
 
-    state = {
-        email: '',
-        password: '',
-        errorMessage: null,
-        finishedEdit: false,
-        image: null,
-        interests: '',
-        bio: '',
-        dob:'',
-        isImgLoading: true,
-        gotNewPhoto: false,
-        image: null,
-    }
+
 
     handleUploadPhoto = async() => {
         console.log ("trying to handle upload photo")
@@ -160,6 +181,15 @@ export default class ProfileEdit extends React.Component {
     handleEdits = () => {
         const { email, password, firstname, lastname, dob, interests, bio, username } = this.state
             var user = firebase.auth().currentUser;
+            var interestarray = []
+            if (this.state.animals) {interestarray.push("Animals")}
+            if (this.state.nature) {interestarray.push("Nature")}
+            if (this.state.people) {interestarray.push("People")}
+            if (this.state.food) {interestarray.push("Food")}
+            if (this.state.tech) {interestarray.push("Technology")}
+            if (this.state.fitness) {interestarray.push("Fitness/Sports")}
+            if (this.state.motivation) {interestarray.push("Motivational Quotes")}
+            var intereststring = interestarray.join(', ')
             user.updateEmail(email).then(
             firebase.firestore().collection("users").doc(user.uid).set({
                 first: firstname,
@@ -167,7 +197,7 @@ export default class ProfileEdit extends React.Component {
                 email: email,
                 dob: dob,
                 uid: user.uid,
-                interests: interests,
+                interests: intereststring,
                 username: username,
                 bio: bio,
             }).then(function() {
@@ -294,14 +324,68 @@ export default class ProfileEdit extends React.Component {
                         />
 
                         <Text style={styles.textSecond}>Interests</Text>
-                        <TextInput
-                            multiline = {true}
-                            numberOfLines = {4}
-                            placeholder={this.state.interests}
-                            autoCapitalize="none"
-                            style={styles.textInputLong}
-                            onChangeText={interests => this.setState({ interests })}
-                            value={this.state.interests}
+                        <CheckBox
+                            title="Animals"
+                            checked={this.state.animals}
+                            onPress={() => this.setState({animals: !this.state.animals})}
+                            checkedColor= '#f300a2'
+                            uncheckedColor= 'rgba(228,228,228,0.66)'
+                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            textStyle={{color: 'rgba(228,228,228,0.66)'}}
+                        />
+                        <CheckBox
+                            title="Nature"
+                            checked={this.state.nature}
+                            onPress={() => this.setState({nature: !this.state.nature})}
+                            checkedColor= '#f300a2'
+                            uncheckedColor= 'rgba(228,228,228,0.66)'
+                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            textStyle={{color: 'rgba(228,228,228,0.66)'}}
+                        />
+                        <CheckBox
+                            title="People"
+                            checked={this.state.people}
+                            onPress={() => this.setState({people: !this.state.people})}
+                            checkedColor= '#f300a2'
+                            uncheckedColor= 'rgba(228,228,228,0.66)'
+                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            textStyle={{color: 'rgba(228,228,228,0.66)'}}
+                        />
+                        <CheckBox
+                            title="Food"
+                            checked={this.state.food}
+                            onPress={() => this.setState({food: !this.state.food})}
+                            checkedColor= '#f300a2'
+                            uncheckedColor= 'rgba(228,228,228,0.66)'
+                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            textStyle={{color: 'rgba(228,228,228,0.66)'}}
+                        />
+                        <CheckBox
+                            title="Technology"
+                            checked={this.state.tech}
+                            onPress={() => this.setState({tech: !this.state.tech})}
+                            checkedColor= '#f300a2'
+                            uncheckedColor= 'rgba(228,228,228,0.66)'
+                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            textStyle={{color: 'rgba(228,228,228,0.66)'}}
+                        />
+                        <CheckBox
+                            title="Fitness/Sports"
+                            checked={this.state.fitness}
+                            onPress={() => this.setState({fitness: !this.state.fitness})}
+                            checkedColor= '#f300a2'
+                            uncheckedColor= 'rgba(228,228,228,0.66)'
+                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            textStyle={{color: 'rgba(228,228,228,0.66)'}}
+                        />
+                        <CheckBox
+                            title="Motivational Quotes"
+                            checked={this.state.motivation}
+                            onPress={() => this.setState({animals: !this.state.motivation})}
+                            checkedColor= '#f300a2'
+                            uncheckedColor= 'rgba(228,228,228,0.66)'
+                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            textStyle={{color: 'rgba(228,228,228,0.66)'}}
                         />
 
                         <Text style={styles.textSecond}>Email</Text>
