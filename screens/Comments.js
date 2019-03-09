@@ -17,6 +17,8 @@ class Comments extends React.Component {
             postID: this.props.navigation.getParam('postID'),
             comments: [],
         }
+
+        this.handleComment = this.handleComment.bind(this)
     }
 
 
@@ -83,22 +85,23 @@ class Comments extends React.Component {
                 };
 
                 ref.set(com_doc).then(function() {
+                    var photo = com_doc.user.avatar
                     this.setState((prevState, props) => {
                         return {
                             comments: prevState.comments.concat(
                                 <ListItem
                                     key={ref.id}
-                                    title={prevState.text}
-                                    leftAvatar={{source: {uri: prevState.avatar}}}
+                                    title={prevState.comment}
+                                    leftAvatar={{source: {uri: photo}}}
                                     containerStyle={styles.comment}
                                     titleStyle={styles.commentText}
-                                />,
+                                />),
                             comment: "",
                         };
                     });
-                });
+                }.bind(this));
             }.bind(this));
-        });
+        }.bind(this));
     }
 
 
