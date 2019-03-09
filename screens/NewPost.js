@@ -54,7 +54,7 @@ export default class NewPost extends React.Component {
                 imageUri: uploadedImageURL,
             }).then(function() {
                 console.log("length: " + tags.length)
-                //if (tags.length > 0) {
+                if (tags !== null && tags.length > 0) {
                     tagArr = tags.split(" ")
                     console.log(tagArr)
                     tagArr.forEach(function(tag) {
@@ -74,11 +74,8 @@ export default class NewPost extends React.Component {
                                 tag: tag
                             })
                         })
-
                     })
-                //}
-
-
+                }
             }.bind(this)).then(function() {
                 firebase.firestore().collection("Updates").doc().set({
                     type: "LIKE",
