@@ -40,7 +40,7 @@ export default class NewPost extends React.Component {
     }
 
     handlePost = () => {
-        const { uploadedImageURL, photoID, caption, numComments, userID, tags } = this.state
+        const { uploadedImageURL, photoID, caption, numComments, userID, tags, labels } = this.state
 
 
         firebase.firestore().collection("Posts").doc(photoID).set({
