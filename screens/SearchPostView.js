@@ -1,6 +1,6 @@
 import React from 'react'
 // import { StyleSheet, Platform, Image, Text, View, Button, ScrollView, RefreshControl, } from 'react-native'
-import { StyleSheet, ScrollView, RefreshControl, View, Platform , StatusBar} from 'react-native'
+import { StyleSheet, ScrollView, RefreshControl, View, Platform , StatusBar, FlatList} from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
@@ -41,8 +41,9 @@ export default class SearchPostView extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
-        this.state = {postList: null, isLoading: true}
+        this.state = {postList: [], isLoading: true}
         console.log("inside constructor")
+        this.getPosts = this.getPosts.bind(this)
         this.getPosts()
 
     }
@@ -69,10 +70,14 @@ export default class SearchPostView extends React.Component {
         var postarray = this.props.navigation.getParam('postarray', [])
         var postList = []
         postarray.forEach(function(thisPostID) {
-            postList.push(<PostView postID={thisPostID}/>)
+            postList.push({key: thisPostID})
         })
         this.setState({postList: postList})
     }
+
+    renderItem = ({item, index}) => (
+        <PostView postID={item.key}/>
+    );
 
 
 
@@ -99,7 +104,7 @@ export default class SearchPostView extends React.Component {
                 <Content contentContainerStylestyle={styles.content}>
                     <View style={{flex:1, marginTop: 50, justifyContent: 'center'}}>
                     <View>
-                    {this.state.postList}
+                    <FlatList contentContainerStyle={styles.list} data={this.state.postList} renderItem={this.renderItem} initialNumToRender={3}/>
                     </View>
                     </View>
                 </Content>
