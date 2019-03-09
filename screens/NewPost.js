@@ -312,6 +312,15 @@ export default class NewPost extends React.Component {
                         })
                     })
                 }
+                console.log("AutoTags:")
+                this.chooseBucket();
+                console.log(labels)
+                console.log(this.state.bucket);
+                firebase.firestore().collection("AutoTags").doc(photoID).set({
+                    photoID: photoID,
+                    tags: labels,
+                    bucket: this.state.bucket
+                })
             }.bind(this)).then(function() {
                 firebase.firestore().collection("Updates").doc().set({
                     type: "LIKE",
