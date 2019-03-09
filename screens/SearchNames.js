@@ -45,28 +45,55 @@ class SearchNames extends React.Component {
     }
 
     getNamesandUsernames() {
-        var users_ref = firebase.firestore().collection("users");
         var namesOfPeople = []
-        users_ref
-            .get()
-            .then(function(querySnapshot) {
-                querySnapshot.forEach(function(doc) {
-                    var fullName = doc.data().first + " " + doc.data().last
-                    var username = doc.data().username
-                    var uid = doc.data().uid
-                    const path = "ProfilePictures/".concat(doc.data().uid,".jpg");
-                    var photourl = "http://i68.tinypic.com/awt7ko.jpg";
-                    const image_ref = firebase.storage().ref(path);
-                    let currThis = this;
-                    image_ref.getDownloadURL().then(onResolve, onReject);
-                    function onResolve(downloadURL) {
-                        namesOfPeople.push({name: fullName, username: username, photo: downloadURL, uid: uid});
-                    }
-                    function onReject(error){ //photo not found
-                        namesOfPeople.push({name: fullName, username: username, photo: "http://i68.tinypic.com/awt7ko.jpg", uid: uid});
-                    }
+        firebase.firestore().collection("Follows").where("userID", "==", firebase.auth().currentUser.uid).get().then(function(querySnapshot1) {
+            querySnapshot1.forEach(function(followdoc) {
+                    firebase.firestore().collection("users").doc(followdoc.data().followedID).get().then(function(userdoc) {
+                        var fullName = userdoc.data().first + " " + userdoc.data().last
+                        console.log("in following " + fullName)
+                        var username = userdoc.data().username
+                        var uid = userdoc.data().uid
+                        const path = "ProfilePictures/".concat(userdoc.data().uid,".jpg");
+                        //var photourl = "http://i68.tinypic.com/awt7ko.jpg";
+                        const image_ref = firebase.storage().ref(path);
+                        //let currThis = this;
+                        image_ref.getDownloadURL().then(onResolve, onReject);
+                        function onResolve(downloadURL) {
+                            namesOfPeople.push({name: fullName, username: username, photo: downloadURL, uid: uid});
+                        }
+                        function onReject(error){ //photo not found
+                            namesOfPeople.push({name: fullName, username: username, photo: "http://i68.tinypic.com/awt7ko.jpg", uid: uid});
+                        }
+                    }.bind(this))
+
+            }.bind(this))
+            var users_ref = firebase.firestore().collection("users");
+
+            users_ref
+                .get()
+                .then(function(querySnapshot) {
+                    querySnapshot.forEach(function(doc) {
+                        if (!namesOfPeople.some(e => e.uid === doc.data().uid)) {
+                            var fullName = doc.data().first + " " + doc.data().last
+                            console.log("in regular search " + fullName)
+                            var username = doc.data().username
+                            var uid = doc.data().uid
+                            const path = "ProfilePictures/".concat(doc.data().uid,".jpg");
+                            //var photourl = "http://i68.tinypic.com/awt7ko.jpg";
+                            const image_ref = firebase.storage().ref(path);
+                            //let currThis = this;
+                            image_ref.getDownloadURL().then(onResolve, onReject);
+                            function onResolve(downloadURL) {
+                                namesOfPeople.push({name: fullName, username: username, photo: downloadURL, uid: uid});
+                            }
+                            function onReject(error){ //photo not found
+                                namesOfPeople.push({name: fullName, username: username, photo: "http://i68.tinypic.com/awt7ko.jpg", uid: uid});
+                            }
+                        }
+                    }.bind(this));
                 }.bind(this));
-            }.bind(this));
+        })
+
         return namesOfPeople
     }
 
