@@ -27,6 +27,7 @@ export default class ProfileEdit extends React.Component {
                     email: firebase.auth().currentUser.email,
                     bio: doc.data().bio,
                     interests: doc.data().interests,
+                    username: doc.data().username,
                     isLoading: false,
                 }
             );
@@ -157,7 +158,7 @@ export default class ProfileEdit extends React.Component {
     };
 
     handleEdits = () => {
-        const { email, password, firstname, lastname, dob, interests, bio } = this.state
+        const { email, password, firstname, lastname, dob, interests, bio, username } = this.state
             var user = firebase.auth().currentUser;
             user.updateEmail(email).then(
             firebase.firestore().collection("users").doc(user.uid).set({
@@ -167,6 +168,7 @@ export default class ProfileEdit extends React.Component {
                 dob: dob,
                 uid: user.uid,
                 interests: interests,
+                username: username,
                 bio: bio,
             }).then(function() {
                 this.setState({finishedEdit: true});
@@ -261,6 +263,15 @@ export default class ProfileEdit extends React.Component {
                         />
 
                         <Text style = {styles.textMainTwo}>About</Text>
+
+                        <Text style={styles.textSecond}>Username</Text>
+                        <TextInput
+                            placeholder={this.state.username}
+                            autoCapitalize="none"
+                            style={styles.textInput}
+                            onChangeText={username => this.setState({ username })}
+                            value={this.state.username}
+                        />
 
                         <Text style={styles.textSecond}>Birthday</Text>
                         <TextInput

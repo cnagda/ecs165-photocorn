@@ -50,6 +50,7 @@ export default class Loading extends React.Component {
                     email: doc.data().email,
                     bio: doc.data().bio,
                     interests: doc.data().interests,
+                    username: doc.data().username,
                     isLoading: false
                 }
             );
@@ -106,6 +107,7 @@ export default class Loading extends React.Component {
                         email: doc.data().email,
                         bio: doc.data().bio,
                         interests: doc.data().interests,
+                        username: doc.data().username,
                         isLoading: false,
                     }
                 );
@@ -347,6 +349,8 @@ export default class Loading extends React.Component {
 
                     <View style={{flex:2, flexDirection: 'row',marginLeft:20,}}>
                         <View style={{flex:1, flexDirection:'column',}} >
+                            <Text style = {styles.textSecond}>Username:</Text>
+                            <Text style= {styles.textVal}> {this.state.username}</Text>
                             <Text style = {styles.textSecond}>Birthday:</Text>
                             <Text style= {styles.textVal}> {this.state.birthday}</Text>
                             <Text style={styles.textSecond}>Bio: </Text>
