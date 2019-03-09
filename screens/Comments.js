@@ -19,94 +19,88 @@ class Comments extends React.Component {
         }
     }
 
+
     componentDidMount() {
         console.log("inside component did mount")
         var comments = [];
         var db = firebase.firestore();
-        var com_ref = db.collection("Comments");
-        var com_query = com_ref.where("postID", "==", this.state.postID)
+        var ref = db.collection("Comments");
+        var query = ref.where("postID", "==", this.state.postID);
 
-        com_query.get().then(function(results) {
-            const promises = []
-
-            results.forEach(com_doc => {
-                const promise = new Promise((resolve, reject) => {
-                    var user_ref = db.collection("users").doc(com_doc.data().userID);
-                    var comment;
-                    user_ref.get().then(function(user_doc) {
-                        comment =
-                            <ListItem
-                            key={doc.data().text}
-                            title={doc.data().text}
-                            containerStyle={styles.comment}
-                            titleStyle={styles.commentText}
-                            />
-                        resolve(comment);
-                    });
-                });
-                promises.push(promise);
+        query.get().then(function(results) {
+            results.forEach(function(doc) {
+                var data = doc.data();
+                var text = <View style={styles.commentView}>
+                               <Text style={{fontWeight: 'bold', color: COLOR_PINK}}>{data.user.username + " "}</Text>
+                               <Text style={{color: COLOR_PINK}}>{data.text}</Text>
+                           </View>;
+                comments.push(
+                    <ListItem
+                        key={query.id}
+                        title={text}
+                        leftAvatar={{source: {uri: data.user.avatar}}}
+                        containerStyle={styles.comment}
+                        titleStyle={styles.commentText}
+                    />
+                )
             });
-
-            Promise.all(promises).then(comments => {
-                console.log("promise fulfilled");
-                this.setState({
-                    comments: comments,
-                });
-            })
-       }.bind(this))
-   }
-
-   // get user profile picture
-   getAvatar = async(uid) => {
-       const path = "ProfilePictures/".concat(uid, ".jpg");
-       const image_ref = firebase.storage().ref(path);
-       var url = await image_ref.getDownloadURL();
-       return url;
-   }
+            this.setState({
+                comments: comments,
+            });
+        }.bind(this))
+    }
 
 
     // store comment in firebase
     handleComment = () => {
+        // get reference to comments collection
         var db = firebase.firestore();
-        var ref = db.collection("Comments").doc()
+        var ref = db.collection("Comments").doc();
+
+        // get state variables
         var uid = firebase.auth().currentUser.uid;
+        var postid = this.state.postID;
+        var comment = this.state.comment;
 
         // get user information
         var user_data;
         var user_ref = db.collection("users").doc(uid);
         user_ref.get().then(function(user_doc) {
             user_data = user_doc.data();
-            this.getAvatar(uid).then(function(avatarurl) {
+            const path = "ProfilePictures/".concat(uid, ".jpg");
+            firebase.storage().ref(path).getDownloadURL().then(function(url) {
+                // create comment document
                 var com_doc = {
                     commentID: ref.id,
-                    postID: this.state.postID,
-                    text: this.state.comment,
+                    postID: postid,
+                    text: comment,
                     timestamp: firebase.firestore.Timestamp.fromDate(new Date()),
                     user: {
                         userID: uid,
                         username: user_data.username,
-                        avatar: avatarurl
+                        avatar: url
                     }
                 };
 
                 ref.set(com_doc).then(function() {
-                    console.log("stored new comment in db");
                     this.setState((prevState, props) => {
                         return {
                             comments: prevState.comments.concat(
                                 <ListItem
-                                  key={prevState.comment}
-                                  title={prevState.comment}
-                                  containerStyle={styles.comment}
-                                  titleStyle={styles.commentText}
-                                />),
+                                    key={ref.id}
+                                    title={prevState.text}
+                                    leftAvatar={{source: {uri: prevState.avatar}}}
+                                    containerStyle={styles.comment}
+                                    titleStyle={styles.commentText}
+                                />,
                             comment: "",
                         };
                     });
-                }.bind(this));
-            });
+                });
+            }.bind(this));
         });
     }
+
 
     render() {
         return (
@@ -169,8 +163,14 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_DGREY,
         borderRadius: 12,
         marginTop: 10,
+        marginLeft: 10,
+        marginRight: 10
     },
     commentText: {
         color: COLOR_PINK
+    },
+    commentView: {
+        flexDirection:'row',
+        flexWrap:'wrap'
     }
 })
