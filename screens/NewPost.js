@@ -276,6 +276,7 @@ export default class NewPost extends React.Component {
         while (this.state.labels === null) {
            // there has to be a better way to do this...
         }
+        var tagtext = tags.replace(/#/g, '')
 
         firebase.firestore().collection("Posts").doc(photoID).set({
             photoID: photoID,
@@ -290,9 +291,9 @@ export default class NewPost extends React.Component {
                 photoID: photoID,
                 imageUri: uploadedImageURL,
             }).then(function() {
-                console.log("length: " + tags.length)
-                if (tags !== null && tags.length > 0) {
-                    tagArr = tags.split(" ")
+                console.log("length: " + tagtext.length)
+                if (tagtext !== null && tagtext.length > 0) {
+                    tagArr = tagtext.split(" ")
                     console.log(tagArr)
                     tagArr.forEach(function(tag) {
                         console.log(tag)
@@ -565,7 +566,11 @@ export default class NewPost extends React.Component {
                             placeholderTextColor='#f300a2'
                             placeholder="Tags (separated by space)"
                             style={styles.textInput}
-                            onChangeText={tags => this.setState({ tags })}
+                            onChangeText={tags => {
+                                tags = tags.replace(/#/g, '')
+                                tags = tags.replace(/(\w+)/g, '#' + '$&')
+                                this.setState({ tags })
+                            }}
                             value={this.state.tags}
                             autoCapitalize="none"
                         />
