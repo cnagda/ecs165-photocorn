@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableHighlight, TextInput, ScrollView, Imag
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK} from './../components/commonstyle';
 import { uploadPhoto } from '../utils/Photos'
+import { uploadTags } from '../utils/Photos'
 import { ImagePicker } from 'expo';
 import { Button, Content } from 'native-base';
 
@@ -20,6 +21,7 @@ export default class NewPostUpload extends React.Component {
         isImgLoading: true,
         photoID: firebase.auth().currentUser.uid + Date.now(),
         caption: '',
+        imageTags: [],
         numComments: 0,
         userID: firebase.auth().currentUser.uid,
     }
@@ -55,6 +57,35 @@ export default class NewPostUpload extends React.Component {
     };
 
     // set a profile picture
+    // pickImage = async () => {
+    //     var status = await this.getCameraRollPermissions();
+    //     if (status === 'granted') {
+    //         const result = await ImagePicker.launchImageLibraryAsync({
+    //             allowsEditing: true,
+    //             base64: true,
+    //             aspect: [1, 1],
+    //         }).then(function() {
+    //             console.log("Before request")
+    //             this.setState({image: result.uri,});
+    //             this.submitToGoogle()
+    //             console.log("After request")
+    //         }).then(function() {
+    //             if (!result.cancelled) {
+    //                 const path = "Posts/".concat(this.state.photoID, ".jpg");
+    //                 console.log(result.uri);
+    //                 console.log(path);
+    //                 return uploadPhoto(result.uri, path).then(function() {
+    //                     this.setState({isImgLoading: true})
+    //                     this.getUploadedImage(this.state.photoID).then(function() {
+    //                         this.setState({isImgLoading: false})
+    //                     }.bind(this));
+    //                 }.bind(this));
+    //             }
+    //         })
+    //     }
+    // };
+
+
     pickImage = async () => {
         var status = await this.getCameraRollPermissions();
         if (status === 'granted') {
@@ -64,18 +95,90 @@ export default class NewPostUpload extends React.Component {
                 aspect: [1, 1],
             });
 
+
+            console.log("Before request")
+            this.setState({image: result.uri,});
             if (!result.cancelled) {
-                await this.setState({image: result.uri,});
+
                 const path = "Posts/".concat(this.state.photoID, ".jpg");
                 console.log(result.uri);
                 console.log(path);
                 return uploadPhoto(result.uri, path).then(function() {
-                    this.setState({isImgLoading: true})
+                    this.setState({isImgLoading: true, base64: result.base64})
                     this.getUploadedImage(this.state.photoID).then(function() {
                         this.setState({isImgLoading: false})
+                        this.submitToGoogle().then(function() {
+                            console.log("submitted to google, about to add tags.")
+
+
+                          //  for (var k in labels){
+                            //  currTag = labels[k]["description"]
+                            //  console.log(currTag)
+
+                        }
+                      )
                     }.bind(this));
                 }.bind(this));
             }
+        }
+    };
+
+    submitToGoogle = async () => {
+        console.log("In submitToGoogle")
+        imageURI = this.state.image
+        imageURIb64 = this.state.base64
+        try {
+            this.setState({ uploading: true });
+            let body = JSON.stringify({
+                requests: [
+                    {
+                        features: [
+                            { type: "LABEL_DETECTION", maxResults: 10 }
+                        ],
+                        image: {
+                            content: imageURIb64
+
+                        }
+                    }
+                ]
+            });
+            console.log("Created body")
+            let response = await fetch(
+                "https://vision.googleapis.com/v1/images:annotate?key=" +
+                "AIzaSyD3yoe5pFlzna3E4EgkbCSOLv3A5hHqNfg",
+                {
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json"
+                    },
+                    method: "POST",
+                    body: body
+                }
+            );
+            console.log("Made response")
+            let responseJson = await response.json();
+
+              //["labelAnnotations"]
+            //console.log(Object.keys(responseJson["responses"]["0"]))
+
+            // Get the image labels
+            labels = responseJson["responses"]["0"]["labelAnnotations"]
+
+            parsedLabels = []
+
+            for (var k in labels){
+              currTag = labels[k]
+              console.log(currTag["description"])
+              parsedLabels.push(currTag["description"])
+            }
+
+              uploadTags(parsedLabels, this.state.photoID)
+
+            this.setState({
+                uploading: false
+            });
+        } catch (error) {
+            console.log(error);
         }
     };
 
