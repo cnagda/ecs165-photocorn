@@ -186,7 +186,7 @@ export default class HomeScreen extends React.Component {
                             Welcome, {this.state.name}!
                         </Text>
 
-                        <FlatList contentContainerStyle={styles.list} data={this.state.postIDs} renderItem={this.renderItem} initialNumToRender={3}/>
+                        <FlatList data={this.state.postIDs} renderItem={this.renderItem} initialNumToRender={3}/>
                     </Content>
 
 
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
     },
     content: {
         alignItems: 'center',
-        justifyContent: 'space-evenly'
+        justifyContent: 'stretch'
     },
     footer: {
         backgroundColor: COLOR_DGREY,
