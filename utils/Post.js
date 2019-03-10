@@ -17,8 +17,19 @@ Date.prototype.tstring = function() {
   var day = this.getDate();
   var hh = this.getHours();
   var mm = this.getMinutes();
+  var tt = "AM";
 
-  return ["Posted on ", month, ' ', day, " at ", hh, ":", mm].join('');
+  // format minutes
+  if(mm < 10) {
+      mm = "0" + hh.toString();
+  }
+
+  // format hours
+  if(hh > 12) {
+      tt = "PM"
+  }
+
+  return ["Posted on ", month, ' ', day, " at ", hh, ":", mm, " ", tt].join('');
 };
 
 
@@ -34,7 +45,7 @@ function getTagString(str) {
         str = str.replace(regexp, 'REPLACED');
 
         var i;
-        for(i = 0; i < tags.length - 1; i++) {
+        for(i = 0; i < tags.length; i++) {
             res += '#';
             res += tags[i]
             res += ' '
@@ -96,6 +107,7 @@ class PostView extends React.Component {
                         tags: doc.data().tags,
                         imageUri: doc2.data().imageUri,
                         timestamp: timestamp.tstring(),
+                        username: doc1.data().username,
                         alreadyLikedVar: alreadyLikedVar,
                         likedJustNow: false,
                         unlikedJustNow: false
@@ -222,7 +234,11 @@ class PostView extends React.Component {
                                 <Button transparent
                                     onPress={() => this.props.navigation.navigate('Profile', {userID: this.state.postUser})}
                                     style={{marginTop: -5}}>
-                                    <Text style = {styles.posterName}>{this.state.name}</Text>
+                                    <Text
+                                        style = {styles.posterName}
+                                        uppercase={false}>
+                                            {this.state.username}
+                                    </Text>
                                 </Button>
                                 <Text style={styles.timestamp}>{this.state.timestamp}</Text>
                             </Col>
@@ -232,12 +248,12 @@ class PostView extends React.Component {
                         <LinearGradient
                             colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
                             style={styles.backBox}>
-                        <Row>
-                            <Image
-                                style={styles.image}
-                                source={{uri: this.state.imageUri}}
-                            />
-                        </Row>
+                            <Row>
+                                <Image
+                                    style={styles.image}
+                                    source={{uri: this.state.imageUri}}
+                                />
+                            </Row>
                         </LinearGradient>
 
                         {/*post footer*/}
