@@ -53,8 +53,9 @@ export default class NewPostCamera extends React.Component {
                         console.log(postIDList)
                         postIDList.push(photoID)
                         console.log(postIDList)
-                        firebase.firestore().collection("Tags").doc(tag).update({
+                        firebase.firestore().collection("Tags").doc(tag).set({
                             posts: postIDList,
+                            tag: tag
                         })
                     })
 

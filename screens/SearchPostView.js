@@ -1,29 +1,48 @@
 import React from 'react'
 // import { StyleSheet, Platform, Image, Text, View, Button, ScrollView, RefreshControl, } from 'react-native'
-import { StyleSheet, ScrollView, RefreshControl, View, Platform , StatusBar, FlatList} from 'react-native'
+import { StyleSheet, ScrollView, RefreshControl, View, Platform , StatusBar} from 'react-native'
 import * as firebase from 'firebase';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 import PostView from '../utils/Post'
-import { Container, Header, Title, Content, Footer, FooterTab, Left, Right, Body, Icon, Text, ActionSheet, Root } from 'native-base';
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, ActionSheet, Root } from 'native-base';
 import { getTheme } from '../native-base-theme/components';
 import { custom } from '../native-base-theme/variables/custom';
 import { withNavigation } from 'react-navigation';
-import { ListItem, Button }  from 'react-native-elements'
+import {ListItem}  from 'react-native-elements'
 
 var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
 var LOCATIONS = ["NewPostCamera", "NewPostUpload", "HomeScreen"]
 var CANCEL_INDEX = 2;
 
-const list = []
+const list = [
+
+]
+
+//to use list:
+/* inside render:
+<View>
+
+  {
+    list.map((l) => (
+      <ListItem
+        key={l.name}
+        title={l.name}
+      />
+    ))
+  }
+</View>
+*/
+
+
+
 
 export default class SearchPostView extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
-        this.state = {postList: [], isLoading: true}
+        this.state = {postList: null, isLoading: true}
         console.log("inside constructor")
-        this.getPosts = this.getPosts.bind(this)
         this.getPosts()
 
     }
@@ -32,38 +51,44 @@ export default class SearchPostView extends React.Component {
     componentDidMount() {
         console.log("inside component did mount")
         this.getPosts()
+
+
     }
+
+
 
     componentWillReceiveProps(newprops) {
         this.getPosts()
         console.log("inside of componenet will receive props")
+
     }
+
+
 
     getPosts() {
         var postarray = this.props.navigation.getParam('postarray', [])
         var postList = []
         postarray.forEach(function(thisPostID) {
-            postList.push({key: thisPostID})
+            postList.push(<PostView postID={thisPostID}/>)
         })
         this.setState({postList: postList})
     }
 
-    renderItem = ({item, index}) => (
-        <PostView postID={item.key}/>
-    );
+
+
 
     render() {
+
         return (
             <Root>
             <Container style={styles.container}>
-                <Header style={styles.header}>
+                <Header style={{backgroundColor: COLOR_DGREY, height: 80, borderBottomWidth: 0, paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : undefined}}>
                     <Left>
-                        <Button
-                            onPress={() => this.props.navigation.goBack()}
-                            title="Back"
-                            type="clear"
-                            titleStyle={{color: 'white'}}
-                        />
+                        <Button transparent
+                            onPress={() => this.props.navigation.goBack()} styles={{marginTop: 10}}>
+                            <Icon name='arrow-back'
+                                  styles={{color: COLOR_PINK}}/>
+                        </Button>
                     </Left>
                     <Body>
                         <Title style={{color: 'white'}}>{"#" + this.props.navigation.getParam('tag', '')}</Title>
@@ -74,7 +99,7 @@ export default class SearchPostView extends React.Component {
                 <Content contentContainerStylestyle={styles.content}>
                     <View style={{flex:1, marginTop: 50, justifyContent: 'center'}}>
                     <View>
-                    <FlatList contentContainerStyle={styles.list} data={this.state.postList} renderItem={this.renderItem} initialNumToRender={3}/>
+                    {this.state.postList}
                     </View>
                     </View>
                 </Content>
@@ -93,12 +118,6 @@ const styles = StyleSheet.create({
     },
     content: {
         alignItems: 'center',
-    },
-    header: {
-        backgroundColor: COLOR_DGREY,
-        borderBottomWidth: 0,
-        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight: 20,
-        height: Platform.OS === "android" ? 80: undefined
     },
     footer: {
         backgroundColor: COLOR_DGREY,
