@@ -25,11 +25,13 @@ class SearchTags extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
-        this.state = {query: '', searchResults: []}
+        this.state = {query: '', searchResults: [], result: []}
+        this.displayResults = this.displayResults.bind(this)
     }
 
     // authenticate user
     componentDidMount() {
+        this.displayResults()
 
     }
     componentWillReceiveProps() {
@@ -58,9 +60,9 @@ class SearchTags extends React.Component {
                                     postarray: doc.data().posts
                                 }
                             );
-                            console.log(searchResults)
+                            //console.log(searchResults)
                             this.setState({searchResults: searchResults})
-
+                            this.displayResults()
 
                         }
                     }.bind(this));
@@ -73,19 +75,82 @@ class SearchTags extends React.Component {
         this.setState({
           query: query
         }, () => {
-          if (query && query.length > 1 ) {
+            console.log(query)
+          if (query && query.length > 0 ) {
               this.updateSearch(query)
           } else {
               searchResults = []
               this.setState({searchResults: searchResults})
+
+              if (query.length == 0) {
+                  this.setState({result: []})
+                  this.displayResults()
+              }
           }
         })
     };
 
     handleSelect(tag, postarr) {
-        this.props.navigation.navigate('SearchPostView', {postarray: postarr, tag: tag});
+        console.log("in handle select")
+        firebase.firestore().collection("TagSearchHits").doc(tag).get().then(function(doc) {
+            console.log("made it inside")
+            var numHits = 0
+            if (doc.exists) {
+                numHits = doc.data().hits;
+            }
+            firebase.firestore().collection("TagSearchHits").doc(tag).set({
+                hits: numHits + 1,
+                tag: tag
+            }).then(function() {
+                console.log("trying to navigate")
+                this.props.navigation.navigate('SearchPostView', {postarray: postarr, tag: tag});
+            }.bind(this)).catch(function(error) {
+                console.log("error setting: " + error)
+            })
+        }.bind(this)).catch(function(error) {
+            console.log("error accessing doc: " + error)
+        })
     }
 
+    displayResults = () => {
+        var query = this.state.query
+        if (query.length > 0) {
+            this.setState({
+                result: this.state.searchResults.map(e => e['tag']).map((e, i, final) => final.indexOf(e) === i && i).filter(e => searchResults[e]).map(e => searchResults[e]).map((l) => (
+                    <ListItem
+
+                        key={l.tag}
+                        title={l.tag}
+                        onPress={() => this.handleSelect(l.tag, l.postarray)}
+                        containerStyle={styles.result}
+                        titleStyle={styles.resultText}
+                        chevronColor='white'
+                        chevron
+                    />
+                ))
+            })
+        } else {
+            this.setState((prevState, props) => {
+                return {
+                    result: prevState.result.concat(<Text style={{color: '#f300a2', fontWeight: 'bold', marginTop: 50}}>POPULAR TAGS</Text>),
+                };
+            })
+            firebase.firestore().collection("TagSearchHits").orderBy("hits", "desc").limit(10).get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(hitdoc) {
+                    firebase.firestore().collection("Tags").doc(hitdoc.data().tag).get().then(function(tagdoc) {
+                        console.log("got a suggestion: " + hitdoc.data().tag)
+                        this.setState((prevState, props) => {
+                            return {
+                                result: prevState.result.concat(<Button transparent onPress={() => this.props.navigation.navigate('SearchPostView', {postarray: tagdoc.data().posts, tag: hitdoc.data().tag})}>
+                                    <Text style={{color: '#f300a2'}}>{hitdoc.data().tag}</Text>
+                                </Button>),
+                            };
+                        })
+                    }.bind(this))
+                }.bind(this))
+            }.bind(this))
+        }
+    }
 
     render() {
 
@@ -109,20 +174,7 @@ class SearchTags extends React.Component {
                              enabled
                          >
                          <ScrollView>
-                         {
-                             this.state.searchResults.map(e => e['tag']).map((e, i, final) => final.indexOf(e) === i && i).filter(e => searchResults[e]).map(e => searchResults[e]).map((l) => (
-                                 <ListItem
-
-                                     key={l.tag}
-                                     title={l.tag}
-                                     onPress={() => this.handleSelect(l.tag, l.postarray)}
-                                     containerStyle={styles.result}
-                                     titleStyle={styles.resultText}
-                                     chevronColor='white'
-                                     chevron
-                                 />
-                             ))
-                         }
+                         { this.state.result }
                          </ScrollView>
 
 
