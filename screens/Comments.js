@@ -87,11 +87,15 @@ class Comments extends React.Component {
                 ref.set(com_doc).then(function() {
                     var photo = com_doc.user.avatar
                     this.setState((prevState, props) => {
+                        var text = <View style={styles.commentView}>
+                                       <Text style={{fontWeight: 'bold', color: COLOR_PINK}}>{com_doc.user.username + " "}</Text>
+                                       <Text style={{color: COLOR_PINK}}>{prevState.comment}</Text>
+                                   </View>;
                         return {
                             comments: prevState.comments.concat(
                                 <ListItem
                                     key={ref.id}
-                                    title={prevState.comment}
+                                    title={text}
                                     leftAvatar={{source: {uri: photo}}}
                                     containerStyle={styles.comment}
                                     titleStyle={styles.commentText}
