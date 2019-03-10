@@ -8,6 +8,7 @@ import {
   Text,
   View,
 } from 'react-native'
+import { StackActions, NavigationActions } from 'react-navigation';
 
 
 export default class Loading extends React.Component {
@@ -15,7 +16,12 @@ export default class Loading extends React.Component {
     componentDidMount() {
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
-                this.props.navigation.navigate('HomeScreen', {user: user})
+                // this.props.navigation.navigate('HomeScreen', {user: user})
+                const resetAction = StackActions.reset({
+                    index: 0,
+                    actions: [NavigationActions.navigate({ routeName: 'HomeScreen', params: {user: user} })],
+                });
+                this.props.navigation.dispatch(resetAction);
             } else {
                 this.props.navigation.navigate('Signup')
             }
