@@ -30,6 +30,10 @@ Date.prototype.tstring = function() {
         tt = "PM"
     }
 
+    if(hh == 0) {
+        hh = 12
+    }
+
     return ["Posted on ", month, ' ', day, " at ", hh, ":", mm, " ", tt].join('');
 };
 
