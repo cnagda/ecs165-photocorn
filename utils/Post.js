@@ -203,16 +203,20 @@ class PostView extends React.Component {
      console.log("I got in getlikeinfo")
       firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE").get().then(function(querySnapshot) {
           querySnapshot.forEach(function(doc) {
+            users_ref = firebase.firestore().collection("users");
+            users_ref.doc(doc.data().actUser).get().then(function(doc1) {
+
              // console.log("get like info test")
             // var otherLikes = doc.data().numLikes - 1
             // var lastLiked = doc.data().actUser
             // console.log("test getlikes")
             //   console.log("getlikeinfo otherlikes: ", otherLikes)
             //   console.log("getlikeinfo lastLiked: ", lastLiked)
-            this.setState({otherLikes: doc.data().numLikes - 1,
-                           lastLiked: doc.data().actUser});
+              this.setState({otherLikes: doc.data().numLikes - 1,
+                             lastLiked: doc1.data().first});
+              }.bind(this))
+            }.bind(this))
           }.bind(this))
-        }.bind(this))
     };
 
     displayLikeInfo = () => {
