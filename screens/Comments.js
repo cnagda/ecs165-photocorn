@@ -114,28 +114,29 @@ class Comments extends React.Component {
                         avatar: url
                     }
                 };
+                var photo = com_doc.user.avatar
+                this.setState((prevState, props) => {
+                    var text = <Text>
+                                   <Text style={{fontWeight: 'bold', color: COLOR_PINK}}>{com_doc.user.username + " "}</Text>
+                                   <Text style={{color: COLOR_LGREY}}>{com_doc.text}</Text>
+                               </Text>;
+                    return {
+                        comments: prevState.comments.concat(
+                            <ListItem
+                                key={ref.id}
+                                title={text}
+                                subtitle={com_doc.timestamp.toDate().tcstring()}
+                                subtitleStyle={styles.subtitle}
+                                leftAvatar={{source: {uri: photo}}}
+                                containerStyle={styles.comment}
+                            />),
+                        comment: "",
+                    };
+                });
 
                 ref.set(com_doc).then(function() {
-                    var photo = com_doc.user.avatar
-                    this.setState((prevState, props) => {
-                        var text = <Text>
-                                       <Text style={{fontWeight: 'bold', color: COLOR_PINK}}>{com_doc.user.username + " "}</Text>
-                                       <Text style={{color: COLOR_LGREY}}>{com_doc.text}</Text>
-                                   </Text>;
-                        return {
-                            comments: prevState.comments.concat(
-                                <ListItem
-                                    key={ref.id}
-                                    title={text}
-                                    subtitle={com_doc.timestamp.toDate().tcstring()}
-                                    subtitleStyle={styles.subtitle}
-                                    leftAvatar={{source: {uri: photo}}}
-                                    containerStyle={styles.comment}
-                                />),
-                            comment: "",
-                        };
-                    });
-                }.bind(this));
+                    console.log("added comment to database")
+                });
             }.bind(this));
         }.bind(this));
 

@@ -39,35 +39,13 @@ Date.prototype.tstring = function() {
 
 
 // pretty print a string of space separated tags
-// function getTagString(str) {
-//     var res = ' '
-//
-//     // remove extra white space and hashtag symbols
-//     try {
-//         var tags = str.split(' ');
-//         str = str.trim()
-//         var regexp = new RegExp('#([^\\s]*)','g');
-//         str = str.replace(regexp, 'REPLACED');
-//
-//         var i;
-//         for(i = 0; i < tags.length; i++) {
-//             res += '#';
-//             res += tags[i]
-//             res += ' '
-//         }
-//     }
-//     catch(err) { }
-//     return(res);
-// }
-
-
 function getTagString(str) {
     try {
         var notags= str.replace(/#/g, '')
         var removedextraspaces = notags.replace(/(\s+)/g, ' ')
         return '  ' + removedextraspaces.replace(/(\w+)/g, '#' + '$&')
     }
-    catch(err) { } //prob no tags
+    catch(err) { } // prob no tags
 }
 
 
