@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableHighlight, TextInput, ScrollView, Image, Platform, KeyboardAvoidingView, Dimensions } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, TextInput, ScrollView, Image, Platform, KeyboardAvoidingView, Dimensions, ActivityIndicator } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK} from './../components/commonstyle';
 import { uploadPhoto } from '../utils/Photos'
@@ -36,6 +36,8 @@ export default class NewPost extends React.Component {
         caption: '',
         labels: null,
         bucket: '',
+        isSubmitting: false,
+        isImgSelected: false,
     }
 
     chooseBucket = () => {
@@ -269,7 +271,6 @@ export default class NewPost extends React.Component {
 
     handlePost = () => {
         const { uploadedImageURL, photoID, caption, numComments, userID, tags, labels } = this.state
-
         console.log("in handlePost");
         console.log(labels);
         while (this.state.labels === null) {
@@ -386,7 +387,7 @@ export default class NewPost extends React.Component {
             });
 
             if (!result.cancelled) {
-                this.setState({base64: result.base64})
+                this.setState({base64: result.base64, isImgSelected: true})
                 //await this.setState({image: result.uri,});
 
                 this.submitToGoogle();
@@ -426,7 +427,7 @@ export default class NewPost extends React.Component {
             });
 
             if (!result.cancelled) {
-                this.setState({base64: result.base64})
+                this.setState({base64: result.base64, isImgSelected: true,})
                 //await this.setState({image: result.uri,});
                 this.submitToGoogle();
                 const path = "Posts/".concat(this.state.photoID, ".jpg");
@@ -435,7 +436,7 @@ export default class NewPost extends React.Component {
                 return uploadPhoto(result.uri, path).then(function() {
                     this.setState({isImgLoading: true})
                     this.getUploadedImage(this.state.photoID).then(function() {
-                        this.setState({isImgLoading: false})
+                        this.setState({isImgLoading: false,})
                     }.bind(this));
                 }.bind(this));
             }
@@ -457,12 +458,10 @@ export default class NewPost extends React.Component {
           }
     };
 
-    submitToGoogle = async () => {
-        console.log("In submitToGoogle")
+    afterSetStateFinished = async() => {
         imageURI = this.state.image
         imageURIb64 = this.state.base64
         try {
-            this.setState({ uploading: true });
             let body = JSON.stringify({
                 requests: [
                     {
@@ -506,12 +505,20 @@ export default class NewPost extends React.Component {
             //uploadTags(parsedLabels, this.state.photoID)
             this.setState({
                 labels: parsedLabels,
-                uploading: false
+                isSubmitting: false,
             });
 
         } catch (error) {
             console.log(error);
         }
+    }
+
+    submitToGoogle = async () => {
+        console.log("In submitToGoogle")
+        this.setState({isSubmitting: true}, () => {
+            this.afterSetStateFinished();
+        })
+
     };
 
 
@@ -562,11 +569,15 @@ export default class NewPost extends React.Component {
                             value={this.state.tags}
                             autoCapitalize="none"
                         />
-                        <View style = {styles.doneButton} >
-                            <Button style={{backgroundColor: '#f300a2', width: 100, justifyContent: 'center'}} onPress={this.handlePost}>
-                                <Text style={{color: 'white'}}>Post</Text>
-                            </Button>
-                        </View>
+                        {(this.state.isSubmitting)
+                            ? <ActivityIndicator size="large" color="#ffffff" style={{marginTop: 30}}/>
+                            : (this.state.isImgSelected)
+                            ? <View style = {styles.doneButton} >
+                                    <Button style={{backgroundColor: '#f300a2', width: 100, justifyContent: 'center'}} onPress={this.handlePost}>
+                                        <Text style={{color: 'white'}}>Post</Text>
+                                    </Button>
+                                </View>
+                            : null}
                     </View>
                 </View>
             </ScrollView>
