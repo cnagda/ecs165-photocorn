@@ -13,35 +13,39 @@ const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
 
 // pretty prints a string given a date object
 Date.prototype.tstring = function() {
-  var month = monthNames[this.getMonth()];
-  var day = this.getDate();
-  var hh = this.getHours();
-  var mm = this.getMinutes();
+    var month = monthNames[this.getMonth()];
+    var day = this.getDate();
+    var hh = this.getHours();
+    var mm = this.getMinutes();
+    var tt = "AM";
 
-  return ["Posted on ", month, ' ', day, " at ", hh, ":", mm].join('');
+    // format minutes
+    if (mm < 10) {
+        mm = "0" + mm;
+    }
+
+    // format hours
+    if(hh > 12) {
+        hh = hh - 12;
+        tt = "PM"
+    }
+
+    if(hh == 0) {
+        hh = 12
+    }
+
+    return ["Posted on ", month, ' ', day, " at ", hh, ":", mm, " ", tt].join('');
 };
 
 
 // pretty print a string of space separated tags
 function getTagString(str) {
-    var res = ' '
-
-    // remove extra white space and hashtag symbols
     try {
-        var tags = str.split(' ');
-        str = str.trim()
-        var regexp = new RegExp('#([^\\s]*)','g');
-        str = str.replace(regexp, 'REPLACED');
-
-        var i;
-        for(i = 0; i < tags.length - 1; i++) {
-            res += '#';
-            res += tags[i]
-            res += ' '
-        }
+        var notags= str.replace(/#/g, '')
+        var removedextraspaces = notags.replace(/(\s+)/g, ' ')
+        return '  ' + removedextraspaces.replace(/(\w+)/g, '#' + '$&')
     }
-    catch(err) { }
-    return(res);
+    catch(err) { } // prob no tags
 }
 
 
@@ -70,6 +74,7 @@ class PostView extends React.Component {
         var postID = this.props.postID;
         // Get the user who is viewing the post.
         userViewingVar = firebase.auth().currentUser.uid;
+
         this.getLikeInfo().then(function() {
             post_ref = firebase.firestore().collection("Posts");
             post_ref.doc(this.props.postID).get().then(function(doc) {
@@ -293,7 +298,11 @@ class PostView extends React.Component {
                                 <Button transparent
                                     onPress={() => this.props.navigation.navigate('Profile', {userID: this.state.postUser})}
                                     style={{marginTop: -5}}>
-                                    <Text style = {styles.posterName}>{this.state.name}</Text>
+                                    <Text
+                                        style = {styles.posterName}
+                                        uppercase={false}>
+                                            {this.state.username}
+                                    </Text>
                                 </Button>
                                 <Text style={styles.timestamp}>{this.state.timestamp}</Text>
                             </Col>
@@ -303,12 +312,12 @@ class PostView extends React.Component {
                         <LinearGradient
                             colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
                             style={styles.backBox}>
-                        <Row>
-                            <Image
-                                style={styles.image}
-                                source={{uri: this.state.imageUri}}
-                            />
-                        </Row>
+                            <Row>
+                                <Image
+                                    style={styles.image}
+                                    source={{uri: this.state.imageUri}}
+                                />
+                            </Row>
                         </LinearGradient>
 
                         {/*post footer*/}
@@ -346,55 +355,6 @@ class PostView extends React.Component {
                     </Grid>
                 </Content>
             </Container>
-
-            /*
-            <View style={styles.container}>
-            <LinearGradient
-              colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
-              style={styles.backBox}>
-                    <View style = {{height: 68, flexDirection: 'row', marginLeft: 10}}>
-                        <View style={{flex: 2, flexDirection: 'row'}}>
-                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
-                                <Image style={styles.profile} source={{uri: this.state.profileImageURL}}/>
-                            </View>
-                        </View>
-                        <View style = {{flex: 6, flexDirection: 'row', justifyContent: 'center'}}>
-                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start'}}>
-                                <Button transparent
-                                    onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
-                                    <Text style = {styles.posterName}>{this.state.name}</Text>
-                                </Button>
-                                <Text style={{color: COLOR_LGREY, marginTop: -10}}>{this.state.timestamp}</Text>
-                            </View>
-                        </View>
-                    </View>
-
-                    <View style = {{flexDirection: 'row'}}>
-                        <Image
-                            style={styles.image}
-                            source = {{uri: this.state.imageUri}}
-                        />
-                    </View>
-
-                    <View style = {{flexDirection: 'row', paddingTop: 10}}>
-                        <View style={{flex: 1, flexDirection: 'row'}}>
-                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
-                                <Text style = {styles.smallInfoLeft}>Liked by </Text>
-                                </View>
-                        </View>
-                        <View style={{flex: 1, flexDirection: 'row'}}>
-                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center'}}>
-                                <Text style = {styles.smallInfoRight}>{this.state.numComments} Comments</Text>
-                            </View>
-                        </View>
-                    </View>
-                </LinearGradient>
-
-                <View style={{height: 80, width: Dimensions.get('window').width, flexDirection: 'column', flex: 1, paddingTop: 10}}>
-                    <Text style = {styles.tags}>{this.state.tags}</Text>
-                    <Text style = {styles.caption}>{this.state.caption}</Text>
-                </View>
-            </View>*/
         )
     }
 }
