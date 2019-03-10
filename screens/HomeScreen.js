@@ -124,7 +124,7 @@ export default class HomeScreen extends React.Component {
                     if ((followed.includes(doc.data().userID) ||
                             (firebase.auth().currentUser.uid == doc.data().userID))
                             && numPosts < numPostsToGet) { //if the post should be in the feed
-                        console.log("user followed: " + doc.data().userID)
+                        //console.log("user followed: " + doc.data().userID)
                         postIDs.push({key: doc.data().postID});
                         list.push({name: doc.data().userID});
                         numPosts++
@@ -172,8 +172,8 @@ export default class HomeScreen extends React.Component {
         if(this.state.isLoading) {
             return ( false )
         }
-        console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
-        console.log("inside render " + this.state.postIDs)
+        //console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
+        //console.log("inside render " + this.state.postIDs)
 
         return (
             <Root>

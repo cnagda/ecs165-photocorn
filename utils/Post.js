@@ -51,72 +51,86 @@ class PostView extends React.Component {
 
         this.state = {
             isImgLoading: true,
+            otherLikes: 0,
+            profileImageURL: "http://i68.tinypic.com/awt7ko.jpg",
+            postUser: "",
+            name: "",
+            timestamp: null,
+            imageUri: "http://i68.tinypic.com/awt7ko.jpg",
+            caption: "",
+            tags: "",
+            isLoading: true,
         }
+        this.displayLikeInfo = this.displayLikeInfo.bind(this)
+        this.getLikeInfo = this.getLikeInfo.bind(this)
     }
 
     componentDidMount() {
         // authenticate user
-        postID = this.props.postID;
+        var postID = this.props.postID;
         // Get the user who is viewing the post.
         userViewingVar = firebase.auth().currentUser.uid;
+        this.getLikeInfo().then(function() {
+            post_ref = firebase.firestore().collection("Posts");
+            post_ref.doc(this.props.postID).get().then(function(doc) {
+                photo_ref = firebase.firestore().collection("Photo");
+                photo_ref.doc(this.props.postID).get().then(function(doc2) {
+                    //console.log(doc2.data());
+                    users_ref = firebase.firestore().collection("users");
+                    users_ref.doc(doc.data().userID).get().then(function(doc1) {
+                        timestamp = doc.data().timestamp.toDate();
+                        // time_string = "Posted on " + timestamp.getMonth() " at " timestamp.getMinute();
 
-        post_ref = firebase.firestore().collection("Posts");
-        post_ref.doc(this.props.postID).get().then(function(doc) {
-            photo_ref = firebase.firestore().collection("Photo");
-            photo_ref.doc(this.props.postID).get().then(function(doc2) {
-                console.log(doc2.data());
-                users_ref = firebase.firestore().collection("users");
-                users_ref.doc(doc.data().userID).get().then(function(doc1) {
-                    timestamp = doc.data().timestamp.toDate();
-                    // time_string = "Posted on " + timestamp.getMonth() " at " timestamp.getMinute();
-
-                    // Determine if the currentuser (userViewingVar) already likes the post.
-                    reaction_ref = firebase.firestore().collection("Reaction");
-                    reaction_ref
-                    .where("userID", "==", firebase.auth().currentUser.uid)
-                    .get()
-                    .then(function(querySnapshot) {
-                      console.log("in like verification")
-                      alreadyLikedVar = false;
-                      querySnapshot.forEach(function(doc) {
-                          console.log(doc.data().postID);
-                          // If the current user already liked the current post,
-                          // set alreadyLikedVar to true
-                          if(postID == doc.data().postID) {
-                              alreadyLikedVar = true;
-                              console.log("test")
-                          }
-                      });
-
-
-
-                    this.setState({
-                        currentUser: userViewingVar,
-                        name: doc1.data().first + " " + doc1.data().last,
-                        postUser: doc.data().userID,
-                        caption: doc.data().caption,
-                        numComments: doc.data().numComments,
-                        tags: doc.data().tags,
-                        imageUri: doc2.data().imageUri,
-                        timestamp: timestamp.tstring(),
-                        alreadyLikedVar: alreadyLikedVar,
-                        likedJustNow: false,
-                        unlikedJustNow: false,
-                        otherLikes: 0,
-                        lastLiked: ""
-                    });
+                        // Determine if the currentuser (userViewingVar) already likes the post.
+                        reaction_ref = firebase.firestore().collection("Reaction");
+                        reaction_ref
+                        .where("userID", "==", firebase.auth().currentUser.uid)
+                        .get()
+                        .then(function(querySnapshot) {
+                          console.log("in like verification")
+                          var alreadyLikedVar = false;
+                          querySnapshot.forEach(function(doc3) {
+                              console.log(doc3.data().postID);
+                              // If the current user already liked the current post,
+                              // set alreadyLikedVar to true
+                              if(postID == doc3.data().postID) {
+                                  alreadyLikedVar = true;
+                                  console.log("test")
+                              }
+                          }.bind(this));
 
 
 
-                    console.log("caption " + doc.data().caption)
-                    console.log("postid " + this.props.postID)
-                    console.log("imageuri " + doc2.data().imageUri)
-                    console.log("timestamp " + timestamp.tstring())
-                  }.bind(this))
+                        this.setState({
+                            currentUser: userViewingVar,
+                            name: doc1.data().first + " " + doc1.data().last,
+                            postUser: doc.data().userID,
+                            caption: doc.data().caption,
+                            numComments: doc.data().numComments,
+                            tags: doc.data().tags,
+                            imageUri: doc2.data().imageUri,
+                            timestamp: timestamp.tstring(),
+                            alreadyLikedVar: alreadyLikedVar,
+                            likedJustNow: false,
+                            unlikedJustNow: false,
+                            otherLikes: 0,
+                            lastLiked: "",
+                            isLoading: false,
+                        });
+
+
+
+                        console.log("caption " + doc.data().caption)
+                        console.log("postid " + this.props.postID)
+                        console.log("imageuri " + doc2.data().imageUri)
+                        console.log("timestamp " + timestamp.tstring())
+                      }.bind(this))
+                    }.bind(this))
                 }.bind(this))
-            }.bind(this))
-            this.getProfileImage(doc.data().userID);
-        }.bind(this)).catch ((error) => {console.error(error);});
+                this.getProfileImage(doc.data().userID);
+            }.bind(this)).catch ((error) => {console.error(error);});
+        }.bind(this))
+
     }
 
     componentWillMount() {}
@@ -129,6 +143,8 @@ class PostView extends React.Component {
 
             if (!downloadURL.cancelled) {
                 this.setState({profileImageURL: downloadURL,isImgLoading:false,});
+            } else {
+                this.setState({profileImageURL: "http://i68.tinypic.com/awt7ko.jpg",isImgLoading:false,});
             }
     };
 
@@ -142,8 +158,7 @@ class PostView extends React.Component {
 
           })
       }).then(function(){
-        this.setState({likedJustNow: false});
-        this.setState({unlikedJustNow: true});
+        this.setState({likedJustNow: false, unlikedJustNow: true});
         console.log("unlike finished")
       }.bind(this))
     }
@@ -160,13 +175,12 @@ class PostView extends React.Component {
                   rid: 1,
                   rtype: 1
               }).then(function() {
-                  this.setState({likedJustNow: true});
-                  this.setState({unlikedJustNow: false});
+                  this.setState({likedJustNow: true, unlikedJustNow: false});
               }.bind(this))
 
               // Update the local variables corresponding to the number of likes of the post
               this.getLikeInfo()
-              otherLikes = this.state.otherLikes
+              var otherLikes = this.state.otherLikes
               this.setState({otherLikes: otherLikes + 1,
                              lastLiked: firebase.auth().currentUser.uid});
         firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE").get().then(function(querySnapshot) {
@@ -187,27 +201,27 @@ class PostView extends React.Component {
     }
 
     // Gets the number of likes for the current post and the last person who liked the post
-    getLikeInfo = () => {
-      console.log("I got in getlikeinfo")
+    getLikeInfo = async() => {
+     console.log("I got in getlikeinfo")
       firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE").get().then(function(querySnapshot) {
           querySnapshot.forEach(function(doc) {
-              console.log("get like info test")
-            otherLikes = doc.data().numLikes - 1
-            lastLiked = doc.data().actUser
-            console.log("test getlikes")
-              console.log("getlikeinfo otherlikes: ", otherLikes)
-              console.log("getlikeinfo lastLiked: ", lastLiked)
-            this.setState({otherLikes: otherLikes,
-                           lastLiked: lastLiked});
-          })
+             // console.log("get like info test")
+            // var otherLikes = doc.data().numLikes - 1
+            // var lastLiked = doc.data().actUser
+            // console.log("test getlikes")
+            //   console.log("getlikeinfo otherlikes: ", otherLikes)
+            //   console.log("getlikeinfo lastLiked: ", lastLiked)
+            this.setState({otherLikes: doc.data().numLikes - 1,
+                           lastLiked: doc.data().actUser});
+          }.bind(this))
         }.bind(this))
     };
 
-    displayLikeInfo = (otherLikes, lastLiked) => {
+    displayLikeInfo = () => {
         // Get the update corresponding the current post.
-            console.log("in displayLikeInfo")
-            console.log("otherLikes: ", this.state.otherLikes)
-            console.log("lastLiked: ", this.state.lastLiked)
+            // console.log("in displayLikeInfo")
+            // console.log("otherLikes: ", this.state.otherLikes)
+            // console.log("lastLiked: ", this.state.lastLiked)
             // If at least one user liked the post, then display the name of the user
             // who liked the post.
           //  otherLikes = 2
@@ -228,13 +242,14 @@ class PostView extends React.Component {
                  <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}> {this.state.lastLiked} </Text>
              </Row>;
            }
+           return null;
     };
 
-    displayLikeButton =  (alreadyLikedVar) => {
-        console.log("alraedyLikedVar: ", alreadyLikedVar)
-        console.log("likedJustNow: ", this.state.likedJustNow)
-        console.log("unlikedJustNow: ", this.state.unlikedJustNow)
-        if ((this.state.likedJustNow || alreadyLikedVar) && ! this.state.unlikedJustNow) {
+    displayLikeButton =  () => {
+        // console.log("alraedyLikedVar: ", alreadyLikedVar)
+        // console.log("likedJustNow: ", this.state.likedJustNow)
+        // console.log("unlikedJustNow: ", this.state.unlikedJustNow)
+        if ((this.state.likedJustNow || this.state.alreadyLikedVar) && ! this.state.unlikedJustNow) {
             return <Button icon transparent
                         style={{marginLeft: -15}}>
                         <Icon
@@ -258,15 +273,10 @@ class PostView extends React.Component {
     };
 
     render() {
-        if (Boolean(this.state.isImgLoading) ) {
+        if (Boolean(this.state.isImgLoading || this.state.isLoading) ) {
             return ( false )
         }
-        const  alreadyLikedVar = this.state.alreadyLikedVar
-
-        this.getLikeInfo()
-        const otherLikes = this.state.otherlikes
-        const lastLiked = this.state.lastLiked
-        console.log("render otherlikes ", otherLikes)
+        console.log("render otherlikes ", this.state.otherLikes)
         return (
             <Container style={styles.container}>
                 <Content scrollEnabled={false}>
@@ -303,7 +313,7 @@ class PostView extends React.Component {
                             {/*task bar*/}
                             <Row style={{paddingLeft: 10}}>
 
-                                {this.displayLikeButton(alreadyLikedVar)}
+                                {this.displayLikeButton()}
 
                                 <Button icon transparent>
                                     <Icon
@@ -322,7 +332,7 @@ class PostView extends React.Component {
                             {/*likes*/}
 
 
-                            {this.displayLikeInfo(otherLikes, lastLiked)}
+                            {this.displayLikeInfo()}
 
                             {/*caption*/}
                             <Text style={{paddingLeft: 10, paddingTop: 5}}>
