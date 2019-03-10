@@ -25,11 +25,8 @@ class SearchNames extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
-        this.state = {query: '', searchResults: [], namesOfPeople: this.getNamesandUsernames()}
-        this.getNamesandUsernames = this.getNamesandUsernames.bind(this)
-        this.updateSearch = this.updateSearch.bind(this)
+        this.state = {query: '', searchResults: []}
     }
-
 
     // authenticate user
     componentDidMount() {
@@ -43,79 +40,48 @@ class SearchNames extends React.Component {
     componentWillUnmount() {
         searchResults = []
     }
-
-    getNamesandUsernames() {
-        var namesOfPeople = []
-        firebase.firestore().collection("Follows").where("userID", "==", firebase.auth().currentUser.uid).get().then(function(querySnapshot1) {
-            querySnapshot1.forEach(function(followdoc) {
-                    firebase.firestore().collection("users").doc(followdoc.data().followedID).get().then(function(userdoc) {
-                        var fullName = userdoc.data().first + " " + userdoc.data().last
-                        console.log("in following " + fullName)
-                        var username = userdoc.data().username
-                        var uid = userdoc.data().uid
-                        const path = "ProfilePictures/".concat(userdoc.data().uid,".jpg");
-                        //var photourl = "http://i68.tinypic.com/awt7ko.jpg";
-                        const image_ref = firebase.storage().ref(path);
-                        //let currThis = this;
-                        image_ref.getDownloadURL().then(onResolve, onReject);
-                        function onResolve(downloadURL) {
-                            namesOfPeople.push({name: fullName, username: username, photo: downloadURL, uid: uid});
-                        }
-                        function onReject(error){ //photo not found
-                            namesOfPeople.push({name: fullName, username: username, photo: "http://i68.tinypic.com/awt7ko.jpg", uid: uid});
-                        }
-                    }.bind(this))
-
-            }.bind(this))
-            var users_ref = firebase.firestore().collection("users");
-
+    updateSearch = (value) => {
+        searchResults = []
+        let currThis = this;
+        if (value) {
+            users_ref = firebase.firestore().collection("users");
             users_ref
                 .get()
                 .then(function(querySnapshot) {
                     querySnapshot.forEach(function(doc) {
-                        if (!namesOfPeople.some(e => e.uid === doc.data().uid)) {
-                            var fullName = doc.data().first + " " + doc.data().last
-                            console.log("in regular search " + fullName)
-                            var username = doc.data().username
-                            var uid = doc.data().uid
+                        var fullName = doc.data().first + " " + doc.data().last
+                        if (fullName.toLowerCase().includes(value.toLowerCase())) {
                             const path = "ProfilePictures/".concat(doc.data().uid,".jpg");
-                            //var photourl = "http://i68.tinypic.com/awt7ko.jpg";
+                            var photourl = "http://i68.tinypic.com/awt7ko.jpg";
                             const image_ref = firebase.storage().ref(path);
-                            //let currThis = this;
+                            let currThis = this;
                             image_ref.getDownloadURL().then(onResolve, onReject);
                             function onResolve(downloadURL) {
-                                namesOfPeople.push({name: fullName, username: username, photo: downloadURL, uid: uid});
+                                searchResults.push(
+                                    {
+                                        name: fullName,
+                                        userID: doc.data().uid,
+                                        photo: downloadURL,
+                                    }
+                                );
+                                currThis.setState({searchResults: searchResults})
                             }
                             function onReject(error){ //photo not found
-                                namesOfPeople.push({name: fullName, username: username, photo: "http://i68.tinypic.com/awt7ko.jpg", uid: uid});
+                                searchResults.push(
+                                    {
+                                        name: fullName,
+                                        userID: doc.data().uid,
+                                        photo: "http://i68.tinypic.com/awt7ko.jpg",
+                                    }
+                                );
+                                currThis.setState({searchResults: searchResults})
                             }
                         }
                     }.bind(this));
-                }.bind(this));
-        })
-
-        return namesOfPeople
-    }
-
-
-    updateSearch = (value) => {
-        var people = this.state.namesOfPeople;
-        //let currThis = this;
-        searchResults = []
-        if (value) {
-            people.forEach(function(user) {
-                if (user.name.toLowerCase().includes(value.toLowerCase()) || user.username.toLowerCase().includes(value.toLowerCase())) {
-                    searchResults.push({
-                                            name: user.name,
-                                            username: user.username,
-                                            userID: user.uid,
-                                            photo: user.photo,
-                                        })
-                    this.setState({searchResults: searchResults})
-                }
-            }.bind(this));
+                }.bind(this))
+            }
+            return searchResults
         }
-    }
 
     handleUpdate = async(query) => {
         this.setState({
@@ -158,13 +124,11 @@ class SearchNames extends React.Component {
                                  <ListItem
                                      roundAvatar
                                      leftAvatar={{ source: { uri: l.photo } }}
-                                     key={l.userID}
+                                     key={l.name}
                                      title={l.name}
-                                     subtitle={l.username}
-                                     onPress={() => this.props.navigation.push('Profile', {userID: l.userID})}
+                                     onPress={() => this.props.navigation.navigate('Profile', {userID: l.userID})}
                                      containerStyle={styles.result}
                                      titleStyle={styles.resultText}
-                                     subtitleStyle={styles.subtext}
                                      chevronColor='white'
                                      chevron
                                  />
@@ -232,8 +196,5 @@ const styles = StyleSheet.create({
     },
     resultText: {
         color: COLOR_PINK
-    },
-    subtext: {
-        color: COLOR_LGREY
     }
 })
