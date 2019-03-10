@@ -113,8 +113,6 @@ class PostView extends React.Component {
                             alreadyLikedVar: alreadyLikedVar,
                             likedJustNow: false,
                             unlikedJustNow: false,
-                            otherLikes: 0,
-                            lastLiked: "",
                             isLoading: false,
                         });
 
@@ -231,9 +229,10 @@ class PostView extends React.Component {
               console.log("I got here in otherlikes")
               return <Row style={{paddingLeft: 10, paddingBottom: 3}}>
                   <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}>Liked by </Text>
-                  <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}> {this.state.lastLiked} </Text>
-                  <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}>and </Text>
-                  <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}> {this.state.otherLikes} </Text>
+                  <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.lastLiked}</Text>
+                  <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> and </Text>
+                  <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.otherLikes}</Text>
+                  <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> others</Text>
               </Row>;
            }
            else if (this.state.otherLikes == 1){
