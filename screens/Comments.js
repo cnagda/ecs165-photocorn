@@ -28,6 +28,10 @@ Date.prototype.tcstring = function() {
         tt = "PM"
     }
 
+    if(hh == 0) {
+        hh = 12
+    }
+
     return [month, ' ', day, " at ", hh, ":", mm, " ", tt].join('');
 };
 
@@ -52,7 +56,7 @@ class Comments extends React.Component {
         var ref = db.collection("Comments");
         var query = ref.where("postID", "==", this.state.postID);
 
-        query.get().then(function(results) {
+        query.orderBy("timestamp").get().then(function(results) {
             results.forEach(function(doc) {
                 var data = doc.data();
                 var text = <Text>
@@ -74,7 +78,9 @@ class Comments extends React.Component {
             this.setState({
                 comments: comments,
             });
-        }.bind(this))
+        }.bind(this)).catch(function(error) {
+            console.log("Error searching document: " + error);
+        });
     }
 
 
@@ -111,15 +117,11 @@ class Comments extends React.Component {
 
                 ref.set(com_doc).then(function() {
                     var photo = com_doc.user.avatar
-                    var text = <Text>
-                                   <Text style={{fontWeight: 'bold', color: COLOR_PINK}}>{com_doc.user.username + " "}</Text>
-                                   <Text style={{color: COLOR_LGREY}}>{com_doc.text}</Text>
-                               </Text>;
                     this.setState((prevState, props) => {
-                        var text = <View style={styles.commentView}>
+                        var text = <Text>
                                        <Text style={{fontWeight: 'bold', color: COLOR_PINK}}>{com_doc.user.username + " "}</Text>
-                                       <Text style={{color: COLOR_PINK}}>{prevState.comment}</Text>
-                                   </View>;
+                                       <Text style={{color: COLOR_LGREY}}>{com_doc.text}</Text>
+                                   </Text>;
                         return {
                             comments: prevState.comments.concat(
                                 <ListItem
