@@ -202,7 +202,7 @@ export default class Loading extends React.Component {
 
     handleUnFollow = () => {
         const {currentUser, userViewing } = this.state
-            firebase.firestore().collection("Follows").where("userID", "==", currentUser).get().then(function(querySnapshot) {
+            firebase.firestore().collection("Follows").where("userID", "==", currentUser).where("followedID", "==", userViewing).get().then(function(querySnapshot) {
                 querySnapshot.forEach(function(doc) {
                     doc.ref.delete().then(function(){
                         this.setState({followedJustNow: false});
