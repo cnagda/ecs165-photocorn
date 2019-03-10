@@ -246,6 +246,7 @@ const styles = StyleSheet.create({
     },
     content: {
         alignItems: 'center',
+        justifyContent: 'space-evenly'
     },
     footer: {
         backgroundColor: COLOR_DGREY,

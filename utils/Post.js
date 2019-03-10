@@ -13,23 +13,24 @@ const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
 
 // pretty prints a string given a date object
 Date.prototype.tstring = function() {
-  var month = monthNames[this.getMonth()];
-  var day = this.getDate();
-  var hh = this.getHours();
-  var mm = this.getMinutes();
-  var tt = "AM";
+    var month = monthNames[this.getMonth()];
+    var day = this.getDate();
+    var hh = this.getHours();
+    var mm = this.getMinutes();
+    var tt = "AM";
 
-  // format minutes
-  if(mm < 10) {
-      mm = "0" + hh.toString();
-  }
+    // format minutes
+    if (mm < 10) {
+        mm = "0" + mm;
+    }
 
-  // format hours
-  if(hh > 12) {
-      tt = "PM"
-  }
+    // format hours
+    if(hh > 12) {
+        hh = hh - 12;
+        tt = "PM"
+    }
 
-  return ["Posted on ", month, ' ', day, " at ", hh, ":", mm, " ", tt].join('');
+    return ["Posted on ", month, ' ', day, " at ", hh, ":", mm, " ", tt].join('');
 };
 
 
@@ -293,55 +294,6 @@ class PostView extends React.Component {
                     </Grid>
                 </Content>
             </Container>
-
-            /*
-            <View style={styles.container}>
-            <LinearGradient
-              colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
-              style={styles.backBox}>
-                    <View style = {{height: 68, flexDirection: 'row', marginLeft: 10}}>
-                        <View style={{flex: 2, flexDirection: 'row'}}>
-                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
-                                <Image style={styles.profile} source={{uri: this.state.profileImageURL}}/>
-                            </View>
-                        </View>
-                        <View style = {{flex: 6, flexDirection: 'row', justifyContent: 'center'}}>
-                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start'}}>
-                                <Button transparent
-                                    onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
-                                    <Text style = {styles.posterName}>{this.state.name}</Text>
-                                </Button>
-                                <Text style={{color: COLOR_LGREY, marginTop: -10}}>{this.state.timestamp}</Text>
-                            </View>
-                        </View>
-                    </View>
-
-                    <View style = {{flexDirection: 'row'}}>
-                        <Image
-                            style={styles.image}
-                            source = {{uri: this.state.imageUri}}
-                        />
-                    </View>
-
-                    <View style = {{flexDirection: 'row', paddingTop: 10}}>
-                        <View style={{flex: 1, flexDirection: 'row'}}>
-                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
-                                <Text style = {styles.smallInfoLeft}>Liked by </Text>
-                                </View>
-                        </View>
-                        <View style={{flex: 1, flexDirection: 'row'}}>
-                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center'}}>
-                                <Text style = {styles.smallInfoRight}>{this.state.numComments} Comments</Text>
-                            </View>
-                        </View>
-                    </View>
-                </LinearGradient>
-
-                <View style={{height: 80, width: Dimensions.get('window').width, flexDirection: 'column', flex: 1, paddingTop: 10}}>
-                    <Text style = {styles.tags}>{this.state.tags}</Text>
-                    <Text style = {styles.caption}>{this.state.caption}</Text>
-                </View>
-            </View>*/
         )
     }
 }
