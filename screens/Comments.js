@@ -117,6 +117,10 @@ class Comments extends React.Component {
                                    <Text style={{color: COLOR_LGREY}}>{com_doc.text}</Text>
                                </Text>;
                     this.setState((prevState, props) => {
+                        var text = <View style={styles.commentView}>
+                                       <Text style={{fontWeight: 'bold', color: COLOR_PINK}}>{com_doc.user.username + " "}</Text>
+                                       <Text style={{color: COLOR_PINK}}>{prevState.comment}</Text>
+                                   </View>;
                         return {
                             comments: prevState.comments.concat(
                                 <ListItem
