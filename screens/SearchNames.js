@@ -25,7 +25,7 @@ class SearchNames extends React.Component {
     // initialize state
     constructor(props) {
         super(props);
-        this.state = {query: '', searchResults: [], namesOfPeople: this.getNamesandUsernames(), result: []}
+        this.state = {query: '', searchResults: [], namesOfPeople: this.getNamesandUsernames(), result: [], followers:[], interests: []}
         this.getNamesandUsernames = this.getNamesandUsernames.bind(this)
         this.updateSearch = this.updateSearch.bind(this)
     }
@@ -33,7 +33,9 @@ class SearchNames extends React.Component {
 
     // authenticate user
     componentDidMount() {
-        this.displayResults()
+
+         this.getInterests()
+         this.getFollowerInfo()
     }
     componentWillReceiveProps() {
         this.setState({query: ''})
@@ -42,6 +44,44 @@ class SearchNames extends React.Component {
     }
     componentWillUnmount() {
         searchResults = []
+    }
+
+    getInterests() {
+        var interests = ""
+        firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).get().then(function(thisuserdoc) {
+            this.setState({interests: thisuserdoc.data().interests})
+        }.bind(this))
+    }
+
+    getFollowerInfo() {
+        var followers = {};
+
+        var followersSorted = [];
+        firebase.firestore().collection("Follows").get().then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+                user = doc.data().followedID
+                console.log("here's a person: " + user)
+                if (followers.hasOwnProperty(user)) {
+                    console.log("hereeee")
+                    followers[user] += 1
+                } else {
+                    followers[user] = 1
+                }
+                console.log("followers: " + followers[user])
+            }.bind(this))
+            for (var item in followers) {
+                followersSorted.push([item, followers[item]]);
+            }
+
+            followersSorted.sort(function(a, b) {
+                return b[1] - a[1];
+            })
+            this.setState({followers: followersSorted}, () => {
+                this.displayResults()
+            })
+
+        }.bind(this))
+
     }
 
     getNamesandUsernames() {
@@ -139,116 +179,64 @@ class SearchNames extends React.Component {
                     />
                 ))
             })
-        } else {
-            var followers = {};
-
-
+        } else if (this.state.followers) {
             this.setState((prevState, props) => {
                 return {
                     result: prevState.result.concat(<Text style={{color: '#f300a2', fontWeight: 'bold', marginTop: 50}}>SUGESTIONS</Text>),
                 };
             })
-            firebase.firestore().collection("Follows").get().then(function(querySnapshot) {
-                querySnapshot.forEach(function(doc) {
-                    user = doc.data().followedID
-                    console.log("here's a person: " + user)
-                    if (followers.hasOwnProperty(user)) {
-                        console.log("hereeee")
-                        followers[user] += 1
-                    } else {
-                        followers[user] = 1
-                    }
-                    console.log("followers: " + followers[user])
-                }.bind(this))
-                var followersSorted = [];
-                for (var item in followers) {
-                    followersSorted.push([item, followers[item]]);
-                }
+            var numGotten = 0
+            for (let i = 0; i < Math.min(this.state.followers.length, 10); i++) {
+                //(function(cntr) {
+                    let user = this.state.followers[i]
+                    console.log(user[0])
 
-                followersSorted.sort(function(a, b) {
-                    return b[1] - a[1];
-                });
+                    firebase.firestore().collection("users").doc(user[0]).get().then(function(userdoc) {
+                        console.log("getting that user info: " + user[0] + " " + user[1])
+                        firebase.firestore().collection("Posts").where("userID", "==", user[0]).get().then(function(querySnapshot) {
+                            if (querySnapshot.empty) {
+                                console.log("ugh it was empty")
+                            } else {
+                                let counter = 0;
+                                querySnapshot.forEach(function(postdoc) {
+                                    console.log("got a post by this user")
+                                    firebase.firestore().collection("AutoTags").where("photoID", "==", postdoc.data().postID).get().then(function(autotagquery) {
+                                        //var interested = false
+                                        autotagquery.forEach(function(match) {
+                                            if (this.state.interests.includes(match.data().bucket)) {
+                                                //interested = true;
+                                                numGotten++;
+                                                if (counter < 1) {
+                                                    counter ++;
+                                                    this.setState((prevState, props) => {
+                                                        return {
+                                                            result: prevState.result.concat(<Button transparent onPress={() => this.props.navigation.navigate('Profile', {userID: userdoc.data().uid})}>
+                                                                <Text style={{color: '#f300a2'}}>{userdoc.data().first + ' ' + userdoc.data().last}</Text>
+                                                            </Button>),
+                                                        };
+                                                    })
 
-                //var followersSorted = Object.keys(followers).sort(function(a,b){return followers[b]-followers[a]})
-                //console.log("followers Sorted: " + followersSorted[firebase.auth().currentUser.uid])
-                var numGotten = 0
-                var BreakExceptionOuter = {};
-                var BreakExceptionInner = {};
-                var interests = ""
-                firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).get().then(function(thisuserdoc) {
-                    interests = thisuserdoc.data().interests;
-                }.bind(this))
-                try {
-                    //Object.keys(followersSorted).forEach(function(user) {
-                    followersSorted.forEach(function(user) {
-                        if (numGotten > 9)  {
-                            console.log("already got 10")
-                            //throw BreakExceptionOuter;
-                        } else {
-                            try {
-                                    firebase.firestore().collection("users").doc(user[0]).get().then(function(userdoc) {
-                                        console.log("getting that user info: " + user[0])
-                                        firebase.firestore().collection("Posts").where("userID", "==", user[0]).get().then(function(querySnapshot) {
-                                            if (querySnapshot.empty) {
-                                                console.log("ugh it was empty")
-                                            } else {
-                                                var counter = 0;
-                                                querySnapshot.forEach(function(postdoc) {
-
-                                                    console.log("got a post by this user")
-                                                    firebase.firestore().collection("AutoTags").where("photoID", "==", postdoc.data().postID).get().then(function(autotagquery) {
-                                                        //var interested = false
-                                                        autotagquery.forEach(function(match) {
-                                                            if (interests.includes(match.data().bucket)) {
-                                                                //interested = true;
-                                                                numGotten++;
-                                                                if (counter < 1) {
-                                                                    counter ++;
-                                                                    this.setState((prevState, props) => {
-                                                                        return {
-                                                                            result: prevState.result.concat(<Button transparent onPress={() => this.props.navigation.navigate('Profile', {userID: userdoc.data().uid})}>
-                                                                                <Text style={{color: '#f300a2'}}>{userdoc.data().first + ' ' + userdoc.data().last}</Text>
-                                                                            </Button>),
-                                                                        };
-                                                                    })
-
-                                                                }
-                                                            }
-                                                        }.bind(this))
-                                                        //console.log("got a match: this user posted something the current user is interested in")
-                                                        //suggestions.push({name: userdoc.data().first + ' ' + userdoc.data().last, uid: userdoc.data().uid});
-                                                        console.log("length of result: " + this.state.result.length)
-                                                        console.log("numGotten: " + numGotten)
-                                                        console.log("counter: " + counter)
-
-
-                                                    }.bind(this))
-                                                }.bind(this))
+                                                }
                                             }
-                                        }.bind(this)).catch(function(error) {
-                                            console.log("had an error getting post: " + error)
-                                        })
-                                    }.bind(this)).catch(function(error) {
-                                        console.log("had an error getting user: " + error)
-                                    })
-
-                            } catch(err) {
-                                console.log("error here: " + err)
-                                //if (err !== BreakExceptionInner) throw err;
+                                        }.bind(this))
+                                        //console.log("got a match: this user posted something the current user is interested in")
+                                        //suggestions.push({name: userdoc.data().first + ' ' + userdoc.data().last, uid: userdoc.data().uid});
+                                        console.log("length of result: " + this.state.result.length)
+                                        console.log("numGotten: " + numGotten)
+                                        console.log("counter: " + counter)
+                                    }.bind(this))
+                                }.bind(this))
                             }
+                        }.bind(this)).catch(function(error) {
+                            console.log("had an error getting post: " + error)
+                        })
+                    }.bind(this)).catch(function(error) {
+                        console.log("had an error getting user: " + error)
+                    })
+                //}.bind(this))(i);
+            }
 
-                        }
-                    }.bind(this))
-                } catch (e) {
-                    console.log("error: " + err)
-                    //if (e !== BreakExceptionOuter) throw e;
-                }
-
-
-            }.bind(this))
-
-
-
+            //}.bind(this))
         }
     }
 
