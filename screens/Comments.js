@@ -28,6 +28,10 @@ Date.prototype.tcstring = function() {
         tt = "PM"
     }
 
+    if(hh == 0) {
+        hh = 12
+    }
+
     return [month, ' ', day, " at ", hh, ":", mm, " ", tt].join('');
 };
 
@@ -52,7 +56,7 @@ class Comments extends React.Component {
         var ref = db.collection("Comments");
         var query = ref.where("postID", "==", this.state.postID);
 
-        query.get().then(function(results) {
+        query.orderBy("timestamp").get().then(function(results) {
             results.forEach(function(doc) {
                 var data = doc.data();
                 var text = <Text>
@@ -74,7 +78,9 @@ class Comments extends React.Component {
             this.setState({
                 comments: comments,
             });
-        }.bind(this))
+        }.bind(this)).catch(function(error) {
+            console.log("Error searching document: " + error);
+        });
     }
 
 
@@ -108,32 +114,29 @@ class Comments extends React.Component {
                         avatar: url
                     }
                 };
-
-                ref.set(com_doc).then(function() {
-                    var photo = com_doc.user.avatar
+                var photo = com_doc.user.avatar
+                this.setState((prevState, props) => {
                     var text = <Text>
                                    <Text style={{fontWeight: 'bold', color: COLOR_PINK}}>{com_doc.user.username + " "}</Text>
                                    <Text style={{color: COLOR_LGREY}}>{com_doc.text}</Text>
                                </Text>;
-                    this.setState((prevState, props) => {
-                        var text = <View style={styles.commentView}>
-                                       <Text style={{fontWeight: 'bold', color: COLOR_PINK}}>{com_doc.user.username + " "}</Text>
-                                       <Text style={{color: COLOR_PINK}}>{prevState.comment}</Text>
-                                   </View>;
-                        return {
-                            comments: prevState.comments.concat(
-                                <ListItem
-                                    key={ref.id}
-                                    title={text}
-                                    subtitle={com_doc.timestamp.toDate().tcstring()}
-                                    subtitleStyle={styles.subtitle}
-                                    leftAvatar={{source: {uri: photo}}}
-                                    containerStyle={styles.comment}
-                                />),
-                            comment: "",
-                        };
-                    });
-                }.bind(this));
+                    return {
+                        comments: prevState.comments.concat(
+                            <ListItem
+                                key={ref.id}
+                                title={text}
+                                subtitle={com_doc.timestamp.toDate().tcstring()}
+                                subtitleStyle={styles.subtitle}
+                                leftAvatar={{source: {uri: photo}}}
+                                containerStyle={styles.comment}
+                            />),
+                        comment: "",
+                    };
+                });
+
+                ref.set(com_doc).then(function() {
+                    console.log("added comment to database")
+                });
             }.bind(this));
         }.bind(this));
 
