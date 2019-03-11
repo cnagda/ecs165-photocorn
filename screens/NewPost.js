@@ -41,7 +41,7 @@ export default class NewPost extends React.Component {
     }
 
     chooseBucket = () => {
-        console.log("in chooseBucket");
+        //console.log("in chooseBucket");
         var buckets = {};
         buckets['Dog'] = 'Animals';
         buckets['Cat'] = 'Animals';
@@ -242,7 +242,7 @@ export default class NewPost extends React.Component {
         buckets['Text'] = 'Motivational Quotes';
         buckets['Font'] = 'Motivational Quotes';
 
-        console.log("In chooseBucket");
+        //console.log("In chooseBucket");
 
         // just chooses the bucket that appears most.
         var choices = {};
@@ -271,8 +271,8 @@ export default class NewPost extends React.Component {
 
     handlePost = () => {
         const { uploadedImageURL, photoID, caption, numComments, userID, tags, labels } = this.state
-        console.log("in handlePost");
-        console.log(labels);
+        //console.log("in handlePost");
+        //console.log(labels);
         while (this.state.labels === null) {
            // there has to be a better way to do this...
         }
@@ -291,22 +291,22 @@ export default class NewPost extends React.Component {
                 photoID: photoID,
                 imageUri: uploadedImageURL,
             }).then(function() {
-                console.log("length: " + tagtext.length)
+                //console.log("length: " + tagtext.length)
                 if (tagtext !== null && tagtext.length > 0) {
                     tagArr = tagtext.split(" ")
-                    console.log(tagArr)
+                    //console.log(tagArr)
                     tagArr.forEach(function(tag) {
-                        console.log(tag)
+                        //console.log(tag)
 
                         firebase.firestore().collection("Tags").doc(tag).get().then(function(doc) {
                             postIDList = []
                             if (doc.exists) {
                                 postIDList = doc.data().posts;
-                                console.log(doc.data())
+                                //console.log(doc.data())
                             }
-                            console.log(postIDList)
+                            //console.log(postIDList)
                             postIDList.push(photoID)
-                            console.log(postIDList)
+                            //console.log(postIDList)
                             firebase.firestore().collection("Tags").doc(tag).set({
                                 posts: postIDList,
                                 tag: tag
@@ -314,10 +314,10 @@ export default class NewPost extends React.Component {
                         })
                     })
                 }
-                console.log("AutoTags:")
+                //console.log("AutoTags:")
                 this.chooseBucket();
-                console.log(labels)
-                console.log(this.state.bucket);
+                //console.log(labels)
+                //console.log(this.state.bucket);
                 firebase.firestore().collection("AutoTags").doc(photoID).set({
                     photoID: photoID,
                     tags: labels,
@@ -369,11 +369,11 @@ export default class NewPost extends React.Component {
     }
 
     getCameraAndCameraRollPermissions = async() => {
-        console.log("trying to get camera roll permissions")
+        //console.log("trying to get camera roll permissions")
         const {  Permissions } = Expo;
         // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
         const { status, permissions } = await Permissions.askAsync(Permissions.CAMERA_ROLL, Permissions.CAMERA);
-        console.log("status: " + status)
+        //console.log("status: " + status)
         return status
     };
 
@@ -395,8 +395,8 @@ export default class NewPost extends React.Component {
                 uploadPhoto(result.uri, path);
 
                 const path = "Posts/".concat(this.state.photoID, ".jpg");
-                console.log(result.uri);
-                console.log(path);
+                //console.log(result.uri);
+                //console.log(path);
                 return uploadPhoto(result.uri, path).then(function() {
                     this.setState({isImgLoading: true})
                     this.getUploadedImage(this.state.photoID).then(function() {
@@ -409,11 +409,11 @@ export default class NewPost extends React.Component {
 
 
     getCameraRollPermissions = async() => {
-        console.log("trying to get camera roll permissions")
+        //console.log("trying to get camera roll permissions")
         const {  Permissions } = Expo;
         // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
         const { status, permissions } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-        console.log("status: " + status)
+        //console.log("status: " + status)
         return status
     };
 
@@ -432,8 +432,8 @@ export default class NewPost extends React.Component {
                 //await this.setState({image: result.uri,});
                 this.submitToGoogle();
                 const path = "Posts/".concat(this.state.photoID, ".jpg");
-                console.log(result.uri);
-                console.log(path);
+                //console.log(result.uri);
+                //console.log(path);
                 return uploadPhoto(result.uri, path).then(function() {
                     this.setState({isImgLoading: true})
                     this.getUploadedImage(this.state.photoID).then(function() {
@@ -445,16 +445,16 @@ export default class NewPost extends React.Component {
     };
 
     getUploadedImage = async(photoID) => {
-          console.log("in get profile image");
-            console.log(photoID)
+          //console.log("in get profile image");
+            //console.log(photoID)
             const path = "Posts/".concat(photoID, ".jpg");
-            console.log(path)
+            //console.log(path)
             const image_ref = firebase.storage().ref(path);
             const downloadURL = await image_ref.getDownloadURL()
 
             if (!downloadURL.cancelled) {
-              console.log("testing1")
-              console.log(downloadURL)
+              //console.log("testing1")
+              //console.log(downloadURL)
               this.setState({uploadedImageURL: downloadURL, isImgLoading:false,});
           }
     };
@@ -477,7 +477,7 @@ export default class NewPost extends React.Component {
                     }
                 ]
             });
-            console.log("Created body")
+            //console.log("Created body")
             let response = await fetch(
                 "https://vision.googleapis.com/v1/images:annotate?key=" +
                 "AIzaSyD3yoe5pFlzna3E4EgkbCSOLv3A5hHqNfg",
@@ -490,9 +490,9 @@ export default class NewPost extends React.Component {
                     body: body
                 }
             );
-            console.log("Made response")
+            //console.log("Made response")
             let responseJson = await response.json();
-            //console.log(responseJson);
+            ////console.log(responseJson);
             // Get the image labels
             labels = responseJson["responses"]["0"]["labelAnnotations"]
 
@@ -500,7 +500,7 @@ export default class NewPost extends React.Component {
 
             for (var k in labels){
                 currTag = labels[k]
-                console.log(currTag["description"])
+                //console.log(currTag["description"])
                 parsedLabels.push(currTag["description"])
             }
             //uploadTags(parsedLabels, this.state.photoID)
@@ -510,12 +510,12 @@ export default class NewPost extends React.Component {
             });
 
         } catch (error) {
-            console.log(error);
+            //console.log(error);
         }
     }
 
     submitToGoogle = async () => {
-        console.log("In submitToGoogle")
+        //console.log("In submitToGoogle")
         this.setState({isSubmitting: true}, () => {
             this.afterSetStateFinished();
         })

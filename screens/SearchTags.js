@@ -83,8 +83,10 @@ class SearchTags extends React.Component {
               this.setState({searchResults: searchResults})
 
               if (query.length == 0) {
-                  this.setState({result: []})
-                  this.displayResults()
+                  this.setState({result: []}, () => {
+                      this.displayResults()
+                  })
+
               }
           }
         })
@@ -130,6 +132,7 @@ class SearchTags extends React.Component {
                 ))
             })
         } else {
+
             this.setState((prevState, props) => {
                 return {
                     result: prevState.result.concat(<Text style={{color: '#f300a2', fontWeight: 'bold', marginTop: 50}}>POPULAR TAGS</Text>),
@@ -149,6 +152,8 @@ class SearchTags extends React.Component {
                     }.bind(this))
                 }.bind(this))
             }.bind(this))
+
+
         }
     }
 

@@ -46,7 +46,7 @@ class Comments extends React.Component {
 
 
     componentDidMount() {
-        console.log("inside component did mount")
+        //console.log("inside component did mount")
         var comments = [];
         var db = firebase.firestore();
         var ref = db.collection("Comments");
@@ -69,7 +69,7 @@ class Comments extends React.Component {
                         containerStyle={styles.comment}
                     />
                 )
-                console.log("timestamp " + timestamp)
+                //console.log("timestamp " + timestamp)
             });
             this.setState({
                 comments: comments,
@@ -139,16 +139,16 @@ class Comments extends React.Component {
 
         firebase.firestore().collection("Updates").where("postid", "==", this.state.postID).where("type", "==", "COMMENT").get().then(function(querySnapshot) {
             querySnapshot.forEach(function(doc) {
-                console.log("found one")
+                //console.log("found one")
                 newnumComments = doc.data().numComments + 1
                 doc.ref.update({
                     numComments: newnumComments,
                     actUser: firebase.auth().currentUser.uid,
                     timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
                 }).then(function() {
-                    console.log("success")
+                    //console.log("success")
                 }).catch(function(error) {
-                    console.log("Error updating document: " + error);
+                    //console.log("Error updating document: " + error);
                 });
             })
         }).then(function() {
@@ -157,10 +157,10 @@ class Comments extends React.Component {
             var mentions = this.state.comment.match(regex)
             if (mentions) {
                 this.state.comment.match(regex).forEach(function(mention) {
-                    console.log("found a mention: " + mention.substr(1))
+                    //console.log("found a mention: " + mention.substr(1))
                     firebase.firestore().collection("users").where("username", "==", mention.substr(1)).get().then(function(querySnapshot) {
                         querySnapshot.forEach(function(doc) {
-                            console.log("found a user match for the mention")
+                            //console.log("found a user match for the mention")
                             firebase.firestore().collection("Updates").add({
                                 type: "MENTION",
                                 postid: this.state.postID,
@@ -170,10 +170,10 @@ class Comments extends React.Component {
                                 mentionType: "comment",
                                 text: comment,
                             }).then(function(docRef) {
-                                console.log("Document written with ID: ", docRef.id);
+                                //console.log("Document written with ID: ", docRef.id);
                             })
                             .catch(function(error) {
-                                console.error("Error adding document: ", error);
+                                //console.error("Error adding document: ", error);
                             });
                         }.bind(this))
                     }.bind(this))

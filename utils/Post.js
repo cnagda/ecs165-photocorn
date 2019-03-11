@@ -85,7 +85,7 @@ class PostView extends React.Component {
         post_ref.doc(this.props.postID).get().then(function(doc) {
             photo_ref = firebase.firestore().collection("Photo");
             photo_ref.doc(this.props.postID).get().then(function(doc2) {
-                console.log(doc2.data());
+                //console.log(doc2.data());
                 users_ref = firebase.firestore().collection("users");
                 users_ref.doc(doc.data().userID).get().then(function(doc1) {
                     timestamp = doc.data().timestamp.toDate();
@@ -97,15 +97,15 @@ class PostView extends React.Component {
                     .where("userID", "==", firebase.auth().currentUser.uid)
                     .get()
                     .then(function(querySnapshot) {
-                      console.log("in like verification")
+                      //console.log("in like verification")
                       alreadyLikedVar = false;
                       querySnapshot.forEach(function(doc) {
-                          console.log(doc.data().postID);
+                          //console.log(doc.data().postID);
                           // If the current user already liked the current post,
                           // set alreadyLikedVar to true
                           if(postID == doc.data().postID) {
                               alreadyLikedVar = true;
-                              console.log("test")
+                              //console.log("test")
                           }
                       });
 
@@ -123,10 +123,10 @@ class PostView extends React.Component {
                         likedJustNow: false,
                         unlikedJustNow: false
                     });
-                    console.log("caption " + doc.data().caption)
-                    console.log("postid " + this.props.postID)
-                    console.log("imageuri " + doc2.data().imageUri)
-                    console.log("timestamp " + timestamp.tstring())
+                    //console.log("caption " + doc.data().caption)
+                    //console.log("postid " + this.props.postID)
+                    //console.log("imageuri " + doc2.data().imageUri)
+                    //console.log("timestamp " + timestamp.tstring())
                   }.bind(this))
                 }.bind(this))
             }.bind(this))
@@ -148,18 +148,18 @@ class PostView extends React.Component {
     };
 
     handleUnlike = () => {
-      console.log("in handle unlike")
+      //console.log("in handle unlike")
       firebase.firestore().collection("Reaction").where("userID", "==", firebase.auth().currentUser.uid).where("postID", "==", this.props.postID).get().then(function(querySnapshot){
           querySnapshot.forEach(function(doc) {
-            console.log("about to delete doc")
+            //console.log("about to delete doc")
             doc.ref.delete()
-            console.log("completed unlike")
+            //console.log("completed unlike")
 
           })
       }).then(function(){
         this.setState({likedJustNow: false});
         this.setState({unlikedJustNow: true});
-        console.log("unlike finished")
+        //console.log("unlike finished")
       }.bind(this))
     }
 
@@ -200,9 +200,9 @@ class PostView extends React.Component {
 
 
     displayLikeButton =  (alreadyLikedVar) => {
-        console.log("alraedyLikedVar: ", alreadyLikedVar)
-        console.log("likedJustNow: ", this.state.likedJustNow)
-        console.log("unlikedJustNow: ", this.state.unlikedJustNow)
+        //console.log("alraedyLikedVar: ", alreadyLikedVar)
+        //console.log("likedJustNow: ", this.state.likedJustNow)
+        //console.log("unlikedJustNow: ", this.state.unlikedJustNow)
         if ((this.state.likedJustNow || alreadyLikedVar) && ! this.state.unlikedJustNow) {
             return <Button icon transparent
                         style={{marginLeft: -15}}>

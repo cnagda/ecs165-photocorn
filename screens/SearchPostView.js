@@ -22,7 +22,7 @@ export default class SearchPostView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {postList: [], isLoading: true}
-        console.log("inside constructor")
+        //console.log("inside constructor")
         this.getPosts = this.getPosts.bind(this)
         this.getPosts()
 
@@ -30,13 +30,13 @@ export default class SearchPostView extends React.Component {
 
     // authenticate user
     componentDidMount() {
-        console.log("inside component did mount")
+        ///console.log("inside component did mount")
         this.getPosts()
     }
 
     componentWillReceiveProps(newprops) {
         this.getPosts()
-        console.log("inside of componenet will receive props")
+        //console.log("inside of componenet will receive props")
     }
 
     getPosts() {

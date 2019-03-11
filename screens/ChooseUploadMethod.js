@@ -17,26 +17,26 @@ export default class ChooseUploadMethod extends React.Component {
     }
 
     handleUploadPhoto = async() => {
-        console.log ("trying to handle upload photo")
+        //console.log ("trying to handle upload photo")
         var status = await this.getCameraRollPermissions();
         if (status === 'granted') {
             var resultloc = await this.pickImage();
-            console.log("resulturi: " + resultloc)
-            console.log("return screen: " + this.props.navigation.getParam('returnScreen', "NULLVALUE"))
+            //console.log("resulturi: " + resultloc)
+            //console.log("return screen: " + this.props.navigation.getParam('returnScreen', "NULLVALUE"))
             if (this.props.navigation.getParam('returnScreen', "NULLVALUE") == "ProfileEdit" ) {
-                console.log(resultloc)
+                //console.log(resultloc)
                 this.props.navigation.navigate('ProfileEdit', {resulturi: resultloc})
             }
         }
     }
 
     handleTakePhoto = async() => {
-        console.log ("trying to handle take photo")
+        //console.log ("trying to handle take photo")
         var status = await this.getCameraAndCameraRollPermissions();
         if (status === 'granted') {
             var resultloc = await this.takePhoto();
             if (this.props.navigation.getParam('returnScreen', "NULLVALUE") == "ProfileEdit" ) {
-                console.log(resultloc)
+                //console.log(resultloc)
                 this.props.navigation.navigate('ProfileEdit', {resulturi: resultloc})
             }
         }
@@ -44,26 +44,26 @@ export default class ChooseUploadMethod extends React.Component {
 
 
     getCameraRollPermissions = async() => {
-        console.log("trying to get camera roll permissions")
+        //console.log("trying to get camera roll permissions")
         const {  Permissions } = Expo;
         // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
         const { status, permissions } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-        console.log("status: " + status)
+        //console.log("status: " + status)
         return status
     };
 
     getCameraAndCameraRollPermissions = async() => {
-        console.log("trying to get camera roll permissions")
+        //console.log("trying to get camera roll permissions")
         const {  Permissions } = Expo;
         // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
         const { status, permissions } = await Permissions.askAsync(Permissions.CAMERA_ROLL, Permissions.CAMERA);
-        console.log("status: " + status)
+        //console.log("status: " + status)
         return status
     };
 
     // set a profile picture
     pickImage = async () => {
-        console.log("trying to launch image picker")
+        //console.log("trying to launch image picker")
         const result = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
             base64: true,
@@ -71,13 +71,13 @@ export default class ChooseUploadMethod extends React.Component {
         });
 
         if (!result.cancelled) {
-            console.log(result.uri)
+            //console.log(result.uri)
             return result.uri
         }
     };
 
     takePhoto = async () => {
-        console.log("trying to launch image picker")
+        //console.log("trying to launch image picker")
         const result = await ImagePicker.launchCameraAsync({
             allowsEditing: true,
             base64: true,
@@ -85,7 +85,7 @@ export default class ChooseUploadMethod extends React.Component {
         });
 
         if (!result.cancelled) {
-            console.log(result.uri)
+            //console.log(result.uri)
             return result.uri
         }
     };

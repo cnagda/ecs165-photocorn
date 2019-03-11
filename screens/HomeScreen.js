@@ -68,7 +68,7 @@ export default class HomeScreen extends React.Component {
     componentDidMount() {
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
-            console.log("inside get " + firebase.auth().currentUser.uid)
+            //console.log("inside get " + firebase.auth().currentUser.uid)
             this.getPosts(50, firebase.auth().currentUser, doc.data().first);
 
             // this may be bad because I'm relying on getPosts to take
@@ -78,16 +78,16 @@ export default class HomeScreen extends React.Component {
                 postIDs: null
             })
 
-            console.log("does it work here? " + this.state.postIDs)
+            //console.log("does it work here? " + this.state.postIDs)
         }.bind(this)).catch ((error) => {console.error(error);});
 
     }
 
     componentWillReceiveProps(newprops) {
-        console.log("in component will receive props")
+        //console.log("in component will receive props")
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
-            console.log("inside get " + firebase.auth().currentUser.uid)
+            //console.log("inside get " + firebase.auth().currentUser.uid)
             this.getPosts(50, firebase.auth().currentUser, doc.data().first);
 
             // this may be bad because I'm relying on getPosts to take
@@ -97,7 +97,7 @@ export default class HomeScreen extends React.Component {
                 postIDs: null
             })
 
-            console.log("does it work here? " + this.state.postIDs)
+            //console.log("does it work here? " + this.state.postIDs)
         }.bind(this)).catch ((error) => {console.error(error);});
     }
 
@@ -125,7 +125,7 @@ export default class HomeScreen extends React.Component {
                     if ((followed.includes(doc.data().userID) ||
                             (firebase.auth().currentUser.uid == doc.data().userID))
                             && numPosts < numPostsToGet) { //if the post should be in the feed
-                        console.log("user followed: " + doc.data().userID)
+                        //console.log("user followed: " + doc.data().userID)
                         postIDs.push({key: doc.data().postID});
                         list.push({name: doc.data().userID});
                         numPosts++
@@ -149,7 +149,7 @@ export default class HomeScreen extends React.Component {
         this.setState({refreshing: true, postIDs: null});
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
-            console.log("inside get " + firebase.auth().currentUser.uid)
+            //console.log("inside get " + firebase.auth().currentUser.uid)
             this.getPosts(50, firebase.auth().currentUser, doc.data().first);
 
             this.setState({
@@ -157,7 +157,7 @@ export default class HomeScreen extends React.Component {
                 refreshing: false,
             })
 
-            console.log("refresh " + this.state.postIDs)
+            //console.log("refresh " + this.state.postIDs)
             this.forceUpdate()
             //this.forceUpdate();
         }.bind(this)).catch ((error) => {console.error(error);});
@@ -173,8 +173,8 @@ export default class HomeScreen extends React.Component {
         if(this.state.isLoading) {
             return ( false )
         }
-        console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
-        console.log("inside render " + this.state.postIDs)
+        //console.log( "inside homescreen render" + this.state.loading + " - " + this.state.name);
+        //console.log("inside render " + this.state.postIDs)
 
         return (
             <Root>

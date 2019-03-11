@@ -39,7 +39,7 @@ export default class ProfileEdit extends React.Component {
     componentDidMount() {
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
-            console.log("inside get " + firebase.auth().currentUser.uid)
+            //console.log("inside get " + firebase.auth().currentUser.uid)
 
             this.getProfileImage(firebase.auth().currentUser.uid);
 
@@ -69,25 +69,25 @@ export default class ProfileEdit extends React.Component {
     }
 
     componentWillMount() {
-        console.log("inside component will mount in profile edit")
+        //console.log("inside component will mount in profile edit")
     }
 
     componentWillReceiveProps() {
-        console.log("inside component will receive props in profile edit")
+        //console.log("inside component will receive props in profile edit")
 
         //this.setNewPhotoAsProfile()
     }
 
     setNewPhotoAsProfile = async(resultloc) => {
-        console.log("inside of setNewPhotoAsProfile")
-        console.log("resulturi: " + resultloc)
-        //console.log(this.props.navigation.state.params)
+        //console.log("inside of setNewPhotoAsProfile")
+        //console.log("resulturi: " + resultloc)
+        ////console.log(this.props.navigation.state.params)
         result = resultloc;
         if (result != 'NULLVALUE') {
             this.setState({gotNewPhoto: false, image: result});
             const path = "ProfilePictures/".concat(firebase.auth().currentUser.uid, ".jpg");
-            console.log(result);
-            console.log(path);
+            //console.log(result);
+            //console.log(path);
             return uploadPhoto(result, path).then(function() {
                 this.setState({isImgLoading: true})
                 this.getProfileImage(firebase.auth().currentUser.uid).then(function() {
@@ -100,15 +100,15 @@ export default class ProfileEdit extends React.Component {
 
 
     handleUploadPhoto = async() => {
-        console.log ("trying to handle upload photo")
+        //console.log ("trying to handle upload photo")
         var status = await this.getCameraRollPermissions();
         if (status === 'granted') {
             //var resultloc = await this.pickImage();
-            //console.log("resulturi: " + resultloc)
-            //console.log("return screen: " + this.props.navigation.getParam('returnScreen', "NULLVALUE"))
+            ////console.log("resulturi: " + resultloc)
+            ////console.log("return screen: " + this.props.navigation.getParam('returnScreen', "NULLVALUE"))
             //await this.setNewPhotoAsProfile(resultloc)
             this.pickImage().then(function(resultloc) {
-                console.log("made it here: " + resultloc)
+                //console.log("made it here: " + resultloc)
                 this.setNewPhotoAsProfile(resultloc)
             }.bind(this))
         }
@@ -116,14 +116,14 @@ export default class ProfileEdit extends React.Component {
     }
 
     handleTakePhoto = async() => {
-        console.log ("trying to handle take photo")
+        //console.log ("trying to handle take photo")
         var status = await this.getCameraAndCameraRollPermissions();
         if (status === 'granted') {
             //var resultloc = await this.takePhoto();
-            //console.log(resultloc)
+            ////console.log(resultloc)
             //setNewPhotoAsProfile(resultloc)
             this.takePhoto().then(function(resultloc) {
-                console.log("made it here: " + resultloc)
+                //console.log("made it here: " + resultloc)
                 this.setNewPhotoAsProfile(resultloc)
             }.bind(this))
         }
@@ -132,26 +132,26 @@ export default class ProfileEdit extends React.Component {
 
 
     getCameraRollPermissions = async() => {
-        console.log("trying to get camera roll permissions")
+        //console.log("trying to get camera roll permissions")
         const {  Permissions } = Expo;
         // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
         const { status, permissions } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-        console.log("status: " + status)
+        //console.log("status: " + status)
         return status
     };
 
     getCameraAndCameraRollPermissions = async() => {
-        console.log("trying to get camera roll permissions")
+        //console.log("trying to get camera roll permissions")
         const {  Permissions } = Expo;
         // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
         const { status, permissions } = await Permissions.askAsync(Permissions.CAMERA_ROLL, Permissions.CAMERA);
-        console.log("status: " + status)
+        //console.log("status: " + status)
         return status
     };
 
     // set a profile picture
     pickImage = async () => {
-        console.log("trying to launch image picker")
+        //console.log("trying to launch image picker")
         const result = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
             base64: true,
@@ -159,13 +159,13 @@ export default class ProfileEdit extends React.Component {
         });
 
         if (!result.cancelled) {
-            console.log(result.uri)
+            //console.log(result.uri)
             return result.uri
         }
     };
 
     takePhoto = async () => {
-        console.log("trying to launch image picker")
+        //console.log("trying to launch image picker")
         const result = await ImagePicker.launchCameraAsync({
             allowsEditing: true,
             base64: true,
@@ -173,7 +173,7 @@ export default class ProfileEdit extends React.Component {
         });
 
         if (!result.cancelled) {
-            console.log(result.uri)
+            //console.log(result.uri)
             return result.uri
         }
     };
@@ -202,23 +202,23 @@ export default class ProfileEdit extends React.Component {
                 bio: bio,
             }).then(function() {
                 this.setState({finishedEdit: true});
-                console.log("inside set " + user.uid)
+                //console.log("inside set " + user.uid)
             }.bind(this))
             )
     }
 
     getProfileImage = async(user) => {
-          console.log("in get profile image");
-            console.log(user)
+          //console.log("in get profile image");
+            //console.log(user)
             const path = "ProfilePictures/".concat(user, ".jpg");
-            console.log(path)
+            //console.log(path)
 
             const image_ref = firebase.storage().ref(path);
             const downloadURL = await image_ref.getDownloadURL()
             //setNewPhotoAsProfile()
                 if (!downloadURL.cancelled) {
-                  console.log("testing1")
-                  console.log(downloadURL)
+                  //console.log("testing1")
+                  //console.log(downloadURL)
                   this.setState({profileImageURL: downloadURL, isImgLoading:false,});
                   return downloadURL
               }
@@ -231,7 +231,7 @@ export default class ProfileEdit extends React.Component {
         }
         if (this.state.finishedEdit) {
             var refreshString = this.state.profileImageURL + this.state.firstname + this.state.lastname + this.state.dob + this.state.email + this.state.interests + this.state.bio
-            console.log('here' + refreshString)
+            //console.log('here' + refreshString)
             //I think these parameters are unnecessary because that didn't work but I'm leaving it for now because I'm scared.
             return (this.props.navigation.navigate('Profile', {refresh: refreshString}))
         }
