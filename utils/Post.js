@@ -64,6 +64,8 @@ class PostView extends React.Component {
             caption: "",
             tags: "",
             isLoading: true,
+            username: "",
+            likeInfo: null,
         }
         this.displayLikeInfo = this.displayLikeInfo.bind(this)
         this.getLikeInfo = this.getLikeInfo.bind(this)
@@ -114,11 +116,14 @@ class PostView extends React.Component {
                             numComments: doc.data().numComments,
                             tags: doc.data().tags,
                             imageUri: doc2.data().imageUri,
+                            username: doc1.data().username,
                             timestamp: timestamp.tstring(),
                             alreadyLikedVar: alreadyLikedVar,
                             likedJustNow: false,
                             unlikedJustNow: false,
                             isLoading: false,
+                        }, () => {
+                            this.displayLikeInfo()
                         });
 
 
@@ -152,6 +157,32 @@ class PostView extends React.Component {
     };
 
     handleUnlike = () => {
+
+        firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE").get().then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+                //console.log("found one")
+                newnumLikes = doc.data().numLikes - 1
+                if (doc.data().likeList) {
+                    likeList = doc.data().likeList
+                } else { //should never happen because this is unlike
+                    likeList = []
+                }
+
+                newActUser = likeList.pop()
+                doc.ref.update({
+                    numLikes: newnumLikes,
+                    likeList: likeList,
+                    actUser: newActUser,
+                    timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
+                }).then(function() {
+                    this.getLikeInfo()
+                    console.log("success")
+                }.bind(this)).catch(function(error) {
+                    console.log("Error updating document: " + error);
+                });
+            }.bind(this))
+        }.bind(this))
+
       //console.log("in handle unlike")
       firebase.firestore().collection("Reaction").where("userID", "==", firebase.auth().currentUser.uid).where("postID", "==", this.props.postID).get().then(function(querySnapshot){
           querySnapshot.forEach(function(doc) {
@@ -164,6 +195,7 @@ class PostView extends React.Component {
         this.setState({likedJustNow: false, unlikedJustNow: true});
         console.log("unlike finished")
       }.bind(this))
+
     }
 
       // Todo: Handle update for unLike
@@ -182,25 +214,38 @@ class PostView extends React.Component {
               }.bind(this))
 
               // Update the local variables corresponding to the number of likes of the post
-              this.getLikeInfo()
-              var otherLikes = this.state.otherLikes
-              this.setState({otherLikes: otherLikes + 1,
-                             lastLiked: firebase.auth().currentUser.uid});
+              // this.getLikeInfo().then(function() {
+              //     var otherLikes = this.state.otherLikes
+              //     users_ref = firebase.firestore().collection("users");
+              //     users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc1) {
+              //         this.setState({otherLikes: otherLikes + 1,
+              //                        lastLiked: doc1.data().username});
+              //       }.bind(this))
+              // })
+
         firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE").get().then(function(querySnapshot) {
             querySnapshot.forEach(function(doc) {
                 //console.log("found one")
                 newnumLikes = doc.data().numLikes + 1
+                if (doc.data().likeList) {
+                    likeList = doc.data().likeList
+                } else {
+                    likeList = []
+                }
+                likeList.push(doc.data().actUser)
                 doc.ref.update({
                     numLikes: newnumLikes,
+                    likeList: likeList,
                     actUser: firebase.auth().currentUser.uid,
                     timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
                 }).then(function() {
+                    this.getLikeInfo()
                     console.log("success")
-                }).catch(function(error) {
+                }.bind(this)).catch(function(error) {
                     console.log("Error updating document: " + error);
                 });
-            })
-        })
+            }.bind(this))
+        }.bind(this))
     }
 
     // Gets the number of likes for the current post and the last person who liked the post
@@ -218,7 +263,9 @@ class PostView extends React.Component {
             //   console.log("getlikeinfo otherlikes: ", otherLikes)
             //   console.log("getlikeinfo lastLiked: ", lastLiked)
               this.setState({otherLikes: doc.data().numLikes - 1,
-                             lastLiked: doc1.data().first});
+                             lastLiked: doc1.data().username}, () => {
+                                 this.displayLikeInfo()
+                             });
               }.bind(this))
             }.bind(this))
           }.bind(this))
@@ -233,24 +280,31 @@ class PostView extends React.Component {
             // who liked the post.
           //  otherLikes = 2
           //  lastLiked = "Bob"
+          console.log("called displayLikeInfo")
             if (this.state.otherLikes > 1)
             {
-              console.log("I got here in otherlikes")
-              return <Row style={{paddingLeft: 10, paddingBottom: 3}}>
-                  <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}>Liked by </Text>
-                  <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.lastLiked}</Text>
-                  <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> and </Text>
-                  <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.otherLikes}</Text>
-                  <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> others</Text>
-              </Row>;
+              this.setState({
+                  likeInfo: <Row style={{paddingLeft: 10, paddingBottom: 3}}>
+                      <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}>Liked by </Text>
+                      <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.lastLiked}</Text>
+                      <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> and </Text>
+                      <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.otherLikes}</Text>
+                      <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> others</Text>
+                  </Row>
+              }, () => {
+                  console.log("done")
+              })
            }
            else if (this.state.otherLikes == 1){
-             return <Row style={{paddingLeft: 10, paddingBottom: 3}}>
-                 <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> Liked by </Text>
-                 <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}> {this.state.lastLiked} </Text>
-             </Row>;
+               this.setState({
+                   likeInfo: <Row style={{paddingLeft: 10, paddingBottom: 3}}>
+                       <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> Liked by </Text>
+                       <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}> {this.state.lastLiked} </Text>
+                   </Row>
+               }, () => {
+                   console.log("done")
+               })
            }
-           return null;
     };
 
     displayLikeButton =  () => {
@@ -344,7 +398,7 @@ class PostView extends React.Component {
                             {/*likes*/}
 
 
-                            {this.displayLikeInfo()}
+                            {this.state.likeInfo}
 
                             {/*caption*/}
                             <Text style={{paddingLeft: 10, paddingTop: 5}}>
