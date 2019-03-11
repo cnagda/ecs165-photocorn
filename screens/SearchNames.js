@@ -60,14 +60,14 @@ class SearchNames extends React.Component {
         firebase.firestore().collection("Follows").get().then(function(querySnapshot) {
             querySnapshot.forEach(function(doc) {
                 user = doc.data().followedID
-                console.log("here's a person: " + user)
+                //console.log("here's a person: " + user)
                 if (followers.hasOwnProperty(user)) {
-                    console.log("hereeee")
+                    //console.log("hereeee")
                     followers[user] += 1
                 } else {
                     followers[user] = 1
                 }
-                console.log("followers: " + followers[user])
+                //console.log("followers: " + followers[user])
             }.bind(this))
             for (var item in followers) {
                 followersSorted.push([item, followers[item]]);
@@ -159,6 +159,9 @@ class SearchNames extends React.Component {
     }
 
 
+
+
+
     displayResults = () => {
         var query = this.state.query
         if (query.length > 0) {
@@ -180,64 +183,61 @@ class SearchNames extends React.Component {
                 ))
             })
         } else if (this.state.followers) {
+            var currentUser = firebase.auth().currentUser.uid;
             this.setState((prevState, props) => {
                 return {
                     result: prevState.result.concat(<Text style={{color: '#f300a2', fontWeight: 'bold', marginTop: 50}}>SUGESTIONS</Text>),
                 };
             })
-            var numGotten = 0
+
+
+
             for (let i = 0; i < Math.min(this.state.followers.length, 10); i++) {
-                //(function(cntr) {
-                    let user = this.state.followers[i]
-                    console.log(user[0])
-
+                let user = this.state.followers[i]
+                let result = []
+                let numGotten = 0
+                if (user[0] != currentUser) {
                     firebase.firestore().collection("users").doc(user[0]).get().then(function(userdoc) {
-                        console.log("getting that user info: " + user[0] + " " + user[1])
-                        firebase.firestore().collection("Posts").where("userID", "==", user[0]).get().then(function(querySnapshot) {
-                            if (querySnapshot.empty) {
-                                console.log("ugh it was empty")
-                            } else {
-                                let counter = 0;
-                                querySnapshot.forEach(function(postdoc) {
-                                    console.log("got a post by this user")
-                                    firebase.firestore().collection("AutoTags").where("photoID", "==", postdoc.data().postID).get().then(function(autotagquery) {
-                                        //var interested = false
-                                        autotagquery.forEach(function(match) {
-                                            if (this.state.interests.includes(match.data().bucket)) {
-                                                //interested = true;
-                                                numGotten++;
-                                                if (counter < 1) {
-                                                    counter ++;
-                                                    this.setState((prevState, props) => {
-                                                        return {
-                                                            result: prevState.result.concat(<Button transparent onPress={() => this.props.navigation.navigate('Profile', {userID: userdoc.data().uid})}>
-                                                                <Text style={{color: '#f300a2'}}>{userdoc.data().first + ' ' + userdoc.data().last}</Text>
-                                                            </Button>),
-                                                        };
-                                                    })
+                        if (userdoc.exists) {
+                            firebase.firestore().collection("Posts").where("userID", "==", user[0]).get().then(function(querySnapshot) {
+                                if (querySnapshot.empty) {
 
-                                                }
+                                } else {
+                                    let counter = 0;
+                                    querySnapshot.forEach(function(postdoc) {
+                                        firebase.firestore().collection("AutoTags").where("photoID", "==", postdoc.data().postID).get().then(function(autotagquery) {
+                                            if (!autotagquery.empty) {
+                                                autotagquery.forEach(function(match) {
+                                                    if (this.state.interests.includes(match.data().bucket)) {
+                                                        if (counter < 1) {
+                                                            counter ++;
+                                                            this.setState((prevState, props) => {
+                                                                let arr = prevState.result.slice(); //creates the clone of the state
+                                                                arr[i] = <Button transparent onPress={() => this.props.navigation.navigate('Profile', {userID: userdoc.data().uid})}>
+                                                                    <Text style={{color: '#f300a2'}}>{userdoc.data().first + ' ' + userdoc.data().last}</Text>
+                                                                </Button>;
+                                                                console.log(arr)
+                                                                return {
+                                                                    result: arr
+                                                                }
+                                                            })
+
+                                                        }
+                                                    }
+                                                }.bind(this))
                                             }
                                         }.bind(this))
-                                        //console.log("got a match: this user posted something the current user is interested in")
-                                        //suggestions.push({name: userdoc.data().first + ' ' + userdoc.data().last, uid: userdoc.data().uid});
-                                        console.log("length of result: " + this.state.result.length)
-                                        console.log("numGotten: " + numGotten)
-                                        console.log("counter: " + counter)
                                     }.bind(this))
-                                }.bind(this))
-                            }
-                        }.bind(this)).catch(function(error) {
-                            console.log("had an error getting post: " + error)
-                        })
-                    }.bind(this)).catch(function(error) {
-                        console.log("had an error getting user: " + error)
-                    })
-                //}.bind(this))(i);
+                                }
+                            }.bind(this))
+                        }
+                    }.bind(this))
+                }
+
             }
 
-            //}.bind(this))
         }
+
     }
 
 
