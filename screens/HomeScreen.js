@@ -181,6 +181,7 @@ export default class HomeScreen extends React.Component {
                                             }
                                         }.bind(this));
                                     }
+                                    /*
                                     else { // no auto-tag so cannot qualify if user is interested or not.
                                         this.setState((prevState, props) => {
                                             return {
@@ -188,9 +189,11 @@ export default class HomeScreen extends React.Component {
                                             };
                                         })
                                     }
+                                    */
                                 }.bind(this)).catch(function(error) {
                                     console.log("errrorrrrr " + error)
                                 })
+                                /*
                                        .then(function() {
                                 if (currTimeStamp != prevTimeStamp) {
                                     this.setState((prevState, props) => {
@@ -200,6 +203,7 @@ export default class HomeScreen extends React.Component {
                                     })
                                 }
                                        }.bind(this));
+                                */
                                 list.push({name: postDoc.data().userID});
                                 numPosts++
                             }
@@ -288,7 +292,7 @@ export default class HomeScreen extends React.Component {
                             Welcome, {this.state.name}!
                         </Text>
 
-                        <FlatList contentContainerStyle={styles.list} data={this.state.postIDs} renderItem={this.renderItem} initialNumToRender={3}/>
+                        <FlatList contentContainerStyle={styles.list} data={this.state.postIDs.concat(this.state.notInterestedPosts)} renderItem={this.renderItem} initialNumToRender={3}/>
                     </Content>
 
 
