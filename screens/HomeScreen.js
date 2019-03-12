@@ -1,6 +1,7 @@
 import React from 'react'
 import { StyleSheet, ScrollView, RefreshControl, FlatList } from 'react-native'
 import * as firebase from 'firebase';
+import * as functions from 'firbase-functions';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 import PostView from '../utils/Post'
