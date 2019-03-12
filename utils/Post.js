@@ -11,6 +11,7 @@ const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 
+
 // pretty prints a string given a date object
 Date.prototype.toString = function() {
     var month = monthNames[this.getMonth()];
@@ -30,7 +31,12 @@ Date.prototype.toString = function() {
         tt = "PM"
     }
 
+    if(hh == 0) {
+        hh = 12
+    }
 
+    return ["Posted on ", month, ' ', day, " at ", hh, ":", mm, " ", tt].join('');
+};
 
 // pretty print a string of space separated tags
 function getTagString(str) {
