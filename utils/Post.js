@@ -205,14 +205,25 @@ class PostView extends React.Component {
         firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE").get().then(function(querySnapshot) {
             querySnapshot.forEach(function(doc) {
                 //console.log("found one")
+                var likeList = []
                 newnumLikes = doc.data().numLikes - 1
                 if (doc.data().likeList) {
                     likeList = doc.data().likeList
                 } else { //should never happen because this is unlike
                     likeList = []
                 }
+                var newActUser = null
+                if (doc.data().actUser == firebase.auth().currentUser.uid) {
+                    newActUser = likeList.pop()
+                } else {
+                    newActUser = doc.data().actUser
+                    for( var i = 0; i < likeList.length; i++){
+                       if ( likeList[i] === firebase.auth().currentUser.uid) {
+                         likeList.splice(i, 1);
+                       }
+                    }
+                }
 
-                newActUser = likeList.pop()
                 doc.ref.update({
                     numLikes: newnumLikes,
                     likeList: likeList,
