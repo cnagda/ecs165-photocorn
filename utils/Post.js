@@ -11,6 +11,24 @@ const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 
+// pretty prints a string given a date object
+Date.prototype.toString = function() {
+    var month = monthNames[this.getMonth()];
+    var day = this.getDate();
+    var hh = this.getHours();
+    var mm = this.getMinutes();
+    var tt = "AM";
+
+    // format minutes
+    if (mm < 10) {
+        mm = "0" + mm;
+    }
+
+    // format hours
+    if(hh > 12) {
+        hh = hh - 12;
+        tt = "PM"
+    }
 
 
 
@@ -65,7 +83,7 @@ class PostView extends React.Component {
                     //console.log(doc2.data());
                     users_ref = firebase.firestore().collection("users");
                     users_ref.doc(doc.data().userID).get().then(function(doc1) {
-                        timestamp = doc.data().timestamp.toDate();
+                        let timestamp = doc.data().timestamp.toDate();
                         // time_string = "Posted on " + timestamp.getMonth() " at " timestamp.getMinute();
 
                         // Determine if the currentuser (userViewingVar) already likes the post.
@@ -97,7 +115,7 @@ class PostView extends React.Component {
                             tags: doc.data().tags,
                             imageUri: doc2.data().imageUri,
                             username: doc1.data().username,
-                            timestamp: getDateString(timestamp),
+                            timestamp: timestamp.toString(),
                             alreadyLikedVar: alreadyLikedVar,
                             likedJustNow: false,
                             unlikedJustNow: false,
@@ -127,30 +145,6 @@ class PostView extends React.Component {
     componentWillMount() {}
 
     // pretty prints a string given a date object
-    getDateString(date) {
-        var month = monthNames[date.getMonth()];
-        var day = date.getDate();
-        var hh = date.getHours();
-        var mm = date.getMinutes();
-        var tt = "AM";
-
-        // format minutes
-        if (mm < 10) {
-            mm = "0" + mm;
-        }
-
-        // format hours
-        if(hh > 12) {
-            hh = hh - 12;
-            tt = "PM"
-        }
-
-        if(hh == 0) {
-            hh = 12
-        }
-
-        return ["Posted on ", month, ' ', day, " at ", hh, ":", mm, " ", tt].join('');
-    };
 
     getProfileImageSimple = async(uid) => {
         //console.log("uid passed to getprofileimagesimple: " + uid)
