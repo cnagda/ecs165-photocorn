@@ -122,8 +122,11 @@ class PostView extends React.Component {
                             likedJustNow: false,
                             unlikedJustNow: false,
                             isLoading: false,
+                            likeButton: null,
                         }, () => {
+                            this.displayLikeButton()
                             this.displayLikeInfo()
+
                         });
 
 
@@ -197,7 +200,9 @@ class PostView extends React.Component {
 
           })
       }).then(function(){
-        this.setState({likedJustNow: false, unlikedJustNow: true});
+        this.setState({likedJustNow: false, unlikedJustNow: true}, () => {
+            this.displayLikeButton();
+        });
         console.log("unlike finished")
       }.bind(this))
 
@@ -215,7 +220,9 @@ class PostView extends React.Component {
                   rid: 1,
                   rtype: 1
               }).then(function() {
-                  this.setState({likedJustNow: true, unlikedJustNow: false});
+                  this.setState({likedJustNow: true, unlikedJustNow: false}, () => {
+                      this.displayLikeButton()
+                  });
               }.bind(this))
 
               // Update the local variables corresponding to the number of likes of the post
@@ -342,25 +349,29 @@ class PostView extends React.Component {
         // console.log("likedJustNow: ", this.state.likedJustNow)
         // console.log("unlikedJustNow: ", this.state.unlikedJustNow)
         if ((this.state.likedJustNow || this.state.alreadyLikedVar) && ! this.state.unlikedJustNow) {
-            return <Button icon transparent
-                        style={{marginLeft: -15}}>
-                        <Icon
-                            type="FontAwesome"
-                            name="heart"
-                            style={{color: COLOR_LGREY}}
-                            onPress={this.handleUnlike}/>
-                    </Button>;
+            this.setState({
+                likeButton: <Button icon transparent
+                            style={{marginLeft: -15}}>
+                            <Icon
+                                type="FontAwesome"
+                                name="heart"
+                                style={{color: COLOR_LGREY}}
+                                onPress={this.handleUnlike}/>
+                        </Button>
+            })
             // return <Button title="UnFollow" onPress={this.handleUnFollow} color= 'rgba(228,228,228,0.66)'/>;
         } else {
             // return <Button title="Follow" onPress={this.handleFollow} color= 'rgba(228,228,228,0.66)'/>;
-            return <Button icon transparent
+            this.setState({
+                likeButton: <Button icon transparent
                         style={{marginLeft: -15}}>
                         <Icon
                             type="Feather"
                             name="heart"
                             style={{color: COLOR_LGREY}}
                             onPress={this.handleLike}/>
-                    </Button>;
+                    </Button>
+                })
         }
     };
 
@@ -409,7 +420,7 @@ class PostView extends React.Component {
                             {/*task bar*/}
                             <Row style={{paddingLeft: 10}}>
 
-                                {this.displayLikeButton()}
+                                {this.state.likeButton}
 
                                 <Button icon transparent>
                                     <Icon
