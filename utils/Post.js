@@ -55,7 +55,7 @@ class PostView extends React.Component {
 
         this.state = {
             isImgLoading: true,
-            otherLikes: 0,
+            numLikes: 0,
             profileImageURL: "http://i68.tinypic.com/awt7ko.jpg",
             postUser: "",
             name: "",
@@ -175,7 +175,12 @@ class PostView extends React.Component {
                     actUser: newActUser,
                     timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
                 }).then(function() {
-                    this.getLikeInfo()
+                    if (newnumLikes == 0) {
+                        this.setState({likeInfo: null})
+                    } else {
+                        this.getLikeInfo()
+                    }
+
                     console.log("success")
                 }.bind(this)).catch(function(error) {
                     console.log("Error updating document: " + error);
@@ -262,10 +267,18 @@ class PostView extends React.Component {
             // console.log("test getlikes")
             //   console.log("getlikeinfo otherlikes: ", otherLikes)
             //   console.log("getlikeinfo lastLiked: ", lastLiked)
-              this.setState({otherLikes: doc.data().numLikes - 1,
-                             lastLiked: doc1.data().username}, () => {
-                                 this.displayLikeInfo()
-                             });
+            if (doc.data().numLikes == 0) {
+                this.setState({numLikes: 0,
+                               lastLiked: "",
+                               likeInfo: null,
+                               });
+            } else {
+                this.setState({numLikes: doc.data().numLikes,
+                               lastLiked: doc1.data().username}, () => {
+                                   this.displayLikeInfo()
+                               });
+            }
+
               }.bind(this))
             }.bind(this))
           }.bind(this))
@@ -281,28 +294,45 @@ class PostView extends React.Component {
           //  otherLikes = 2
           //  lastLiked = "Bob"
           console.log("called displayLikeInfo")
-            if (this.state.otherLikes > 1)
+            if (this.state.numLikes > 2)
             {
               this.setState({
                   likeInfo: <Row style={{paddingLeft: 10, paddingBottom: 3}}>
                       <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}>Liked by </Text>
                       <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.lastLiked}</Text>
                       <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> and </Text>
-                      <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.otherLikes}</Text>
+                      <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.numLikes - 1}</Text>
                       <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> others</Text>
                   </Row>
               }, () => {
                   console.log("done")
               })
-           }
-           else if (this.state.otherLikes == 1){
+          } else if (this.state.numLikes == 2)
+          {
+            this.setState({
+                likeInfo: <Row style={{paddingLeft: 10, paddingBottom: 3}}>
+                    <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}>Liked by </Text>
+                    <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.lastLiked}</Text>
+                    <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> and </Text>
+                    <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.numLikes - 1}</Text>
+                    <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> other</Text>
+                </Row>
+            }, () => {
+                console.log("done")
+            })
+         }
+           else if (this.state.numLikes == 1){
                this.setState({
                    likeInfo: <Row style={{paddingLeft: 10, paddingBottom: 3}}>
-                       <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> Liked by </Text>
-                       <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}> {this.state.lastLiked} </Text>
+                       <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}>Liked by </Text>
+                       <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.lastLiked} </Text>
                    </Row>
                }, () => {
                    console.log("done")
+               })
+           } else {
+               this.setState({
+                   likeInfo: null,
                })
            }
     };
@@ -338,7 +368,7 @@ class PostView extends React.Component {
         if (Boolean(this.state.isImgLoading || this.state.isLoading) ) {
             return ( false )
         }
-        console.log("render otherlikes ", this.state.otherLikes)
+        console.log("render numLikes ", this.state.numLikes)
         return (
             <Container style={styles.container}>
                 <Content scrollEnabled={false}>
