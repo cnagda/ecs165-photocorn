@@ -11,31 +11,7 @@ const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 
-// pretty prints a string given a date object
-Date.prototype.tstring = function() {
-    var month = monthNames[this.getMonth()];
-    var day = this.getDate();
-    var hh = this.getHours();
-    var mm = this.getMinutes();
-    var tt = "AM";
 
-    // format minutes
-    if (mm < 10) {
-        mm = "0" + mm;
-    }
-
-    // format hours
-    if(hh > 12) {
-        hh = hh - 12;
-        tt = "PM"
-    }
-
-    if(hh == 0) {
-        hh = 12
-    }
-
-    return ["Posted on ", month, ' ', day, " at ", hh, ":", mm, " ", tt].join('');
-};
 
 
 // pretty print a string of space separated tags
@@ -121,7 +97,7 @@ class PostView extends React.Component {
                             tags: doc.data().tags,
                             imageUri: doc2.data().imageUri,
                             username: doc1.data().username,
-                            timestamp: timestamp.tstring(),
+                            timestamp: getDateString(timestamp),
                             alreadyLikedVar: alreadyLikedVar,
                             likedJustNow: false,
                             unlikedJustNow: false,
@@ -149,6 +125,32 @@ class PostView extends React.Component {
     }
 
     componentWillMount() {}
+
+    // pretty prints a string given a date object
+    getDateString(date) {
+        var month = monthNames[date.getMonth()];
+        var day = date.getDate();
+        var hh = date.getHours();
+        var mm = date.getMinutes();
+        var tt = "AM";
+
+        // format minutes
+        if (mm < 10) {
+            mm = "0" + mm;
+        }
+
+        // format hours
+        if(hh > 12) {
+            hh = hh - 12;
+            tt = "PM"
+        }
+
+        if(hh == 0) {
+            hh = 12
+        }
+
+        return ["Posted on ", month, ' ', day, " at ", hh, ":", mm, " ", tt].join('');
+    };
 
     getProfileImageSimple = async(uid) => {
         //console.log("uid passed to getprofileimagesimple: " + uid)
