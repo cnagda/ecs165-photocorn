@@ -251,7 +251,7 @@ export default class HomeScreen extends React.Component {
     }
 
     _onRefresh = () => {
-        this.setState({refreshing: true, postIDs: null});
+        this.setState({refreshing: true, postIDs: []});
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
             //console.log("inside get " + firebase.auth().currentUser.uid)
