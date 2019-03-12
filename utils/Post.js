@@ -55,7 +55,7 @@ class PostView extends React.Component {
 
         this.state = {
             isImgLoading: true,
-            otherLikes: 0,
+            numLikes: 0,
             profileImageURL: "http://i68.tinypic.com/awt7ko.jpg",
             postUser: "",
             name: "",
@@ -66,9 +66,13 @@ class PostView extends React.Component {
             isLoading: true,
             username: "",
             likeInfo: null,
+            lifeButton: null,
+            likers: null,
         }
         this.displayLikeInfo = this.displayLikeInfo.bind(this)
         this.getLikeInfo = this.getLikeInfo.bind(this)
+        this.getProfileImage = this.getProfileImage.bind(this)
+        this.getLikers = this.getLikers.bind(this)
     }
 
     componentDidMount() {
@@ -94,15 +98,15 @@ class PostView extends React.Component {
                         .where("userID", "==", firebase.auth().currentUser.uid)
                         .get()
                         .then(function(querySnapshot) {
-                          console.log("in like verification")
+                          //console.log("in like verification")
                           var alreadyLikedVar = false;
                           querySnapshot.forEach(function(doc3) {
-                              console.log(doc3.data().postID);
+                              //console.log(doc3.data().postID);
                               // If the current user already liked the current post,
                               // set alreadyLikedVar to true
                               if(postID == doc3.data().postID) {
                                   alreadyLikedVar = true;
-                                  console.log("test")
+                                  //console.log("test")
                               }
                           }.bind(this));
 
@@ -123,15 +127,18 @@ class PostView extends React.Component {
                             unlikedJustNow: false,
                             isLoading: false,
                         }, () => {
+                            this.displayLikeButton()
                             this.displayLikeInfo()
+                            this.getLikers()
+
                         });
 
 
 
-                        console.log("caption " + doc.data().caption)
-                        console.log("postid " + this.props.postID)
-                        console.log("imageuri " + doc2.data().imageUri)
-                        console.log("timestamp " + timestamp.tstring())
+                        // console.log("caption " + doc.data().caption)
+                        // console.log("postid " + this.props.postID)
+                        // console.log("imageuri " + doc2.data().imageUri)
+                        // console.log("timestamp " + timestamp.tstring())
                       }.bind(this))
                     }.bind(this))
                 }.bind(this))
@@ -142,6 +149,41 @@ class PostView extends React.Component {
     }
 
     componentWillMount() {}
+
+    getProfileImageSimple = async(uid) => {
+        //console.log("uid passed to getprofileimagesimple: " + uid)
+        const path1 = "ProfilePictures/".concat(uid,".jpg");
+        const image_ref1 = firebase.storage().ref(path1);
+        var url = await image_ref1.getDownloadURL()
+        //console.log("is this a string: " + url)
+        return url
+    }
+
+
+    getLikers() {
+        this.setState({
+            likers: []
+        }, () => {
+            firebase.firestore().collection("Reaction").where("postID", "==", this.props.postID).get().then(function(querySnapshot) {
+                if (!querySnapshot.empty) {
+                    querySnapshot.forEach(function(doc) {
+                        firebase.firestore().collection("users").doc(doc.data().userID).get().then(function(doc1) {
+                            this.getProfileImageSimple(doc.data().userID).then(function(url) {
+                                this.setState((prevState, props) => {
+                                    return {
+                                        likers: prevState.likers.concat({key: doc.data().userID, uri: url, username: doc1.data().username}),
+                                    };
+                                })
+                            }.bind(this))
+                        }.bind(this))
+                        //console.log("pushed a person this user follows")
+                    }.bind(this))
+                }
+                //console.log("made it out of the querySnapshot forEach: " + pyf)
+            }.bind(this))
+        })
+
+    }
 
     // given a user id fetch profile picture from storage
     getProfileImage = async(user) => {
@@ -175,8 +217,13 @@ class PostView extends React.Component {
                     actUser: newActUser,
                     timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
                 }).then(function() {
-                    this.getLikeInfo()
-                    console.log("success")
+                    if (newnumLikes == 0) {
+                        this.setState({likeInfo: null})
+                    } else {
+                        this.getLikeInfo()
+                    }
+
+                    //console.log("success")
                 }.bind(this)).catch(function(error) {
                     console.log("Error updating document: " + error);
                 });
@@ -192,7 +239,9 @@ class PostView extends React.Component {
 
           })
       }).then(function(){
-        this.setState({likedJustNow: false, unlikedJustNow: true});
+        this.setState({likedJustNow: false, unlikedJustNow: true}, () => {
+            this.displayLikeButton();
+        });
         console.log("unlike finished")
       }.bind(this))
 
@@ -210,7 +259,9 @@ class PostView extends React.Component {
                   rid: 1,
                   rtype: 1
               }).then(function() {
-                  this.setState({likedJustNow: true, unlikedJustNow: false});
+                  this.setState({likedJustNow: true, unlikedJustNow: false}, () => {
+                      this.displayLikeButton()
+                  });
               }.bind(this))
 
               // Update the local variables corresponding to the number of likes of the post
@@ -240,7 +291,7 @@ class PostView extends React.Component {
                     timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
                 }).then(function() {
                     this.getLikeInfo()
-                    console.log("success")
+                    //console.log("success")
                 }.bind(this)).catch(function(error) {
                     console.log("Error updating document: " + error);
                 });
@@ -250,7 +301,7 @@ class PostView extends React.Component {
 
     // Gets the number of likes for the current post and the last person who liked the post
     getLikeInfo = async() => {
-     console.log("I got in getlikeinfo")
+     //console.log("I got in getlikeinfo")
       firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE").get().then(function(querySnapshot) {
           querySnapshot.forEach(function(doc) {
             users_ref = firebase.firestore().collection("users");
@@ -262,10 +313,18 @@ class PostView extends React.Component {
             // console.log("test getlikes")
             //   console.log("getlikeinfo otherlikes: ", otherLikes)
             //   console.log("getlikeinfo lastLiked: ", lastLiked)
-              this.setState({otherLikes: doc.data().numLikes - 1,
-                             lastLiked: doc1.data().username}, () => {
-                                 this.displayLikeInfo()
-                             });
+            if (doc.data().numLikes == 0) {
+                this.setState({numLikes: 0,
+                               lastLiked: "",
+                               likeInfo: null,
+                               });
+            } else {
+                this.setState({numLikes: doc.data().numLikes,
+                               lastLiked: doc1.data().username}, () => {
+                                   this.displayLikeInfo()
+                               });
+            }
+
               }.bind(this))
             }.bind(this))
           }.bind(this))
@@ -280,29 +339,64 @@ class PostView extends React.Component {
             // who liked the post.
           //  otherLikes = 2
           //  lastLiked = "Bob"
-          console.log("called displayLikeInfo")
-            if (this.state.otherLikes > 1)
+          //console.log("called displayLikeInfo")
+            if (this.state.numLikes > 2)
             {
               this.setState({
-                  likeInfo: <Row style={{paddingLeft: 10, paddingBottom: 3}}>
-                      <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}>Liked by </Text>
-                      <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.lastLiked}</Text>
-                      <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> and </Text>
-                      <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>{this.state.otherLikes}</Text>
-                      <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> others</Text>
+                  likeInfo: <Row style={{paddingLeft: 0, paddingBottom: 3}}>
+                  <Button transparent
+                      onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
+                      style={{marginTop: -5, paddingLeft: 0}}>
+                      <Text>
+                      <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}>Liked by </Text>
+                      <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.lastLiked}</Text>
+                      <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}> and </Text>
+                      <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.numLikes - 1}</Text>
+                      <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}> others</Text>
+                      </Text>
+                      </Button>
                   </Row>
               }, () => {
-                  console.log("done")
+                 // console.log("done")
               })
-           }
-           else if (this.state.otherLikes == 1){
+          } else if (this.state.numLikes == 2)
+          {
+            this.setState({
+                likeInfo: <Row style={{paddingLeft: 0, paddingBottom: 3}}>
+                <Button transparent
+                    onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
+                    style={{marginTop: -5, paddingLeft: 0}}>
+                    <Text>
+                    <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}>Liked by </Text>
+                    <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.lastLiked}</Text>
+                    <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}> and </Text>
+                    <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.numLikes - 1}</Text>
+                    <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}> other</Text>
+                    </Text>
+                    </Button>
+                </Row>
+            }, () => {
+                //console.log("done")
+            })
+         }
+           else if (this.state.numLikes == 1){
                this.setState({
-                   likeInfo: <Row style={{paddingLeft: 10, paddingBottom: 3}}>
-                       <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}> Liked by </Text>
-                       <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}> {this.state.lastLiked} </Text>
+                   likeInfo: <Row style={{paddingLeft: 0, paddingBottom: 3}}>
+                   <Button transparent
+                       onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
+                       style={{marginTop: -5, paddingLeft: 0}}>
+                       <Text>
+                       <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}>Liked by </Text>
+                       <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.lastLiked} </Text>
+                       </Text>
+                       </Button>
                    </Row>
                }, () => {
-                   console.log("done")
+                   //console.log("done")
+               })
+           } else {
+               this.setState({
+                   likeInfo: null,
                })
            }
     };
@@ -312,25 +406,29 @@ class PostView extends React.Component {
         // console.log("likedJustNow: ", this.state.likedJustNow)
         // console.log("unlikedJustNow: ", this.state.unlikedJustNow)
         if ((this.state.likedJustNow || this.state.alreadyLikedVar) && ! this.state.unlikedJustNow) {
-            return <Button icon transparent
-                        style={{marginLeft: -15}}>
-                        <Icon
-                            type="FontAwesome"
-                            name="heart"
-                            style={{color: COLOR_LGREY}}
-                            onPress={this.handleUnlike}/>
-                    </Button>;
+            this.setState({
+                likeButton: <Button icon transparent
+                            style={{marginLeft: -15}}>
+                            <Icon
+                                type="FontAwesome"
+                                name="heart"
+                                style={{color: COLOR_LGREY}}
+                                onPress={this.handleUnlike}/>
+                        </Button>
+            })
             // return <Button title="UnFollow" onPress={this.handleUnFollow} color= 'rgba(228,228,228,0.66)'/>;
         } else {
             // return <Button title="Follow" onPress={this.handleFollow} color= 'rgba(228,228,228,0.66)'/>;
-            return <Button icon transparent
+            this.setState({
+                likeButton: <Button icon transparent
                         style={{marginLeft: -15}}>
                         <Icon
                             type="Feather"
                             name="heart"
                             style={{color: COLOR_LGREY}}
                             onPress={this.handleLike}/>
-                    </Button>;
+                    </Button>
+                })
         }
     };
 
@@ -338,7 +436,7 @@ class PostView extends React.Component {
         if (Boolean(this.state.isImgLoading || this.state.isLoading) ) {
             return ( false )
         }
-        console.log("render otherlikes ", this.state.otherLikes)
+        //console.log("render numLikes ", this.state.numLikes)
         return (
             <Container style={styles.container}>
                 <Content scrollEnabled={false}>
@@ -379,7 +477,7 @@ class PostView extends React.Component {
                             {/*task bar*/}
                             <Row style={{paddingLeft: 10}}>
 
-                                {this.displayLikeButton()}
+                                {this.state.likeButton}
 
                                 <Button icon transparent>
                                     <Icon
