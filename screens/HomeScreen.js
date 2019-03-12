@@ -101,7 +101,7 @@ export default class HomeScreen extends React.Component {
         }.bind(this)).catch ((error) => {console.error(error);});
     }
 
-    getPosts(numPostsToGet, currUser, firstName){
+    getPosts(numPostsToGet, currUser, firstName) {
         this.setState({postIDs: null})
         var postIDs = [];
 
@@ -118,31 +118,99 @@ export default class HomeScreen extends React.Component {
             posts_ref = firebase.firestore().collection("Posts") // get the Posts collection
             var numPosts = 0
             posts_ref
-            .orderBy("timestamp", "desc") // order by time descending
-            .get()
-            .then(function(querySnapshot) {
-                querySnapshot.forEach(function(doc) { //for each match
-                    if ((followed.includes(doc.data().userID) ||
-                            (firebase.auth().currentUser.uid == doc.data().userID))
+                .orderBy("timestamp", "desc") // order by time descending
+                .get()
+                .then(function(querySnapshot) {
+                    console.log("About to hit for loop")
+                    var notInterestedPosts = [];
+                    var prevTimeStamp = null;
+                    querySnapshot.forEach(function(postDoc) { //for each match
+                        console.log("postIDs!");
+                        console.log(postIDs);
+                        console.log("notInterestedPosts!");
+                        console.log(notInterestedPosts);
+                        if (prevTimeStamp == null) {
+                            prevTimeStamp = postDoc.data().timestamp.toDate().getDate();
+                            currTimeStamp = postDoc.data().timestamp.toDate().getDate();
+                        }
+                        else {
+                            currTimeStamp = postDoc.data().timestamp.toDate().getDate();
+                        }
+                        console.log("currTimeStamp!");
+                        console.log(currTimeStamp);
+                        console.log("prevTimeStamp!");
+                        console.log(prevTimeStamp);
+                        if (currTimeStamp != prevTimeStamp) {
+                            postIDs.push.apply(postIDs, notInterestedPosts);
+                            notInterestedPosts = [];
+                        }
+                        if ((followed.includes(postDoc.data().userID) ||
+                             (firebase.auth().currentUser.uid == postDoc.data().userID))
                             && numPosts < numPostsToGet) { //if the post should be in the feed
-                        console.log("user followed: " + doc.data().userID)
-                        postIDs.push({key: doc.data().postID});
-                        list.push({name: doc.data().userID});
-                        numPosts++
-                    }
-                });
+                            console.log("user followed: " + postDoc.data().userID)
+                            firebase.firestore().collection("AutoTags").doc(postDoc.data().postID).get().then(function(autoTag) {
+                                console.log("Ran autoTag query");
+                                if (!autoTag.empty) {
+                                    firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).get().then(function(userDoc) {
+                                        let rawInterests = userDoc.data().interests;
+                                        let interests = rawInterests.split(', ')
 
+                                        // user is interested in the post!
+                                        if (interests.includes(autoTag.data().bucket)) {
+                                            postIDs.push({key: postDoc.data().postID});
+                                        }
+                                        else { // user is not interested in the post.
+                                            notInterestedPosts.push({key: postDoc.data().postID});
+                                        }
+                                    });
+                                }
+                                else { // no auto-tag so cannot qualify if user is interested or not.
+                                   notInterestedPosts.push({key: postDoc.data().postID});
+                                }
+                            });
+                            list.push({name: postDoc.data().userID});
+                            numPosts++
+                        }
+                        prevTimeStamp = postDoc.data().timestamp.toDate().getDate();
+                    });
 
-                // set states to rerender
-                this.setState(
-                    {
-                        currentUser: currUser,
-                        name: firstName,
-                        postIDs: postIDs,
-                    }
-                );
-            }.bind(this))
+                    console.log("PostIDs!");
+                    console.log(postIDs);
+                    // set states to rerender
+                    this.setState(
+                        {
+                            currentUser: currUser,
+                            name: firstName,
+                            postIDs: postIDs,
+                        }
+                    );
+                }.bind(this))
         }.bind(this))
+    }
+
+    sortByInterests = (postDoc, postIDs, notInterestedPosts) => {
+        return new Promise(function() {
+            firebase.firestore().collection("AutoTags").doc(postDoc.data().postID).get().then(function(autoTag) {
+                console.log("Ran autoTag query");
+                if (autoTag.exists) {
+                    firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).get().then(function(userDoc) {
+                        let rawInterests = userDoc.data().interests;
+                        let interests = rawInterests.split(', ')
+
+                        // user is interested in the post!
+                        if (interests.includes(autoTag.data().bucket)) {
+                            postIDs.push({key: postDoc.data().postID});
+                        }
+                        else { // user is not interested in the post.
+                            notInterestedPosts.push({key: postDoc.data().postID});
+                        }
+                    });
+                }
+                else { // no auto-tag so cannot qualify if user is interested or not.
+                    notInterestedPosts.push({key: postDoc.data().postID});
+                }
+            });
+        });
     }
 
     _onRefresh = () => {
