@@ -50,20 +50,26 @@ export default class ProfileEdit extends React.Component {
                     lastname: doc.data().last,
                     dob: doc.data().dob,
                     email: firebase.auth().currentUser.email,
-                    bio: doc.data().bio,
+                    bio: doc.data().bio ? doc.data().bio: "",
                     interests: doc.data().interests,
                     username: doc.data().username,
                     isLoading: false,
-                    animals: doc.data().interests.includes("Animals"),
-                    nature: doc.data().interests.includes("Nature"),
-                    people: doc.data().interests.includes("People"),
-                    food: doc.data().interests.includes("Food"),
-                    tech: doc.data().interests.includes("Technology"),
-                    fitness: doc.data().interests.includes("Fitness/Sports"),
-                    motivation: doc.data().interests.includes("Motivational Quotes"),
 
                 }
             );
+            if (doc.data().interests && doc.data().interests != "") {
+                this.setState(
+                    {
+                        animals: doc.data().interests.includes("Animals"),
+                        nature: doc.data().interests.includes("Nature"),
+                        people: doc.data().interests.includes("People"),
+                        food: doc.data().interests.includes("Food"),
+                        tech: doc.data().interests.includes("Technology"),
+                        fitness: doc.data().interests.includes("Fitness/Sports"),
+                        motivation: doc.data().interests.includes("Motivational Quotes"),
+                    }
+                );
+            }
         }.bind(this)).catch ((error) => {console.error(error);});
 
     }
@@ -381,7 +387,7 @@ export default class ProfileEdit extends React.Component {
                         <CheckBox
                             title="Motivational Quotes"
                             checked={this.state.motivation}
-                            onPress={() => this.setState({animals: !this.state.motivation})}
+                            onPress={() => this.setState({motivation: !this.state.motivation})}
                             checkedColor= '#f300a2'
                             uncheckedColor= 'rgba(228,228,228,0.66)'
                             containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
