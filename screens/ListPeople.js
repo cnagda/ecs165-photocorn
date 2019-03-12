@@ -42,7 +42,7 @@ export default class ListPeople extends React.Component {
             <Container style={styles.container}>
                 <Header style={{backgroundColor: COLOR_DGREY, height: 80, borderBottomWidth: 0, paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : undefined}}>
                     <Left style={{justifyContent: 'center'}}>
-                        <Button transparent styles={{paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : undefined}}
+                        <Button transparent style={{paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : undefined}}
                             onPress={() => this.props.navigation.goBack()}>
                             <Text style={{color: COLOR_PINK, fontSize: 13}}>Back</Text>
                         </Button>
