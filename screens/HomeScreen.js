@@ -144,10 +144,12 @@ export default class HomeScreen extends React.Component {
                             console.log(currTimeStamp);
                             console.log("prevTimeStamp!");
                             console.log(prevTimeStamp);
+                            /*
                             if (currTimeStamp != prevTimeStamp) {
                                 postIDs.push.apply(postIDs, notInterestedPosts);
                                 notInterestedPosts = [];
                             }
+                            */
                             if ((followed.includes(postDoc.data().userID) ||
                                  (firebase.auth().currentUser.uid == postDoc.data().userID))
                                 && numPosts < numPostsToGet) { //if the post should be in the feed
@@ -180,11 +182,24 @@ export default class HomeScreen extends React.Component {
                                         }.bind(this));
                                     }
                                     else { // no auto-tag so cannot qualify if user is interested or not.
-                                        notInterestedPosts.push({key: postDoc.data().postID});
+                                        this.setState((prevState, props) => {
+                                            return {
+                                                notInterestedPosts: prevState.notInterestedPosts.concat({key: postDoc.data().postID})
+                                            };
+                                        })
                                     }
                                 }.bind(this)).catch(function(error) {
                                     console.log("errrorrrrr " + error)
                                 })
+                                       .then(function() {
+                                if (currTimeStamp != prevTimeStamp) {
+                                    this.setState((prevState, props) => {
+                                        return {
+                                            postIDs: prevState.postIDs.concat(prevState.notInterestedPosts)
+                                        };
+                                    })
+                                }
+                                       }.bind(this));
                                 list.push({name: postDoc.data().userID});
                                 numPosts++
                             }
