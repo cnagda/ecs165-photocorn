@@ -39,7 +39,7 @@ export default class Loading extends React.Component {
     }
 
     getUserInfo = async(users_ref) => {
-        console.log("inside get user info")
+        //console.log("inside get user info")
         users_ref.doc(this.state.userViewing).get().then(function(doc) {
             this.getProfileImage(this.state.userViewing);
             this.setState(
@@ -54,20 +54,20 @@ export default class Loading extends React.Component {
                     isLoading: false
                 }
             );
-            console.log("just set states for real")
+            //console.log("just set states for real")
 
         }.bind(this)).catch ((error) => {console.error(error);});
     };
 
     // authenticate user
     componentDidMount() {
-        console.log("in component did mount")
+        //console.log("in component did mount")
         currentUserVar = firebase.auth().currentUser.uid;
         userViewingVar = this.props.navigation.getParam('userID', firebase.auth().currentUser.uid);
         isEditableVar = currentUserVar == userViewingVar;
-        console.log(currentUserVar)
-        console.log(userViewingVar)
-        console.log(isEditableVar)
+        //console.log(currentUserVar)
+        //console.log(userViewingVar)
+        //console.log(isEditableVar)
 
 
         this.displayFollowingList()
@@ -78,10 +78,10 @@ export default class Loading extends React.Component {
         .where("userID", "==", firebase.auth().currentUser.uid)
         .get()
         .then(function(querySnapshot) {
-            console.log("here")
+            //console.log("here")
             isAlreadyFollowingVar = false;
             querySnapshot.forEach(function(doc) {
-                console.log(doc.data().followedID);
+                //console.log(doc.data().followedID);
                 if(userViewingVar == doc.data().followedID) {
                     isAlreadyFollowingVar = true;
                 }
@@ -94,7 +94,7 @@ export default class Loading extends React.Component {
                             followedJustNow: false,
                             unfollowedJustNow: false,
                         });
-            console.log("just initialized state")
+            //console.log("just initialized state")
             users_ref = firebase.firestore().collection("users");
             users_ref.doc(this.state.userViewing).get().then(function(doc) {
                 this.getProfileImage(this.state.userViewing);
@@ -111,14 +111,14 @@ export default class Loading extends React.Component {
                         isLoading: false,
                     }
                 );
-                console.log("just set states for real")
+                //console.log("just set states for real")
 
             }.bind(this)).catch ((error) => {console.error(error);});
-            console.log("hereeeee")
-            console.log("at the end: " + this.state.isEditable)
+            //console.log("hereeeee")
+            //console.log("at the end: " + this.state.isEditable)
         }.bind(this))
 
-        console.log("out here")
+        //console.log("out here")
 
     }
 
@@ -130,7 +130,7 @@ export default class Loading extends React.Component {
         users_ref = firebase.firestore().collection("users");
          this.getUserInfo(users_ref)
 
-        console.log("in component will receive props")
+        //console.log("in component will receive props")
     }
 
 
@@ -152,7 +152,7 @@ export default class Loading extends React.Component {
 
                 }
             });
-            console.log("List of photos I will send: " + postIDs)
+            //console.log("List of photos I will send: " + postIDs)
             this.setState(                                                          //set states to rerender
                 {
                     photoList: postIDs,
@@ -165,16 +165,16 @@ export default class Loading extends React.Component {
 
 
     getProfileImage = async(user) => {
-        console.log("in get profile image");
-        console.log(user)
+        //console.log("in get profile image");
+        //console.log(user)
         var path = "ProfilePictures/".concat(user, ".jpg");
-        console.log(path)
+        //console.log(path)
         var image_ref = firebase.storage().ref(path);
         var downloadURL = await image_ref.getDownloadURL()
 
         if (!downloadURL.cancelled) {
-              console.log("testing1")
-              console.log(downloadURL)
+              //console.log("testing1")
+              //console.log(downloadURL)
               this.setState({profileImageURL: downloadURL,isImgLoading:false,});
               return downloadURL
         }
@@ -202,19 +202,19 @@ export default class Loading extends React.Component {
 
     handleUnFollow = () => {
         const {currentUser, userViewing } = this.state
-            firebase.firestore().collection("Follows").where("userID", "==", currentUser).get().then(function(querySnapshot) {
+            firebase.firestore().collection("Follows").where("userID", "==", currentUser).where("followedID", "==", userViewing).get().then(function(querySnapshot) {
                 querySnapshot.forEach(function(doc) {
                     doc.ref.delete().then(function(){
                         this.setState({followedJustNow: false});
                         this.setState({unfollowedJustNow: true});
-                        console.log("Successfully deleted document in Follows", currentUser)
+                        //console.log("Successfully deleted document in Follows", currentUser)
                     }.bind(this))
                 }.bind(this))
             }.bind(this))
 
             firebase.firestore().collection("Updates").where("currUser", "==", userViewing).where("actUser", "==", currentUser).get().then(function(querySnapshot) {
                 querySnapshot.forEach(function(doc) {
-                    console.log("deleting")
+                    //console.log("deleting")
                     doc.ref.delete()
                 }.bind(this))
             }.bind(this))
@@ -222,8 +222,8 @@ export default class Loading extends React.Component {
     };
 
     displayFollowEditButton =  (isEditable, isAlreadyFollowing) => {
-        console.log("isAlreadyFollowing: ", isAlreadyFollowing)
-        console.log("followedJustNow: ", this.state.followedJustNow)
+        //console.log("isAlreadyFollowing: ", isAlreadyFollowing)
+        //console.log("followedJustNow: ", this.state.followedJustNow)
         if (isEditable) {
             // return <Button title="Edit" onPress={() => this.props.navigation.navigate('ProfileEdit')} color= 'rgba(228,228,228,0.66)'/>;
             return <Button
@@ -249,11 +249,11 @@ export default class Loading extends React.Component {
     };
 
     getProfileImageSimple = async(uid) => {
-        console.log("uid passed to getprofileimagesimple: " + uid)
+        //console.log("uid passed to getprofileimagesimple: " + uid)
         const path1 = "ProfilePictures/".concat(uid,".jpg");
         const image_ref1 = firebase.storage().ref(path1);
         var url = await image_ref1.getDownloadURL()
-        console.log("is this a string: " + url)
+        //console.log("is this a string: " + url)
         return url
     }
 
@@ -261,7 +261,7 @@ export default class Loading extends React.Component {
         var uid = item.key
         var imageurl1 = item.uri
         var username = item.username
-        console.log("made it to renderitem: " + uid + username)
+        //console.log("made it to renderitem: " + uid + username)
         if (item.uri) {
             return (<View style={{
                     flex: 1,
@@ -272,7 +272,7 @@ export default class Loading extends React.Component {
                 }}><TouchableHighlight onPress={() => this.props.navigation.push('Profile', {userID: uid})}>
                   <Image style={styles.smallcircle} source = {{uri: imageurl1}}  />
                   </TouchableHighlight><Text style={{color: COLOR_LGREY, fontSize: 12}}>{username}</Text></View>);
-                  //console.log("rendered: " + rendered)
+                  ////console.log("rendered: " + rendered)
             //rendered = <Text style={styles.textMainOne}>HI</Text>
         }
     }
@@ -292,9 +292,9 @@ export default class Loading extends React.Component {
                         })
                     }.bind(this))
                 }.bind(this))
-                console.log("pushed a follower of this user")
+                //console.log("pushed a follower of this user")
             }.bind(this))
-            console.log("made it out of the querySnapshot forEach: " + followers)
+            //console.log("made it out of the querySnapshot forEach: " + followers)
         }.bind(this))
     };
 
@@ -306,7 +306,7 @@ export default class Loading extends React.Component {
             querySnapshot.forEach(function(doc) {
                 this.getProfileImageSimple(doc.data().followedID).then(function(url) {
                     firebase.firestore().collection("users").doc(doc.data().followedID).get().then(function(doc1) {
-                        console.log("here's a username: " + doc1.data().username)
+                        //console.log("here's a username: " + doc1.data().username)
                         this.setState((prevState, props) => {
                             return {
                                 pyf: prevState.pyf.concat({key: doc.data().followedID, uri: url, username: doc1.data().username}),
@@ -314,21 +314,21 @@ export default class Loading extends React.Component {
                         })
                     }.bind(this))
                 }.bind(this))
-                console.log("pushed a person this user follows")
+                //console.log("pushed a person this user follows")
             }.bind(this))
-            console.log("made it out of the querySnapshot forEach: " + pyf)
+            //console.log("made it out of the querySnapshot forEach: " + pyf)
         }.bind(this))
     };
 
     render() {
         if (Boolean(this.state.isLoading) || Boolean(this.state.isImgLoading) ) {
-            console.log("about to return false")
+            //console.log("about to return false")
 
             return ( false )
         }
         const isEditable = this.state.isEditable;
         const isAlreadyFollowing = this.state.isAlreadyFollowing;
-        console.log("from render: " + isEditable + " " + isAlreadyFollowing)
+        //console.log("from render: " + isEditable + " " + isAlreadyFollowing)
         return (
 
             <Root>
@@ -364,7 +364,7 @@ export default class Loading extends React.Component {
                     {this.props.navigation.getParam('userID', '') == firebase.auth().currentUser.uid ? <Button transparent
                         style={{marginLeft: 5}}
                         onPress={() => firebase.auth().signOut().then(function() {
-                        console.log('Signed Out');
+                        //console.log('Signed Out');
                         this.props.navigation.navigate('Login')
                         }.bind(this))}>
                         <Text style={{color: 'white'}}>Log Out</Text>

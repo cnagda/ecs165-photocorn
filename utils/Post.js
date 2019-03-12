@@ -13,35 +13,39 @@ const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
 
 // pretty prints a string given a date object
 Date.prototype.tstring = function() {
-  var month = monthNames[this.getMonth()];
-  var day = this.getDate();
-  var hh = this.getHours();
-  var mm = this.getMinutes();
+    var month = monthNames[this.getMonth()];
+    var day = this.getDate();
+    var hh = this.getHours();
+    var mm = this.getMinutes();
+    var tt = "AM";
 
-  return ["Posted on ", month, ' ', day, " at ", hh, ":", mm].join('');
+    // format minutes
+    if (mm < 10) {
+        mm = "0" + mm;
+    }
+
+    // format hours
+    if(hh > 12) {
+        hh = hh - 12;
+        tt = "PM"
+    }
+
+    if(hh == 0) {
+        hh = 12
+    }
+
+    return ["Posted on ", month, ' ', day, " at ", hh, ":", mm, " ", tt].join('');
 };
 
 
 // pretty print a string of space separated tags
 function getTagString(str) {
-    var res = ' '
-
-    // remove extra white space and hashtag symbols
     try {
-        var tags = str.split(' ');
-        str = str.trim()
-        var regexp = new RegExp('#([^\\s]*)','g');
-        str = str.replace(regexp, 'REPLACED');
-
-        var i;
-        for(i = 0; i < tags.length - 1; i++) {
-            res += '#';
-            res += tags[i]
-            res += ' '
-        }
+        var notags= str.replace(/#/g, '')
+        var removedextraspaces = notags.replace(/(\s+)/g, ' ')
+        return '  ' + removedextraspaces.replace(/(\w+)/g, '#' + '$&')
     }
-    catch(err) { }
-    return(res);
+    catch(err) { } // prob no tags
 }
 
 
@@ -51,67 +55,135 @@ class PostView extends React.Component {
 
         this.state = {
             isImgLoading: true,
+            numLikes: 0,
+            profileImageURL: "http://i68.tinypic.com/awt7ko.jpg",
+            postUser: "",
+            name: "",
+            timestamp: null,
+            imageUri: "http://i68.tinypic.com/awt7ko.jpg",
+            caption: "",
+            tags: "",
+            isLoading: true,
+            username: "",
+            likeInfo: null,
+            lifeButton: null,
+            likers: null,
         }
+        this.displayLikeInfo = this.displayLikeInfo.bind(this)
+        this.getLikeInfo = this.getLikeInfo.bind(this)
+        this.getProfileImage = this.getProfileImage.bind(this)
+        this.getLikers = this.getLikers.bind(this)
     }
 
     componentDidMount() {
         // authenticate user
-        postID = this.props.postID;
+        var postID = this.props.postID;
         // Get the user who is viewing the post.
         userViewingVar = firebase.auth().currentUser.uid;
-        post_ref = firebase.firestore().collection("Posts");
-        post_ref.doc(this.props.postID).get().then(function(doc) {
-            photo_ref = firebase.firestore().collection("Photo");
-            photo_ref.doc(this.props.postID).get().then(function(doc2) {
-                console.log(doc2.data());
-                users_ref = firebase.firestore().collection("users");
-                users_ref.doc(doc.data().userID).get().then(function(doc1) {
-                    timestamp = doc.data().timestamp.toDate();
-                    // time_string = "Posted on " + timestamp.getMonth() " at " timestamp.getMinute();
 
-                    // Determine if the currentuser (userViewingVar) already likes the post.
-                    reaction_ref = firebase.firestore().collection("Reaction");
-                    reaction_ref
-                    .where("userID", "==", firebase.auth().currentUser.uid)
-                    .get()
-                    .then(function(querySnapshot) {
-                      console.log("in like verification")
-                      alreadyLikedVar = false;
-                      querySnapshot.forEach(function(doc) {
-                          console.log(doc.data().postID);
-                          // If the current user already liked the current post,
-                          // set alreadyLikedVar to true
-                          if(postID == doc.data().postID) {
-                              alreadyLikedVar = true;
-                              console.log("test")
-                          }
-                      });
+        this.getLikeInfo().then(function() {
+            post_ref = firebase.firestore().collection("Posts");
+            post_ref.doc(this.props.postID).get().then(function(doc) {
+                photo_ref = firebase.firestore().collection("Photo");
+                photo_ref.doc(this.props.postID).get().then(function(doc2) {
+                    //console.log(doc2.data());
+                    users_ref = firebase.firestore().collection("users");
+                    users_ref.doc(doc.data().userID).get().then(function(doc1) {
+                        timestamp = doc.data().timestamp.toDate();
+                        // time_string = "Posted on " + timestamp.getMonth() " at " timestamp.getMinute();
 
-                    this.setState({
-                        currentUser: userViewingVar,
-                        name: doc1.data().first + " " + doc1.data().last,
-                        postUser: doc.data().userID,
-                        caption: doc.data().caption,
-                        numComments: doc.data().numComments,
-                        tags: doc.data().tags,
-                        imageUri: doc2.data().imageUri,
-                        timestamp: timestamp.tstring(),
-                        alreadyLikedVar: alreadyLikedVar,
-                        likedJustNow: false,
-                        unlikedJustNow: false
-                    });
-                    console.log("caption " + doc.data().caption)
-                    console.log("postid " + this.props.postID)
-                    console.log("imageuri " + doc2.data().imageUri)
-                    console.log("timestamp " + timestamp.tstring())
-                  }.bind(this))
+                        // Determine if the currentuser (userViewingVar) already likes the post.
+                        reaction_ref = firebase.firestore().collection("Reaction");
+                        reaction_ref
+                        .where("userID", "==", firebase.auth().currentUser.uid)
+                        .get()
+                        .then(function(querySnapshot) {
+                          //console.log("in like verification")
+                          var alreadyLikedVar = false;
+                          querySnapshot.forEach(function(doc3) {
+                              //console.log(doc3.data().postID);
+                              // If the current user already liked the current post,
+                              // set alreadyLikedVar to true
+                              if(postID == doc3.data().postID) {
+                                  alreadyLikedVar = true;
+                                  //console.log("test")
+                              }
+                          }.bind(this));
+
+
+
+                        this.setState({
+                            currentUser: userViewingVar,
+                            name: doc1.data().first + " " + doc1.data().last,
+                            postUser: doc.data().userID,
+                            caption: doc.data().caption,
+                            numComments: doc.data().numComments,
+                            tags: doc.data().tags,
+                            imageUri: doc2.data().imageUri,
+                            username: doc1.data().username,
+                            timestamp: timestamp.tstring(),
+                            alreadyLikedVar: alreadyLikedVar,
+                            likedJustNow: false,
+                            unlikedJustNow: false,
+                            isLoading: false,
+                        }, () => {
+                            this.displayLikeButton()
+                            this.displayLikeInfo()
+                            this.getLikers()
+
+                        });
+
+
+
+                        // console.log("caption " + doc.data().caption)
+                        // console.log("postid " + this.props.postID)
+                        // console.log("imageuri " + doc2.data().imageUri)
+                        // console.log("timestamp " + timestamp.tstring())
+                      }.bind(this))
+                    }.bind(this))
                 }.bind(this))
-            }.bind(this))
-            this.getProfileImage(doc.data().userID);
-        }.bind(this)).catch ((error) => {console.error(error);});
+                this.getProfileImage(doc.data().userID);
+            }.bind(this)).catch ((error) => {console.error(error);});
+        }.bind(this))
+
     }
 
     componentWillMount() {}
+
+    getProfileImageSimple = async(uid) => {
+        //console.log("uid passed to getprofileimagesimple: " + uid)
+        const path1 = "ProfilePictures/".concat(uid,".jpg");
+        const image_ref1 = firebase.storage().ref(path1);
+        var url = await image_ref1.getDownloadURL()
+        //console.log("is this a string: " + url)
+        return url
+    }
+
+
+    getLikers() {
+        this.setState({
+            likers: []
+        }, () => {
+            firebase.firestore().collection("Reaction").where("postID", "==", this.props.postID).get().then(function(querySnapshot) {
+                if (!querySnapshot.empty) {
+                    querySnapshot.forEach(function(doc) {
+                        firebase.firestore().collection("users").doc(doc.data().userID).get().then(function(doc1) {
+                            this.getProfileImageSimple(doc.data().userID).then(function(url) {
+                                this.setState((prevState, props) => {
+                                    return {
+                                        likers: prevState.likers.concat({key: doc.data().userID, uri: url, username: doc1.data().username}),
+                                    };
+                                })
+                            }.bind(this))
+                        }.bind(this))
+                        //console.log("pushed a person this user follows")
+                    }.bind(this))
+                }
+                //console.log("made it out of the querySnapshot forEach: " + pyf)
+            }.bind(this))
+        })
+
+    }
 
     // given a user id fetch profile picture from storage
     getProfileImage = async(user) => {
@@ -121,23 +193,58 @@ class PostView extends React.Component {
 
             if (!downloadURL.cancelled) {
                 this.setState({profileImageURL: downloadURL,isImgLoading:false,});
+            } else {
+                this.setState({profileImageURL: "http://i68.tinypic.com/awt7ko.jpg",isImgLoading:false,});
             }
     };
 
     handleUnlike = () => {
-      console.log("in handle unlike")
+
+        firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE").get().then(function(querySnapshot) {
+            querySnapshot.forEach(function(doc) {
+                //console.log("found one")
+                newnumLikes = doc.data().numLikes - 1
+                if (doc.data().likeList) {
+                    likeList = doc.data().likeList
+                } else { //should never happen because this is unlike
+                    likeList = []
+                }
+
+                newActUser = likeList.pop()
+                doc.ref.update({
+                    numLikes: newnumLikes,
+                    likeList: likeList,
+                    actUser: newActUser,
+                    timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
+                }).then(function() {
+                    if (newnumLikes == 0) {
+                        this.setState({likeInfo: null})
+                    } else {
+                        this.getLikeInfo()
+                    }
+
+                    //console.log("success")
+                }.bind(this)).catch(function(error) {
+                    console.log("Error updating document: " + error);
+                });
+            }.bind(this))
+        }.bind(this))
+
+      //console.log("in handle unlike")
       firebase.firestore().collection("Reaction").where("userID", "==", firebase.auth().currentUser.uid).where("postID", "==", this.props.postID).get().then(function(querySnapshot){
           querySnapshot.forEach(function(doc) {
-            console.log("about to delete doc")
+            //console.log("about to delete doc")
             doc.ref.delete()
-            console.log("completed unlike")
+            //console.log("completed unlike")
 
           })
       }).then(function(){
-        this.setState({likedJustNow: false});
-        this.setState({unlikedJustNow: true});
+        this.setState({likedJustNow: false, unlikedJustNow: true}, () => {
+            this.displayLikeButton();
+        });
         console.log("unlike finished")
       }.bind(this))
+
     }
 
       // Todo: Handle update for unLike
@@ -152,63 +259,184 @@ class PostView extends React.Component {
                   rid: 1,
                   rtype: 1
               }).then(function() {
-                  this.setState({likedJustNow: true});
-                  this.setState({unlikedJustNow: false});
+                  this.setState({likedJustNow: true, unlikedJustNow: false}, () => {
+                      this.displayLikeButton()
+                  });
               }.bind(this))
 
+              // Update the local variables corresponding to the number of likes of the post
+              // this.getLikeInfo().then(function() {
+              //     var otherLikes = this.state.otherLikes
+              //     users_ref = firebase.firestore().collection("users");
+              //     users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc1) {
+              //         this.setState({otherLikes: otherLikes + 1,
+              //                        lastLiked: doc1.data().username});
+              //       }.bind(this))
+              // })
 
         firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE").get().then(function(querySnapshot) {
             querySnapshot.forEach(function(doc) {
-                console.log("found one")
+                //console.log("found one")
                 newnumLikes = doc.data().numLikes + 1
+                if (doc.data().likeList) {
+                    likeList = doc.data().likeList
+                } else {
+                    likeList = []
+                }
+                likeList.push(doc.data().actUser)
                 doc.ref.update({
                     numLikes: newnumLikes,
+                    likeList: likeList,
                     actUser: firebase.auth().currentUser.uid,
                     timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
                 }).then(function() {
-                    console.log("success")
-                }).catch(function(error) {
+                    this.getLikeInfo()
+                    //console.log("success")
+                }.bind(this)).catch(function(error) {
                     console.log("Error updating document: " + error);
                 });
-            })
-        })
+            }.bind(this))
+        }.bind(this))
     }
 
+    // Gets the number of likes for the current post and the last person who liked the post
+    getLikeInfo = async() => {
+     //console.log("I got in getlikeinfo")
+      firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE").get().then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            users_ref = firebase.firestore().collection("users");
+            users_ref.doc(doc.data().actUser).get().then(function(doc1) {
 
+             // console.log("get like info test")
+            // var otherLikes = doc.data().numLikes - 1
+            // var lastLiked = doc.data().actUser
+            // console.log("test getlikes")
+            //   console.log("getlikeinfo otherlikes: ", otherLikes)
+            //   console.log("getlikeinfo lastLiked: ", lastLiked)
+            if (doc.data().numLikes == 0) {
+                this.setState({numLikes: 0,
+                               lastLiked: "",
+                               likeInfo: null,
+                               });
+            } else {
+                this.setState({numLikes: doc.data().numLikes,
+                               lastLiked: doc1.data().username}, () => {
+                                   this.displayLikeInfo()
+                               });
+            }
 
-    displayLikeButton =  (alreadyLikedVar) => {
-        console.log("alraedyLikedVar: ", alreadyLikedVar)
-        console.log("likedJustNow: ", this.state.likedJustNow)
-        console.log("unlikedJustNow: ", this.state.unlikedJustNow)
-        if ((this.state.likedJustNow || alreadyLikedVar) && ! this.state.unlikedJustNow) {
-            return <Button icon transparent
-                        style={{marginLeft: -15}}>
-                        <Icon
-                            type="FontAwesome"
-                            name="heart"
-                            style={{color: COLOR_LGREY}}
-                            onPress={this.handleUnlike}/>
-                    </Button>;
+              }.bind(this))
+            }.bind(this))
+          }.bind(this))
+    };
+
+    displayLikeInfo = () => {
+        // Get the update corresponding the current post.
+            // console.log("in displayLikeInfo")
+            // console.log("otherLikes: ", this.state.otherLikes)
+            // console.log("lastLiked: ", this.state.lastLiked)
+            // If at least one user liked the post, then display the name of the user
+            // who liked the post.
+          //  otherLikes = 2
+          //  lastLiked = "Bob"
+          //console.log("called displayLikeInfo")
+            if (this.state.numLikes > 2)
+            {
+              this.setState({
+                  likeInfo: <Row style={{paddingLeft: 0, paddingBottom: 3}}>
+                  <Button transparent
+                      onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
+                      style={{marginTop: -5, paddingLeft: 0}}>
+                      <Text>
+                      <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}>Liked by </Text>
+                      <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.lastLiked}</Text>
+                      <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}> and </Text>
+                      <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.numLikes - 1}</Text>
+                      <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}> others</Text>
+                      </Text>
+                      </Button>
+                  </Row>
+              }, () => {
+                 // console.log("done")
+              })
+          } else if (this.state.numLikes == 2)
+          {
+            this.setState({
+                likeInfo: <Row style={{paddingLeft: 0, paddingBottom: 3}}>
+                <Button transparent
+                    onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
+                    style={{marginTop: -5, paddingLeft: 0}}>
+                    <Text>
+                    <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}>Liked by </Text>
+                    <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.lastLiked}</Text>
+                    <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}> and </Text>
+                    <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.numLikes - 1}</Text>
+                    <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}> other</Text>
+                    </Text>
+                    </Button>
+                </Row>
+            }, () => {
+                //console.log("done")
+            })
+         }
+           else if (this.state.numLikes == 1){
+               this.setState({
+                   likeInfo: <Row style={{paddingLeft: 0, paddingBottom: 3}}>
+                   <Button transparent
+                       onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
+                       style={{marginTop: -5, paddingLeft: 0}}>
+                       <Text>
+                       <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}>Liked by </Text>
+                       <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.lastLiked} </Text>
+                       </Text>
+                       </Button>
+                   </Row>
+               }, () => {
+                   //console.log("done")
+               })
+           } else {
+               this.setState({
+                   likeInfo: null,
+               })
+           }
+    };
+
+    displayLikeButton =  () => {
+        // console.log("alraedyLikedVar: ", alreadyLikedVar)
+        // console.log("likedJustNow: ", this.state.likedJustNow)
+        // console.log("unlikedJustNow: ", this.state.unlikedJustNow)
+        if ((this.state.likedJustNow || this.state.alreadyLikedVar) && ! this.state.unlikedJustNow) {
+            this.setState({
+                likeButton: <Button icon transparent
+                            style={{marginLeft: -15}}>
+                            <Icon
+                                type="FontAwesome"
+                                name="heart"
+                                style={{color: COLOR_LGREY}}
+                                onPress={this.handleUnlike}/>
+                        </Button>
+            })
             // return <Button title="UnFollow" onPress={this.handleUnFollow} color= 'rgba(228,228,228,0.66)'/>;
         } else {
             // return <Button title="Follow" onPress={this.handleFollow} color= 'rgba(228,228,228,0.66)'/>;
-            return <Button icon transparent
+            this.setState({
+                likeButton: <Button icon transparent
                         style={{marginLeft: -15}}>
                         <Icon
                             type="Feather"
                             name="heart"
                             style={{color: COLOR_LGREY}}
                             onPress={this.handleLike}/>
-                    </Button>;
+                    </Button>
+                })
         }
     };
 
     render() {
-        if (Boolean(this.state.isImgLoading) ) {
+        if (Boolean(this.state.isImgLoading || this.state.isLoading) ) {
             return ( false )
         }
-        const  alreadyLikedVar = this.state.alreadyLikedVar
-
+        //console.log("render numLikes ", this.state.numLikes)
         return (
             <Container style={styles.container}>
                 <Content scrollEnabled={false}>
@@ -222,7 +450,11 @@ class PostView extends React.Component {
                                 <Button transparent
                                     onPress={() => this.props.navigation.navigate('Profile', {userID: this.state.postUser})}
                                     style={{marginTop: -5}}>
-                                    <Text style = {styles.posterName}>{this.state.name}</Text>
+                                    <Text
+                                        style = {styles.posterName}
+                                        uppercase={false}>
+                                            {this.state.username}
+                                    </Text>
                                 </Button>
                                 <Text style={styles.timestamp}>{this.state.timestamp}</Text>
                             </Col>
@@ -232,12 +464,12 @@ class PostView extends React.Component {
                         <LinearGradient
                             colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
                             style={styles.backBox}>
-                        <Row>
-                            <Image
-                                style={styles.image}
-                                source={{uri: this.state.imageUri}}
-                            />
-                        </Row>
+                            <Row>
+                                <Image
+                                    style={styles.image}
+                                    source={{uri: this.state.imageUri}}
+                                />
+                            </Row>
                         </LinearGradient>
 
                         {/*post footer*/}
@@ -245,7 +477,7 @@ class PostView extends React.Component {
                             {/*task bar*/}
                             <Row style={{paddingLeft: 10}}>
 
-                                {this.displayLikeButton(alreadyLikedVar)}
+                                {this.state.likeButton}
 
                                 <Button icon transparent>
                                     <Icon
@@ -262,12 +494,10 @@ class PostView extends React.Component {
                                 </Button>
                             </Row>
                             {/*likes*/}
-                            <Row style={{paddingLeft: 10, paddingBottom: 3}}>
-                                <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}>Liked by </Text>
-                                <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>chandninagda </Text>
-                                <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}}>and </Text>
-                                <Text style={{color: COLOR_PINK, fontWeight: 'bold'}}>238 others </Text>
-                            </Row>
+
+
+                            {this.state.likeInfo}
+
                             {/*caption*/}
                             <Text style={{paddingLeft: 10, paddingTop: 5}}>
                                 <Text style={styles.caption}>{this.state.caption}</Text>
@@ -277,55 +507,6 @@ class PostView extends React.Component {
                     </Grid>
                 </Content>
             </Container>
-
-            /*
-            <View style={styles.container}>
-            <LinearGradient
-              colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
-              style={styles.backBox}>
-                    <View style = {{height: 68, flexDirection: 'row', marginLeft: 10}}>
-                        <View style={{flex: 2, flexDirection: 'row'}}>
-                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
-                                <Image style={styles.profile} source={{uri: this.state.profileImageURL}}/>
-                            </View>
-                        </View>
-                        <View style = {{flex: 6, flexDirection: 'row', justifyContent: 'center'}}>
-                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start'}}>
-                                <Button transparent
-                                    onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
-                                    <Text style = {styles.posterName}>{this.state.name}</Text>
-                                </Button>
-                                <Text style={{color: COLOR_LGREY, marginTop: -10}}>{this.state.timestamp}</Text>
-                            </View>
-                        </View>
-                    </View>
-
-                    <View style = {{flexDirection: 'row'}}>
-                        <Image
-                            style={styles.image}
-                            source = {{uri: this.state.imageUri}}
-                        />
-                    </View>
-
-                    <View style = {{flexDirection: 'row', paddingTop: 10}}>
-                        <View style={{flex: 1, flexDirection: 'row'}}>
-                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'center'}}>
-                                <Text style = {styles.smallInfoLeft}>Liked by </Text>
-                                </View>
-                        </View>
-                        <View style={{flex: 1, flexDirection: 'row'}}>
-                            <View style={{flex:1, flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center'}}>
-                                <Text style = {styles.smallInfoRight}>{this.state.numComments} Comments</Text>
-                            </View>
-                        </View>
-                    </View>
-                </LinearGradient>
-
-                <View style={{height: 80, width: Dimensions.get('window').width, flexDirection: 'column', flex: 1, paddingTop: 10}}>
-                    <Text style = {styles.tags}>{this.state.tags}</Text>
-                    <Text style = {styles.caption}>{this.state.caption}</Text>
-                </View>
-            </View>*/
         )
     }
 }

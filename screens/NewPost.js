@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableHighlight, TextInput, ScrollView, Image, Platform, KeyboardAvoidingView, Dimensions } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, TextInput, ScrollView, Image, Platform, KeyboardAvoidingView, Dimensions, ActivityIndicator } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK} from './../components/commonstyle';
 import { uploadPhoto } from '../utils/Photos'
@@ -36,10 +36,12 @@ export default class NewPost extends React.Component {
         caption: '',
         labels: null,
         bucket: '',
+        isSubmitting: false,
+        isImgSelected: false,
     }
 
     chooseBucket = () => {
-        console.log("in chooseBucket");
+        //console.log("in chooseBucket");
         var buckets = {};
         buckets['Dog'] = 'Animals';
         buckets['Cat'] = 'Animals';
@@ -240,7 +242,7 @@ export default class NewPost extends React.Component {
         buckets['Text'] = 'Motivational Quotes';
         buckets['Font'] = 'Motivational Quotes';
 
-        console.log("In chooseBucket");
+        //console.log("In chooseBucket");
 
         // just chooses the bucket that appears most.
         var choices = {};
@@ -269,12 +271,12 @@ export default class NewPost extends React.Component {
 
     handlePost = () => {
         const { uploadedImageURL, photoID, caption, numComments, userID, tags, labels } = this.state
-
-        console.log("in handlePost");
-        console.log(labels);
+        //console.log("in handlePost");
+        //console.log(labels);
         while (this.state.labels === null) {
            // there has to be a better way to do this...
         }
+        var tagtext = tags.replace(/#/g, '')
 
         firebase.firestore().collection("Posts").doc(photoID).set({
             photoID: photoID,
@@ -289,22 +291,22 @@ export default class NewPost extends React.Component {
                 photoID: photoID,
                 imageUri: uploadedImageURL,
             }).then(function() {
-                console.log("length: " + tags.length)
-                if (tags !== null && tags.length > 0) {
-                    tagArr = tags.split(" ")
-                    console.log(tagArr)
+                //console.log("length: " + tagtext.length)
+                if (tagtext !== null && tagtext.length > 0) {
+                    tagArr = tagtext.split(" ")
+                    //console.log(tagArr)
                     tagArr.forEach(function(tag) {
-                        console.log(tag)
+                        //console.log(tag)
 
                         firebase.firestore().collection("Tags").doc(tag).get().then(function(doc) {
                             postIDList = []
                             if (doc.exists) {
                                 postIDList = doc.data().posts;
-                                console.log(doc.data())
+                                //console.log(doc.data())
                             }
-                            console.log(postIDList)
+                            //console.log(postIDList)
                             postIDList.push(photoID)
-                            console.log(postIDList)
+                            //console.log(postIDList)
                             firebase.firestore().collection("Tags").doc(tag).set({
                                 posts: postIDList,
                                 tag: tag
@@ -312,10 +314,10 @@ export default class NewPost extends React.Component {
                         })
                     })
                 }
-                console.log("AutoTags:")
+                //console.log("AutoTags:")
                 this.chooseBucket();
-                console.log(labels)
-                console.log(this.state.bucket);
+                //console.log(labels)
+                //console.log(this.state.bucket);
                 firebase.firestore().collection("AutoTags").doc(photoID).set({
                     photoID: photoID,
                     tags: labels,
@@ -367,11 +369,11 @@ export default class NewPost extends React.Component {
     }
 
     getCameraAndCameraRollPermissions = async() => {
-        console.log("trying to get camera roll permissions")
+        //console.log("trying to get camera roll permissions")
         const {  Permissions } = Expo;
         // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
         const { status, permissions } = await Permissions.askAsync(Permissions.CAMERA_ROLL, Permissions.CAMERA);
-        console.log("status: " + status)
+        //console.log("status: " + status)
         return status
     };
 
@@ -386,15 +388,15 @@ export default class NewPost extends React.Component {
             });
 
             if (!result.cancelled) {
-                this.setState({base64: result.base64})
+                this.setState({base64: result.base64, isImgSelected: true})
                 //await this.setState({image: result.uri,});
 
                 this.submitToGoogle();
                 uploadPhoto(result.uri, path);
 
                 const path = "Posts/".concat(this.state.photoID, ".jpg");
-                console.log(result.uri);
-                console.log(path);
+                //console.log(result.uri);
+                //console.log(path);
                 return uploadPhoto(result.uri, path).then(function() {
                     this.setState({isImgLoading: true})
                     this.getUploadedImage(this.state.photoID).then(function() {
@@ -407,11 +409,11 @@ export default class NewPost extends React.Component {
 
 
     getCameraRollPermissions = async() => {
-        console.log("trying to get camera roll permissions")
+        //console.log("trying to get camera roll permissions")
         const {  Permissions } = Expo;
         // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
         const { status, permissions } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-        console.log("status: " + status)
+        //console.log("status: " + status)
         return status
     };
 
@@ -426,16 +428,16 @@ export default class NewPost extends React.Component {
             });
 
             if (!result.cancelled) {
-                this.setState({base64: result.base64})
+                this.setState({base64: result.base64, isImgSelected: true,})
                 //await this.setState({image: result.uri,});
                 this.submitToGoogle();
                 const path = "Posts/".concat(this.state.photoID, ".jpg");
-                console.log(result.uri);
-                console.log(path);
+                //console.log(result.uri);
+                //console.log(path);
                 return uploadPhoto(result.uri, path).then(function() {
                     this.setState({isImgLoading: true})
                     this.getUploadedImage(this.state.photoID).then(function() {
-                        this.setState({isImgLoading: false})
+                        this.setState({isImgLoading: false,})
                     }.bind(this));
                 }.bind(this));
             }
@@ -443,26 +445,24 @@ export default class NewPost extends React.Component {
     };
 
     getUploadedImage = async(photoID) => {
-          console.log("in get profile image");
-            console.log(photoID)
+          //console.log("in get profile image");
+            //console.log(photoID)
             const path = "Posts/".concat(photoID, ".jpg");
-            console.log(path)
+            //console.log(path)
             const image_ref = firebase.storage().ref(path);
             const downloadURL = await image_ref.getDownloadURL()
 
             if (!downloadURL.cancelled) {
-              console.log("testing1")
-              console.log(downloadURL)
+              //console.log("testing1")
+              //console.log(downloadURL)
               this.setState({uploadedImageURL: downloadURL, isImgLoading:false,});
           }
     };
 
-    submitToGoogle = async () => {
-        console.log("In submitToGoogle")
+    afterSetStateFinished = async() => {
         imageURI = this.state.image
         imageURIb64 = this.state.base64
         try {
-            this.setState({ uploading: true });
             let body = JSON.stringify({
                 requests: [
                     {
@@ -477,7 +477,7 @@ export default class NewPost extends React.Component {
                     }
                 ]
             });
-            console.log("Created body")
+            //console.log("Created body")
             let response = await fetch(
                 "https://vision.googleapis.com/v1/images:annotate?key=" +
                 "AIzaSyD3yoe5pFlzna3E4EgkbCSOLv3A5hHqNfg",
@@ -490,9 +490,9 @@ export default class NewPost extends React.Component {
                     body: body
                 }
             );
-            console.log("Made response")
+            //console.log("Made response")
             let responseJson = await response.json();
-            //console.log(responseJson);
+            ////console.log(responseJson);
             // Get the image labels
             labels = responseJson["responses"]["0"]["labelAnnotations"]
 
@@ -500,18 +500,26 @@ export default class NewPost extends React.Component {
 
             for (var k in labels){
                 currTag = labels[k]
-                console.log(currTag["description"])
+                //console.log(currTag["description"])
                 parsedLabels.push(currTag["description"])
             }
             //uploadTags(parsedLabels, this.state.photoID)
             this.setState({
                 labels: parsedLabels,
-                uploading: false
+                isSubmitting: false,
             });
 
         } catch (error) {
-            console.log(error);
+            //console.log(error);
         }
+    }
+
+    submitToGoogle = async () => {
+        //console.log("In submitToGoogle")
+        this.setState({isSubmitting: true}, () => {
+            this.afterSetStateFinished();
+        })
+
     };
 
 
@@ -558,15 +566,23 @@ export default class NewPost extends React.Component {
                             placeholderTextColor='#f300a2'
                             placeholder="Tags (separated by space)"
                             style={styles.textInput}
-                            onChangeText={tags => this.setState({ tags })}
+                            onChangeText={tags => {
+                                tags = tags.replace(/#/g, '')
+                                tags = tags.replace(/(\w+)/g, '#' + '$&')
+                                this.setState({ tags })
+                            }}
                             value={this.state.tags}
                             autoCapitalize="none"
                         />
-                        <View style = {styles.doneButton} >
-                            <Button style={{backgroundColor: '#f300a2', width: 100, justifyContent: 'center'}} onPress={this.handlePost}>
-                                <Text style={{color: 'white'}}>Post</Text>
-                            </Button>
-                        </View>
+                        {(this.state.isSubmitting)
+                            ? <ActivityIndicator size="large" color="#ffffff" style={{marginTop: 30}}/>
+                            : (this.state.isImgSelected)
+                            ? <View style = {styles.doneButton} >
+                                    <Button style={{backgroundColor: '#f300a2', width: 100, justifyContent: 'center'}} onPress={this.handlePost}>
+                                        <Text style={{color: 'white'}}>Post</Text>
+                                    </Button>
+                                </View>
+                            : null}
                     </View>
                 </View>
             </ScrollView>
