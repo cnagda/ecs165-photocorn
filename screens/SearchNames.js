@@ -15,11 +15,21 @@ var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
 var LOCATIONS = ["NewPostCamera", "NewPostUpload", "HomeScreen"]
 var CANCEL_INDEX = 2;
 
-
 var searchResults = []
 
 //remove duplicates from https://reactgo.com/removeduplicateobjects/
 
+function search(array, key) {
+    var res;
+    for (var i = 0; i < array.length; i++) {
+        if (array[i].uid === key) {
+            res = array[i];
+        }
+    }
+
+    var promise = new Promise(function(resolve, reject) {resolve(res)});
+    return promise;
+}
 
 class SearchNames extends React.Component {
     // initialize state
@@ -214,15 +224,17 @@ class SearchNames extends React.Component {
                                                             this.setState((prevState, props) => {
                                                                 let arr = prevState.result.slice(); //creates the clone of the state
                                                                 var l = userdoc.data();
+                                                                var photo = "http://i68.tinypic.com/awt7ko.jpg"
 
                                                                 // get profile picture
                                                                 var people = this.state.namesOfPeople;
                                                                 let person = people.find(o => o.uid === l.uid);
+                                                                photo = person.photo
 
                                                                 arr[i] =
                                                                     <ListItem
                                                                         roundAvatar
-                                                                        leftAvatar={{ source: { uri: person.photo} }}
+                                                                        leftAvatar={{ source: { uri: photo} }}
                                                                         key={l.uid}
                                                                         title={l.first + " " + l.last}
                                                                         subtitle={l.username}
@@ -238,7 +250,6 @@ class SearchNames extends React.Component {
                                                                     result: arr
                                                                 }
                                                             })
-
                                                         }
                                                     }
                                                 }.bind(this))
