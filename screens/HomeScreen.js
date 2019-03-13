@@ -92,15 +92,25 @@ export default class HomeScreen extends React.Component {
       }
 
       // Get the token that uniquely identifies this device
-      let token = await Notifications.getExpoPushTokenAsync();
+    //  let token = await Notifications.getExpoPushTokenAsync();
         console.log("got token")
+        Notifications.getExpoPushTokenAsync().then((token) => {
+          console.log("found token")
+          users_ref = firebase.firestore().collection("users");
+          users_ref.doc(firebase.auth().currentUser.uid).set({
+             expoToken: token
+          })
+        })
     //  var update = {}
       //updates['/expoToken'] = tokens
       //firebase.database().ref('users').child(firebase.auth().currentUser.uid).update(updates)
 
       //Issue: the expo token isn't being set properly.
-      firebase.database.ref('users/'+ firebase.auth().currentUser.uid + '/expoToken').set(token)
-      console.log("set token")
+    //  firebase.database.ref('users/'+ firebase.auth().currentUser.uid + '/expoToken').set(token)
+    //  console.log("set token")
+
+
+
     }
 
     // authenticate user
