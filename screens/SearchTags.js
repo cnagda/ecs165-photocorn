@@ -133,19 +133,23 @@ class SearchTags extends React.Component {
         } else {
 
             this.setState((prevState, props) => {
+                var tempresult = []
+                tempresult.push(<Text style={styles.sugtext}>Popular Hashtags</Text>)
                 return {
-                    result: prevState.result.concat(<Text style={styles.sugtext}>Popular Hashtags</Text>),
+                    result: tempresult,
                 };
-            })
-            firebase.firestore().collection("TagSearchHits").orderBy("hits", "desc").limit(10).get().then(function(querySnapshot) {
-                querySnapshot.forEach(function(hitdoc) {
-                    firebase.firestore().collection("Tags").doc(hitdoc.data().tag).get().then(function(tagdoc) {
-                        console.log("got a suggestion: " + hitdoc.data().tag)
-                        l = tagdoc.data()
-                        this.setState((prevState, props) => {
-                            return {
-                                result: prevState.result.concat(
-                                <ListItem
+            }, () => {
+                firebase.firestore().collection("TagSearchHits").orderBy("hits", "desc").limit(10).get().then(function(querySnapshot) {
+                    let i = 0
+                    querySnapshot.forEach(function(hitdoc) {
+
+                        firebase.firestore().collection("Tags").doc(hitdoc.data().tag).get().then(function(tagdoc) {
+                            console.log("got a suggestion: " + hitdoc.data().tag)
+                            l = tagdoc.data()
+                            this.setState((prevState, props) => {
+                                i++
+                                let arr = prevState.result.slice(); //creates the clone of the state
+                                arr[i] = <ListItem
                                     key={l.tag}
                                     title={"#" + l.tag}
                                     onPress={() => this.handleSelect(l.tag, l.posts)}
@@ -153,12 +157,18 @@ class SearchTags extends React.Component {
                                     titleStyle={styles.resultText}
                                     chevronColor='white'
                                     chevron
-                                />)
-                            };
-                        })
+                                />
+
+                                return {
+                                    result: arr
+                                };
+                            })
+                        }.bind(this))
+                            
                     }.bind(this))
                 }.bind(this))
-            }.bind(this))
+            })
+
 
 
         }
