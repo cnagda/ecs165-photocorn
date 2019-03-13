@@ -487,7 +487,7 @@ class PostView extends React.Component {
                     <View style={styles.inforec}>
                         {this.state.showthething &&
                             <Text style={styles.info}>
-                                {this.state.autotags.join('\n')}
+                                {this.state.autotags.join('\n').toLowerCase()}
                             </Text>
                         }
                     </View>
@@ -599,10 +599,12 @@ const styles = StyleSheet.create({
     },
     info: {
         color: 'white',
+        margin: 6
     },
     inforec: {
         position: 'absolute',
         backgroundColor: 'rgba(25, 25, 25, 0.65)',
-        alignSelf: 'center'
+        alignSelf: 'center',
+        borderRadius: 8
     }
 })
