@@ -20,8 +20,24 @@ Date.prototype.tstring3 = function() {
   var day = this.getDate();
   var hh = this.getHours();
   var mm = this.getMinutes();
+  var tt = "AM";
 
-  return [month, ' ', day, " at ", hh, ":", mm].join('');
+  // format minutes
+  if (mm < 10) {
+      mm = "0" + mm;
+  }
+
+  // format hours
+  if(hh > 12) {
+      hh = hh - 12;
+      tt = "PM"
+  }
+
+  if(hh == 0) {
+      hh = 12
+  }
+
+  return [month, ' ', day, " at ", hh, ":", mm, " ", tt].join('');
 };
 
 
@@ -63,12 +79,17 @@ export default class Updates extends React.Component {
                                     photourl = doc1.data().imageUri
                                     if(doc.data().mentionType == "comment") {
                                         this.setState((prevState, props) => {
+                                            var text = <Text>
+                                                           <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
+                                                           <Text style={{color: COLOR_PINK, fontSize: 12}}>{" mentioned you in a comment: "}</Text>
+                                                           <Text style={{color: COLOR_PINK, fontSize: 12}}>{doc.data().text}</Text>
+                                                       </Text>;
                                             return {
                                                 updates: prevState.updates.concat(<ListItem
                                                     roundAvatar
                                                     leftAvatar={{ source: { uri: avatarurl } }}
                                                     key={timestampkey}
-                                                    title={ actUserUN + " mentioned you in a comment: " + doc.data().text}
+                                                    title={text}
                                                     onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
                                                     containerStyle={styles.result}
                                                     subtitleStyle={styles.timeText}
@@ -266,6 +287,8 @@ const styles = StyleSheet.create({
     },
     content: {
         marginTop: 30,
+        paddingLeft: 10,
+        paddingRight: 10
     },
     footer: {
         backgroundColor: COLOR_DGREY,
@@ -289,10 +312,11 @@ const styles = StyleSheet.create({
         color: COLOR_PINK
     },
     timeText: {
-        color: COLOR_LGREY
+        color: COLOR_LGREY,
+        fontSize: 10
     },
     smallImg: {
-        width: 75,
-        height: 75,
+        width: 50,
+        height: 50,
     },
 })
