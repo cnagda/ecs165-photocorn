@@ -228,7 +228,6 @@ class PostView extends React.Component {
                     numLikes: newnumLikes,
                     likeList: likeList,
                     actUser: newActUser,
-                    timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
                 }).then(function() {
                     if (newnumLikes == 0) {
                         this.setState({likeInfo: null})
