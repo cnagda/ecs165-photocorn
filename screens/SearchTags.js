@@ -120,9 +120,8 @@ class SearchTags extends React.Component {
             this.setState({
                 result: this.state.searchResults.map(e => e['tag']).map((e, i, final) => final.indexOf(e) === i && i).filter(e => searchResults[e]).map(e => searchResults[e]).map((l) => (
                     <ListItem
-
                         key={l.tag}
-                        title={l.tag}
+                        title={"#" + l.tag}
                         onPress={() => this.handleSelect(l.tag, l.postarray)}
                         containerStyle={styles.result}
                         titleStyle={styles.resultText}
@@ -135,18 +134,26 @@ class SearchTags extends React.Component {
 
             this.setState((prevState, props) => {
                 return {
-                    result: prevState.result.concat(<Text style={{color: '#f300a2', fontWeight: 'bold', marginTop: 50}}>POPULAR TAGS</Text>),
+                    result: prevState.result.concat(<Text style={styles.sugtext}>Popular Hashtags</Text>),
                 };
             })
             firebase.firestore().collection("TagSearchHits").orderBy("hits", "desc").limit(10).get().then(function(querySnapshot) {
                 querySnapshot.forEach(function(hitdoc) {
                     firebase.firestore().collection("Tags").doc(hitdoc.data().tag).get().then(function(tagdoc) {
                         console.log("got a suggestion: " + hitdoc.data().tag)
+                        l = tagdoc.data()
                         this.setState((prevState, props) => {
                             return {
-                                result: prevState.result.concat(<Button transparent onPress={() => this.props.navigation.navigate('SearchPostView', {postarray: tagdoc.data().posts, tag: hitdoc.data().tag})}>
-                                    <Text style={{color: '#f300a2'}}>{hitdoc.data().tag}</Text>
-                                </Button>),
+                                result: prevState.result.concat(
+                                <ListItem
+                                    key={l.tag}
+                                    title={"#" + l.tag}
+                                    onPress={() => this.handleSelect(l.tag, l.posts)}
+                                    containerStyle={styles.result}
+                                    titleStyle={styles.resultText}
+                                    chevronColor='white'
+                                    chevron
+                                />)
                             };
                         })
                     }.bind(this))
@@ -230,7 +237,7 @@ const styles = StyleSheet.create({
         height: 40,
         width: 300,
         color: COLOR_PINK,
-        marginTop: 20,
+        marginTop: -30,
         backgroundColor: COLOR_DGREY,
         paddingLeft: 10,
         borderRadius: 12,
@@ -242,5 +249,10 @@ const styles = StyleSheet.create({
     },
     resultText: {
         color: COLOR_PINK
+    },
+    sugtext: {
+        fontWeight: 'bold',
+        color: COLOR_LGREY,
+        marginTop: 20
     }
 })
