@@ -318,7 +318,7 @@ export default class NewPost extends React.Component {
                                         numHits = searchhitdoc.data().hits;
                                     }
                                     firebase.firestore().collection("TagSearchHits").doc(tag).set({
-                                        hits: numHits + 1,
+                                        hits: numHits + 2,
                                         tag: tag
                                     })
                                 }.bind(this)).catch(function(error) {

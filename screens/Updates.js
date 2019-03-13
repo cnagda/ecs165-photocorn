@@ -2,11 +2,17 @@ import React from 'react'
 import { StyleSheet, ScrollView, RefreshControl, View, Platform , StatusBar, TextInput, Dimensions, Image } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
-import { Container, Header, Title, Content, Button, Left, Right, Body, Icon, Text, Row, Grid, Col, Footer, FooterTab } from 'native-base';
+import { Container, Header, Title, Content, Button, Left, Right, Body, Icon, Text, Row, Grid, Col, Footer, FooterTab, ActionSheet } from 'native-base';
 import { ListItem }  from 'react-native-elements'
 
 const monthNames1 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
+var LOCATIONS = ["NewPost", "NewPost", "HomeScreen"]
+var METHOD = ["camera", "upload", "none"]
+var CANCEL_INDEX = 2;
+
 
 
 Date.prototype.tstring3 = function() {
@@ -130,7 +136,7 @@ export default class Updates extends React.Component {
                                                     roundAvatar
                                                     leftAvatar={{ source: { uri: avatarurl } }}
                                                     key={timestampkey}
-                                                    title={ actUserUN + " and " + othercomments + " commented on your post"}
+                                                    title={ actUserUN + " and " + othercomments + " others commented on your post"}
                                                     onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
                                                     containerStyle={styles.result}
                                                     subtitleStyle={styles.timeText}
