@@ -24,7 +24,9 @@ export default class SearchPostView extends React.Component {
         this.state = {postList: [], isLoading: true}
         //console.log("inside constructor")
         this.getPosts = this.getPosts.bind(this)
-        this.getPosts()
+        // this.getPosts().then(function() {
+        //     console.log("finished getting posts")
+        // })
 
     }
 
@@ -35,17 +37,22 @@ export default class SearchPostView extends React.Component {
     }
 
     componentWillReceiveProps(newprops) {
-        this.getPosts()
+        //this.getPosts()
         //console.log("inside of componenet will receive props")
     }
 
-    getPosts() {
+    getPosts = async() => {
         var postarray = this.props.navigation.getParam('postarray', [])
-        var postList = []
         postarray.forEach(function(thisPostID) {
-            postList.push({key: thisPostID})
-        })
-        this.setState({postList: postList})
+            console.log("got a postid: " + thisPostID)
+            //postList.push({key: thisPostID})
+            this.setState((prevState, props) => {
+                return {
+                    postList: prevState.postList.concat({key: thisPostID})
+                }
+            })
+        }.bind(this))
+        //this.setState({postList: postList})
     }
 
     renderItem = ({item, index}) => (
@@ -53,6 +60,10 @@ export default class SearchPostView extends React.Component {
     );
 
     render() {
+        if (this.state.postList == []) {
+            return null
+        }
+        console.log(this.state.postList)
         return (
             <Root>
             <Container style={styles.container}>
@@ -72,11 +83,9 @@ export default class SearchPostView extends React.Component {
                 </Header>
 
                 <Content contentContainerStylestyle={styles.content}>
-                    <View style={{flex:1, marginTop: 50, justifyContent: 'center'}}>
-                    <View>
+
                     <FlatList contentContainerStyle={styles.list} data={this.state.postList} renderItem={this.renderItem} initialNumToRender={3}/>
-                    </View>
-                    </View>
+                    
                 </Content>
 
             </Container>
@@ -93,6 +102,7 @@ const styles = StyleSheet.create({
     },
     content: {
         alignItems: 'center',
+        justifyContent: 'space-evenly'
     },
     header: {
         backgroundColor: COLOR_DGREY,

@@ -105,6 +105,7 @@ class SearchTags extends React.Component {
                 tag: tag
             }).then(function() {
                 console.log("trying to navigate")
+                console.log("postarr: " + postarr)
                 this.props.navigation.navigate('SearchPostView', {postarray: postarr, tag: tag});
             }.bind(this)).catch(function(error) {
                 console.log("error setting: " + error)
@@ -145,7 +146,7 @@ class SearchTags extends React.Component {
 
                         firebase.firestore().collection("Tags").doc(hitdoc.data().tag).get().then(function(tagdoc) {
                             console.log("got a suggestion: " + hitdoc.data().tag)
-                            l = tagdoc.data()
+                            let l = tagdoc.data()
                             this.setState((prevState, props) => {
                                 i++
                                 let arr = prevState.result.slice(); //creates the clone of the state
@@ -164,7 +165,7 @@ class SearchTags extends React.Component {
                                 };
                             })
                         }.bind(this))
-                            
+
                     }.bind(this))
                 }.bind(this))
             })

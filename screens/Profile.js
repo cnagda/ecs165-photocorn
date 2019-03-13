@@ -384,7 +384,7 @@ export default class Loading extends React.Component {
                     <View style={{flex:2, flexDirection: 'column',alignItems: 'flex-start'}}>
                     {/*<FlatList contentContainerStyle={styles.list} data={this.state.photoIDList} renderItem={this.renderItem} initialNumToRender={8}/>*/}
                     <Text style = {styles.textSecond}>Photos: </Text>
-                    <PhotoGrid photos={this.state.photoList}/>
+                    <PhotoGrid photos={this.state.photoList} userViewing={this.state.userViewing}/>
                     </View>
                 </Content>
 

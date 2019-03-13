@@ -29,6 +29,7 @@ class PhotoGrid extends React.Component {
             ready: false,
             photoIDList: [],
             urlList: [],
+            userViewing: this.props.userViewing
         }
         this.getPhotoIDList = this.getPhotoIDList.bind(this)
         this.renderItem = this.renderItem.bind(this)
@@ -96,7 +97,7 @@ class PhotoGrid extends React.Component {
                     height: Dimensions.get('window').width/3,
                     backgroundColor: COLOR_BACKGRND,
                 }}>
-                <TouchableHighlight onPress={() => this.props.navigation.navigate('StalkerView', {postdata: this.state.photoIDList, index: index})}>
+                <TouchableHighlight onPress={() => this.props.navigation.navigate('StalkerView', {postdata: this.state.photoIDList, index: index, userViewing: this.state.userViewing})}>
                   <Image style={{width: Dimensions.get('window').width/3, height: Dimensions.get('window').width/3}} source = {{uri: uri}} defaultSource={"http://i68.tinypic.com/awt7ko.jpg"} />
                   </TouchableHighlight>
                 </View>
