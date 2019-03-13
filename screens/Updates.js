@@ -305,7 +305,9 @@ const styles = StyleSheet.create({
     content: {
         marginTop: 30,
         paddingLeft: 10,
-        paddingRight: 10
+        paddingRight: 10,
+        paddingBottom: 50,
+        marginBottom: 20
     },
     footer: {
         backgroundColor: COLOR_DGREY,

@@ -349,9 +349,7 @@ export default class Loading extends React.Component {
                                     onPress={() => firebase.auth().signOut().then(function() {
                                         this.props.navigation.navigate('Login')
                                     }.bind(this))}>
-                                    <Text style={styles.logoutbutton}>
-                                        Log Out
-                                    </Text>
+                                    <Text style={styles.logoutbutton}>Log Out</Text>
                                 </Button> : null}
                             </Col>
                         </Row>

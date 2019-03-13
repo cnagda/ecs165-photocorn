@@ -1,11 +1,11 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableHighlight, Button, TextInput, ScrollView, Image, Platform, KeyboardAvoidingView } from 'react-native'
+import { View, Text, StyleSheet, TouchableHighlight, TextInput, ScrollView, Image, Platform, KeyboardAvoidingView } from 'react-native'
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY , COLOR_PURPLEPINK} from './../components/commonstyle';
 import { uploadPhoto } from '../utils/Photos'
 import { ImagePicker } from 'expo';
-import { Container, Content, ActionSheet, Root } from 'native-base';
-import {CheckBox} from 'react-native-elements'
+import { Container, Content, ActionSheet, Root, Button } from 'native-base';
+import { CheckBox } from 'react-native-elements'
 
 var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
 var CANCEL_INDEX = 2;
@@ -319,7 +319,7 @@ export default class ProfileEdit extends React.Component {
                         />
 
                         <Text style={styles.textSecond}>Bio</Text>
-                        <TextInput
+                        <TextInput multiline
                             multiline = {true}
                             numberOfLines = {4}
                             placeholder={this.state.bio}
@@ -336,7 +336,7 @@ export default class ProfileEdit extends React.Component {
                             onPress={() => this.setState({animals: !this.state.animals})}
                             checkedColor= '#f300a2'
                             uncheckedColor= 'rgba(228,228,228,0.66)'
-                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            containerStyle={styles.checkCont}
                             textStyle={{color: 'rgba(228,228,228,0.66)'}}
                         />
                         <CheckBox
@@ -345,7 +345,7 @@ export default class ProfileEdit extends React.Component {
                             onPress={() => this.setState({nature: !this.state.nature})}
                             checkedColor= '#f300a2'
                             uncheckedColor= 'rgba(228,228,228,0.66)'
-                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            containerStyle={styles.checkCont}
                             textStyle={{color: 'rgba(228,228,228,0.66)'}}
                         />
                         <CheckBox
@@ -354,7 +354,7 @@ export default class ProfileEdit extends React.Component {
                             onPress={() => this.setState({people: !this.state.people})}
                             checkedColor= '#f300a2'
                             uncheckedColor= 'rgba(228,228,228,0.66)'
-                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            containerStyle={styles.checkCont}
                             textStyle={{color: 'rgba(228,228,228,0.66)'}}
                         />
                         <CheckBox
@@ -363,7 +363,7 @@ export default class ProfileEdit extends React.Component {
                             onPress={() => this.setState({food: !this.state.food})}
                             checkedColor= '#f300a2'
                             uncheckedColor= 'rgba(228,228,228,0.66)'
-                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            containerStyle={styles.checkCont}
                             textStyle={{color: 'rgba(228,228,228,0.66)'}}
                         />
                         <CheckBox
@@ -372,7 +372,7 @@ export default class ProfileEdit extends React.Component {
                             onPress={() => this.setState({tech: !this.state.tech})}
                             checkedColor= '#f300a2'
                             uncheckedColor= 'rgba(228,228,228,0.66)'
-                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            containerStyle={styles.checkCont}
                             textStyle={{color: 'rgba(228,228,228,0.66)'}}
                         />
                         <CheckBox
@@ -381,7 +381,7 @@ export default class ProfileEdit extends React.Component {
                             onPress={() => this.setState({fitness: !this.state.fitness})}
                             checkedColor= '#f300a2'
                             uncheckedColor= 'rgba(228,228,228,0.66)'
-                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            containerStyle={styles.checkCont}
                             textStyle={{color: 'rgba(228,228,228,0.66)'}}
                         />
                         <CheckBox
@@ -390,7 +390,7 @@ export default class ProfileEdit extends React.Component {
                             onPress={() => this.setState({motivation: !this.state.motivation})}
                             checkedColor= '#f300a2'
                             uncheckedColor= 'rgba(228,228,228,0.66)'
-                            containerStyle={{backgroundColor: 'rgba(122,122,122,0.2)', borderColor: 'transparent', borderRadius: 12,}}
+                            containerStyle={styles.checkCont}
                             textStyle={{color: 'rgba(228,228,228,0.66)'}}
                         />
 
@@ -402,12 +402,13 @@ export default class ProfileEdit extends React.Component {
                             onChangeText={email => this.setState({ email })}
                             value={this.state.email}
                         />
-                        <View style = {styles.doneButton} >
+                        <View style = {styles.doneButton}>
                             <Button
-                                title="Done"
                                 onPress={this.handleEdits}
-                                color= '#f300a2'
-                            />
+                                style={styles.button}
+                            >
+                                <Text style={{color: 'white', alignSelf: 'center'}}>Done</Text>
+                            </Button>
                         </View>
                     </View>
                 </View>
@@ -455,43 +456,54 @@ const styles = StyleSheet.create({
     textMainOne: {
         color: COLOR_PINK,
         fontSize: 20,
-        borderRadius: 150 / 2,
         alignItems: 'center',
         justifyContent: 'center',
+        marginLeft: 10
     },
     textMainTwo: {
         color: COLOR_PINK,
         fontSize: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 20,
-        marginTop: 80,
+        marginTop:20,
+        fontWeight: 'bold',
+        marginLeft: 10
     },
     textSecond: {
         color: COLOR_PURPLEPINK,
-        fontSize: 15,
-        borderRadius: 150 / 2,
+        fontSize: 17,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 30,
+        marginTop: 20,
+        marginBottom: 5,
+        fontWeight: 'bold',
+        marginLeft: 10
+    },
+    textInputLong: {
+        height: 100,
+        width: 300,
+        marginTop: 10,
+        borderColor: COLOR_DGREY,
+        color: COLOR_LGREY,
+        backgroundColor: COLOR_DGREY,
+        paddingLeft: 10,
+        borderRadius: 12,
+        marginLeft: 10
     },
     textInput: {
         height: 40,
         width: 300,
-        borderColor: COLOR_DGREY,
-        borderWidth: 1,
         color: COLOR_LGREY,
-    },
-    textInputLong: {
-        height: 160,
-        width: 300,
-        borderColor: COLOR_DGREY,
-        borderWidth: 1,
-        color: COLOR_LGREY,
+        marginTop: 10,
+        backgroundColor: COLOR_DGREY,
+        paddingLeft: 10,
+        borderRadius: 12,
+        marginLeft: 10,
     },
     doneButton: {
         alignItems: 'stretch',
         justifyContent: 'center',
+        alignContent: 'center',
         flex: 1,
         flexDirection: 'column',
         marginTop: 30,
@@ -501,5 +513,20 @@ const styles = StyleSheet.create({
     },
     content: {
         alignItems: 'center',
+    },
+    checkCont: {
+        backgroundColor: 'rgba(122,122,122,0.2)',
+        borderColor: 'transparent',
+        borderRadius: 12,
+        width: 300
+    },
+    button: {
+        backgroundColor: COLOR_PINK,
+        marginTop: 5,
+        marginBottom: 20,
+        width: 80,
+        alignSelf: 'center',
+        alignContent: 'center',
+        justifyContent: 'center'
     },
 })
