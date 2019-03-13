@@ -359,7 +359,7 @@ class PostView extends React.Component {
                   likeInfo: <Row style={{paddingLeft: 0, paddingBottom: 3}}>
                   <Button transparent
                       onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
-                      style={{marginTop: -5, paddingLeft: 0}}>
+                      style={styles.likedby}>
                       <Text>
                       <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}>Liked by </Text>
                       <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.lastLiked}</Text>
@@ -378,7 +378,7 @@ class PostView extends React.Component {
                 likeInfo: <Row style={{paddingLeft: 0, paddingBottom: 3}}>
                 <Button transparent
                     onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
-                    style={{marginTop: -5, paddingLeft: 0}}>
+                    style={styles.likedby}>
                     <Text>
                     <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}>Liked by </Text>
                     <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.lastLiked}</Text>
@@ -397,7 +397,7 @@ class PostView extends React.Component {
                    likeInfo: <Row style={{paddingLeft: 0, paddingBottom: 3}}>
                    <Button transparent
                        onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
-                       style={{marginTop: -5, paddingLeft: 0}}>
+                       style={styles.likedby}>
                        <Text>
                        <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}>Liked by </Text>
                        <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.lastLiked} </Text>
@@ -510,7 +510,7 @@ class PostView extends React.Component {
                     {this.state.likeInfo}
 
                     {/*caption*/}
-                    <Text style={{paddingLeft: 10, paddingTop: 5}}>
+                    <Text style={{paddingLeft: 10, paddingTop: 0}}>
                         <Text style={styles.caption}>{this.state.caption}</Text>
                         <Text style={styles.tags}>{getTagString(this.state.tags)}</Text>
                     </Text>
@@ -578,5 +578,11 @@ const styles = StyleSheet.create({
         paddingBottom: 8,
         paddingTop: 8,
         backgroundColor: COLOR_DGREY
+    },
+    likedby: {
+        marginTop: -10,
+        marginLeft: -6,
+        marginBottom: -8,
+        paddingBottom: 0
     }
 })
