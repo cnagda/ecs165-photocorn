@@ -186,7 +186,7 @@ class SearchNames extends React.Component {
             var currentUser = firebase.auth().currentUser.uid;
             this.setState((prevState, props) => {
                 return {
-                    result: prevState.result.concat(<Text style={{color: '#f300a2', fontWeight: 'bold', marginTop: 50}}>SUGESTIONS</Text>),
+                    result: prevState.result.concat(<Text style={styles.sugtext}>Suggestions</Text>),
                 };
             })
 
@@ -213,13 +213,30 @@ class SearchNames extends React.Component {
                                                             counter ++;
                                                             this.setState((prevState, props) => {
                                                                 let arr = prevState.result.slice(); //creates the clone of the state
-                                                                arr[i] = <Button transparent onPress={() => this.props.navigation.navigate('Profile', {userID: userdoc.data().uid})}>
-                                                                    <Text style={{color: '#f300a2'}}>{userdoc.data().first + ' ' + userdoc.data().last}</Text>
-                                                                </Button>;
-                                                                console.log(arr)
-                                                                return {
-                                                                    result: arr
-                                                                }
+                                                                var l = userdoc.data();
+
+                                                                // get profile picture
+                                                                const path = "ProfilePictures/".concat(l.uid,".jpg");
+                                                                firebase.storage().ref(path).getDownloadURL().then(function(url) {
+                                                                    arr[i] =
+                                                                        <ListItem
+                                                                            roundAvatar
+                                                                            leftAvatar={{ source: { uri: url } }}
+                                                                            key={l.uid}
+                                                                            title={l.first + " " + l.last}
+                                                                            subtitle={l.username}
+                                                                            onPress={() => this.props.navigation.push('Profile', {userID: l.uid})}
+                                                                            containerStyle={styles.result}
+                                                                            titleStyle={styles.resultText}
+                                                                            subtitleStyle={styles.subtext}
+                                                                            chevronColor='white'
+                                                                            chevron
+                                                                        />
+                                                                    console.log(arr)
+                                                                    return {
+                                                                        result: arr
+                                                                    }
+                                                                });
                                                             })
 
                                                         }
@@ -270,32 +287,32 @@ class SearchNames extends React.Component {
         const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 0
         return (
             <Root>
-            <Container style={styles.container}>
-                <Content contentContainerStyle={styles.content}>
-                <View style={{flex: 1, flexDirection:'column', marginTop: 50}}>
-                         <TextInput
-                             style={styles.search}
-                             placeholder={"Search"}
-                             placeholderTextColor='#f300a2'
-                             onChangeText={query => this.handleUpdate(query) }
-                             value={this.state.query}
-                         />
-                         <KeyboardAvoidingView
-                             style={styles.container}
-                             keyboardVerticalOffset = {keyboardVerticalOffset}
-                             behavior="padding"
-                             enabled
-                         >
-                         <ScrollView>
-                         { this.state.result  }
-                         </ScrollView>
+                <Container style={styles.container}>
+                    <Content contentContainerStyle={styles.content}>
+                        <View style={{flex: 1, flexDirection:'column', marginTop: 50}}>
+                            {/*search bar*/}
+                            <TextInput
+                                style={styles.search}
+                                placeholder={"Search"}
+                                placeholderTextColor='#f300a2'
+                                onChangeText={query => this.handleUpdate(query) }
+                                value={this.state.query}
+                            />
 
-
-                         </KeyboardAvoidingView>
-
+                            {/*search results*/}
+                            <KeyboardAvoidingView
+                                style={styles.container}
+                                keyboardVerticalOffset = {keyboardVerticalOffset}
+                                behavior="padding"
+                                enabled
+                            >
+                                <ScrollView>
+                                    {this.state.result}
+                                </ScrollView>
+                            </KeyboardAvoidingView>
                         </View>
-                </Content>
-            </Container>
+                    </Content>
+                </Container>
             </Root>
         );
     }
@@ -338,7 +355,7 @@ const styles = StyleSheet.create({
         height: 40,
         width: 300,
         color: COLOR_PINK,
-        marginTop: 20,
+        marginTop: -30,
         backgroundColor: COLOR_DGREY,
         paddingLeft: 10,
         borderRadius: 12,
@@ -353,5 +370,10 @@ const styles = StyleSheet.create({
     },
     subtext: {
         color: COLOR_LGREY
+    },
+    sugtext: {
+        fontWeight: 'bold',
+        color: COLOR_LGREY,
+        marginTop: 20
     }
 })
