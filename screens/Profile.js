@@ -342,6 +342,17 @@ export default class Loading extends React.Component {
                             </Col>
                             <Col>
                                 {this.displayFollowEditButton(isEditable, isAlreadyFollowing)}
+
+                                {/*log out*/}
+                                {this.props.navigation.getParam('userID', '') == firebase.auth().currentUser.uid ? <Button transparent
+                                    style={{alignSelf: 'center', marginLeft: 3}}
+                                    onPress={() => firebase.auth().signOut().then(function() {
+                                        this.props.navigation.navigate('Login')
+                                    }.bind(this))}>
+                                    <Text style={styles.logoutbutton}>
+                                        Log Out
+                                    </Text>
+                                </Button> : null}
                             </Col>
                         </Row>
 
@@ -557,4 +568,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         fontWeight: 'bold',
     },
+    logoutbutton: {
+        color: 'white',
+        textDecorationLine: 'underline',
+        fontSize: 15,
+        marginTop: -4,
+        alignSelf: 'updates'
+    }
 })
