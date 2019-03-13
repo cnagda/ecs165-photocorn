@@ -55,6 +55,7 @@ export default class Signup extends React.Component {
                 uid: user.uid,
                 interests: '',
                 bio: '',
+                expoToken: '',
             }).then(function() {
                 this.setState({isSignedUp: true});
                 console.log("inside set " + user.uid)

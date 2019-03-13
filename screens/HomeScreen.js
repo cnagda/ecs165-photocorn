@@ -1,7 +1,6 @@
 import React from 'react'
 import { StyleSheet, ScrollView, RefreshControl, FlatList } from 'react-native'
 import * as firebase from 'firebase';
-import * as functions from 'firbase-functions';
 import { ImagePicker } from 'expo';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 import PostView from '../utils/Post'
@@ -11,6 +10,8 @@ import { custom } from '../native-base-theme/variables/custom';
 import { withNavigation } from 'react-navigation';
 import {ListItem}  from 'react-native-elements';
 import { uploadPhoto } from '../utils/Photos';
+
+import {Permissions, Notifications} from 'expo';
 
 var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
 var LOCATIONS = ["NewPost", "NewPost", "HomeScreen"]
@@ -65,13 +66,47 @@ export default class HomeScreen extends React.Component {
         this.state = {currentUser: null, name: "user", isLoading: true, refreshing: false, notInterestedPosts: [], postIDs: [],}
     }
 
+    //  Copied from expo documentation: https://docs.expo.io/versions/latest/guides/push-notifications/
+    getPushNotificationPermission = async () =>{
+      const { status: existingStatus } = await Permissions.getAsync(
+        Permissions.NOTIFICATIONS
+      );
+      let finalStatus = existingStatus;
+
+      // only ask if permissions have not already been determined, because
+      // iOS won't necessarily prompt the user a second time.
+      if (existingStatus !== 'granted') {
+        // Android remote notification permissions are granted during the app
+        // install, so this will only ask on iOS
+        const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+        finalStatus = status;
+      }
+      else{
+        console.log("notification permissions!")
+      }
+
+      // Stop here if the user did not grant permissions
+      if (finalStatus !== 'granted') {
+        return;
+      }
+
+      // Get the token that uniquely identifies this device
+      let token = await Notifications.getExpoPushTokenAsync();
+
+      var update = {}
+      updates['/expoToken'] = tokens
+      firebase.database().ref('users').child(firebase.auth().currentUser.uid).update(updates)
+
+
+    }
+
     // authenticate user
     componentDidMount() {
         users_ref = firebase.firestore().collection("users");
         users_ref.doc(firebase.auth().currentUser.uid).get().then(function(doc) {
             //console.log("inside get " + firebase.auth().currentUser.uid)
             this.getPosts(50, firebase.auth().currentUser, doc.data().first);
-
+            this.getPushNotificationPermission()
             // this may be bad because I'm relying on getPosts to take
             // longer so test it with this removed later
             this.setState({

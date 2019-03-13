@@ -1,6 +1,46 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-admin.initializeApp();
+var fetch = require('node-fetch')
+admin.initializeApp(functions.config().firebase);
+
+// Credit to tutorial: https://www.youtube.com/watch?v=R2D6J10fhA4
+// for push notification send code
+// listens for a change to the updates table and notifies all users of the change.
+exports.sendPushNotifications = functions.database.ref('Updates').onCreate(event =>{
+    const root = event.data.ref.root
+    var messages = []
+
+    // Get all users from the database
+    return root.child('/users').once('value').then(function(snapshot){
+      // childSnapshot is an individual user
+      snapshot.forEach(function(childSnapshot){
+         var expoToken = childSnapshot.val().expoToken
+
+         if (expoToken){
+            messages.push({
+              "to": expoToken,
+              "body": "New Note Added"
+            }
+            )
+         }
+         else {
+            console.log("no token")
+         }
+      })
+
+        return Promise.all(messages)
+
+    }).then(messages =>{
+        fetch('https://exp.host/--/api/v2/push/send', {
+          method: "POST",
+          headers:{
+             "Accept": "application/json",
+             "Content-Type": "application/json"
+          },
+          body: JSON.stringify(messages)
+        })
+    })
+})
 
 // Take the text parameter passed to this HTTP endpoint and insert it into the
 // Realtime Database under the path /messages/:pushId/original
