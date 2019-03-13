@@ -63,11 +63,13 @@ class PostView extends React.Component {
             imageUri: "http://i68.tinypic.com/awt7ko.jpg",
             caption: "",
             tags: "",
+            autotags: "",
             isLoading: true,
             username: "",
             likeInfo: null,
             lifeButton: null,
             likers: null,
+            showthething: false,
         }
         this.displayLikeInfo = this.displayLikeInfo.bind(this)
         this.getLikeInfo = this.getLikeInfo.bind(this)
@@ -110,30 +112,30 @@ class PostView extends React.Component {
                               }
                           }.bind(this));
 
+                          autotags_ref = firebase.firestore().collection("AutoTags");
+                          autotags_ref.doc(this.props.postID).get().then(function(adoc) {
+                              this.setState({
+                                  currentUser: userViewingVar,
+                                  name: doc1.data().first + " " + doc1.data().last,
+                                  postUser: doc.data().userID,
+                                  caption: doc.data().caption,
+                                  numComments: doc.data().numComments,
+                                  tags: doc.data().tags,
+                                  autotags: adoc.data().tags,
+                                  imageUri: doc2.data().imageUri,
+                                  username: doc1.data().username,
+                                  timestamp: timestamp.toString(),
+                                  alreadyLikedVar: alreadyLikedVar,
+                                  likedJustNow: false,
+                                  unlikedJustNow: false,
+                                  isLoading: false,
+                              }, () => {
+                                  this.displayLikeButton()
+                                  this.displayLikeInfo()
+                                  this.getLikers()
 
-
-                        this.setState({
-                            currentUser: userViewingVar,
-                            name: doc1.data().first + " " + doc1.data().last,
-                            postUser: doc.data().userID,
-                            caption: doc.data().caption,
-                            numComments: doc.data().numComments,
-                            tags: doc.data().tags,
-                            imageUri: doc2.data().imageUri,
-                            username: doc1.data().username,
-                            timestamp: timestamp.toString(),
-                            alreadyLikedVar: alreadyLikedVar,
-                            likedJustNow: false,
-                            unlikedJustNow: false,
-                            isLoading: false,
-                        }, () => {
-                            this.displayLikeButton()
-                            this.displayLikeInfo()
-                            this.getLikers()
-
-                        });
-
-
+                              });
+                          }.bind(this));
 
                         // console.log("caption " + doc.data().caption)
                         // console.log("postid " + this.props.postID)
@@ -480,6 +482,15 @@ class PostView extends React.Component {
                             source={{uri: this.state.imageUri}}
                         />
                     </Row>
+
+                    {/*info popup*/}
+                    <View style={styles.inforec}>
+                        {this.state.showthething &&
+                            <Text style={styles.info}>
+                                {this.state.autotags.join('\n')}
+                            </Text>
+                        }
+                    </View>
                 </LinearGradient>
 
                 {/*post footer*/}
@@ -496,7 +507,9 @@ class PostView extends React.Component {
                                 style={{color: COLOR_LGREY}}
                                 onPress={() => this.props.navigation.navigate('Comments', {postID: this.props.postID})}/>
                         </Button>
-                        <Button icon transparent>
+                        <Button icon transparent
+                            onPressIn={() => this.setState({showthething:true})}
+                            onPressOut={() => this.setState({showthething:false})}>
                             <Icon
                                 type="Feather"
                                 name="info"
@@ -583,5 +596,13 @@ const styles = StyleSheet.create({
         marginLeft: -6,
         marginBottom: -8,
         paddingBottom: 0
+    },
+    info: {
+        color: 'white',
+    },
+    inforec: {
+        position: 'absolute',
+        backgroundColor: 'rgba(25, 25, 25, 0.65)',
+        alignSelf: 'center'
     }
 })
