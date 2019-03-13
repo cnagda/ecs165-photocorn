@@ -87,17 +87,20 @@ export default class HomeScreen extends React.Component {
 
       // Stop here if the user did not grant permissions
       if (finalStatus !== 'granted') {
+        console.log("whoops")
         return;
       }
 
       // Get the token that uniquely identifies this device
       let token = await Notifications.getExpoPushTokenAsync();
+        console.log("got token")
+    //  var update = {}
+      //updates['/expoToken'] = tokens
+      //firebase.database().ref('users').child(firebase.auth().currentUser.uid).update(updates)
 
-      var update = {}
-      updates['/expoToken'] = tokens
-      firebase.database().ref('users').child(firebase.auth().currentUser.uid).update(updates)
-
-
+      //Issue: the expo token isn't being set properly.
+      firebase.database.ref('users/'+ firebase.auth().currentUser.uid + '/expoToken').set(token)
+      console.log("set token")
     }
 
     // authenticate user
