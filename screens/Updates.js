@@ -101,12 +101,17 @@ export default class Updates extends React.Component {
                                         })
                                     } else {
                                         this.setState((prevState, props) => {
+                                            var text = <Text>
+                                                           <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
+                                                           <Text style={{color: COLOR_PINK, fontSize: 12}}>{" mentioned you in a post: "}</Text>
+                                                           <Text style={{color: COLOR_PINK, fontSize: 12}}>{doc.data().text}</Text>
+                                                       </Text>;
                                             return {
                                                 updates: prevState.updates.concat(<ListItem
                                                     roundAvatar
                                                     leftAvatar={{ source: { uri: avatarurl } }}
                                                     key={timestampkey}
-                                                    title={ actUserUN + " mentioned you in a post: " + doc.data().text}
+                                                    title={text}
                                                     onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
                                                     containerStyle={styles.result}
                                                     subtitleStyle={styles.timeText}
@@ -127,12 +132,16 @@ export default class Updates extends React.Component {
                                     otherlikes = doc.data().numLikes - 1;
                                     if(doc.data().numLikes > 0) {
                                         this.setState((prevState, props) => {
+                                            var text = <Text>
+                                                           <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
+                                                           <Text style={{color: COLOR_PINK, fontSize: 12}}>{" and " + otherlikes + " others liked your post"}</Text>
+                                                       </Text>;
                                             return {
                                                 updates: prevState.updates.concat(<ListItem
                                                     roundAvatar
                                                     leftAvatar={{ source: { uri: avatarurl } }}
                                                     key={timestampkey}
-                                                    title={ actUserUN + " and " + otherlikes + " others liked your post"}
+                                                    title={text}
                                                     onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
                                                     containerStyle={styles.result}
                                                     subtitleStyle={styles.timeText}
@@ -152,6 +161,10 @@ export default class Updates extends React.Component {
                                     othercomments = doc.data().numComments - 1;
                                     if(doc.data().numComments > 0) {
                                         this.setState((prevState, props) => {
+                                            var text = <Text>
+                                                           <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
+                                                           <Text style={{color: COLOR_PINK, fontSize: 12}}>{" commented on your post (and " + othercomments + " more)"}</Text>
+                                                       </Text>;
                                             return {
                                                 updates: prevState.updates.concat(<ListItem
                                                     roundAvatar
@@ -172,12 +185,16 @@ export default class Updates extends React.Component {
                                 break;
                             case "FOLLOW":
                                 this.setState((prevState, props) => {
+                                    var text = <Text>
+                                                   <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
+                                                   <Text style={{color: COLOR_PINK, fontSize: 12}}>{" followed you"}</Text>
+                                               </Text>;
                                     return {
                                         updates: prevState.updates.concat(<ListItem
                                             roundAvatar
                                             leftAvatar={{ source: { uri: avatarurl } }}
                                             key={timestampkey}
-                                            title={ actUserUN + " followed you"}
+                                            title={text}
                                             onPress={() => this.props.navigation.navigate('Profile', {userID: doc.data().actUser})}
                                             containerStyle={styles.result}
                                             subtitleStyle={styles.timeText}

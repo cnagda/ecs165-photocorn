@@ -1,12 +1,3 @@
-
-// THIS DIDN'T WORK SO I'M JUST LEAVING IT HERE TO ROT BECAUSE MAYBE I'LL FIX IT
-
-
-
-
-
-
-
 import React from 'react'
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_PURPLE, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 import { AppRegistry, StyleSheet, Text, View, Dimensions, Image, ScrollView, FlatList, TouchableHighlight  } from 'react-native'
@@ -18,9 +9,6 @@ import * as firebase from 'firebase';
 
 
 class PhotoGrid extends React.Component {
-
-
-
     constructor(props) {
         super(props);
         // this.toProfile = this.toProfile.bind(this);
@@ -54,55 +42,55 @@ class PhotoGrid extends React.Component {
 
         photoList.forEach(function(photo) {
             console.log("got a photo")
-
-
             photo_ref = firebase.firestore().collection("Photo").doc(photo);
             photo_ref.get().then(function(doc1) {
                 if (doc1.exists) {
-
                     this.setState((prevState, props) => {
                         return {
                             photoIDList: prevState.photoIDList.concat({key: photo, image: doc1.data().imageUri}),
                             urlList: prevState.urlList.concat(doc1.data().imageUri),
                         };
                     })
-
-
                 } else {
-
                     this.setState((prevState, props) => {
                         return {
                             photoIDList: prevState.photoIDList.concat({key: photo, image:"http://i68.tinypic.com/awt7ko.jpg"}),
                             urlList: prevState.urlList.concat("http://i68.tinypic.com/awt7ko.jpg"),
                         };
                     })
-
                 }
-
             }.bind(this))
         }.bind(this))
         console.log(photoIDList)
     }
 
     renderItem({ item, index }) {
-
-        //console.log(index)
-
         if (item.image) {
             var uri = item.image
 
-            return <View style={{
+            return (
+                <View style={{
                     flex: 1,
                     width: Dimensions.get('window').width/3,
                     height: Dimensions.get('window').width/3,
                     backgroundColor: COLOR_BACKGRND,
                 }}>
-                <TouchableHighlight onPress={() => this.props.navigation.navigate('StalkerView', {postdata: this.state.photoIDList, index: index, userViewing: this.state.userViewing})}>
-                  <Image style={{width: Dimensions.get('window').width/3, height: Dimensions.get('window').width/3}} source = {{uri: uri}} defaultSource={"http://i68.tinypic.com/awt7ko.jpg"} />
-                  </TouchableHighlight>
+                    <TouchableHighlight onPress={() => this.props.navigation.navigate('StalkerView', {postdata: this.state.photoIDList, index: index, userViewing: this.state.userViewing})}>
+                        <Image
+                            style={{
+                                width: Dimensions.get('window').width/3,
+                                height: Dimensions.get('window').width/3,
+                                margin: 3
+                            }}
+                            source = {{uri: uri}}
+                            defaultSource={"http://i68.tinypic.com/awt7ko.jpg"}
+                        />
+                    </TouchableHighlight>
                 </View>
+            )
         }
   }
+
     render() {
 
         return (
@@ -185,7 +173,7 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end'
     },
     list: {
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         flexDirection: 'row',
         flexWrap: 'wrap',
     }
