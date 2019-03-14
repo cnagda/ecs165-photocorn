@@ -175,7 +175,12 @@ class PostView extends React.Component {
                             this.getProfileImageSimple(doc.data().userID).then(function(url) {
                                 this.setState((prevState, props) => {
                                     return {
-                                        likers: prevState.likers.concat({key: doc.data().userID, uri: url, username: doc1.data().username}),
+                                        likers: prevState.likers.concat({
+                                            key: doc.data().userID,
+                                            uri: url,
+                                            username: doc1.data().username,
+                                            name: doc1.data().first + " " + doc1.data().last
+                                        }),
                                     };
                                 })
                             }.bind(this))

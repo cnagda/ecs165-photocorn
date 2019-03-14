@@ -287,7 +287,12 @@ export default class Loading extends React.Component {
                     firebase.firestore().collection("users").doc(doc.data().userID).get().then(function(doc1) {
                         this.setState((prevState, props) => {
                             return {
-                                followers: prevState.followers.concat({key: doc.data().userID, uri: url, username: doc1.data().username}),
+                                followers: prevState.followers.concat({
+                                    key: doc.data().userID,
+                                    uri: url,
+                                    username: doc1.data().username,
+                                    name: doc1.data().first + " " + doc1.data().last
+                                }),
                             };
                         })
                     }.bind(this))
@@ -309,7 +314,12 @@ export default class Loading extends React.Component {
                         //console.log("here's a username: " + doc1.data().username)
                         this.setState((prevState, props) => {
                             return {
-                                pyf: prevState.pyf.concat({key: doc.data().followedID, uri: url, username: doc1.data().username}),
+                                pyf: prevState.pyf.concat({
+                                    key: doc.data().followedID,
+                                    uri: url,
+                                    username: doc1.data().username,
+                                    name: doc1.data().first + " " + doc1.data().last,
+                                }),
                             };
                         })
                     }.bind(this))

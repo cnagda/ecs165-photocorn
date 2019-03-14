@@ -73,11 +73,11 @@ export default class StalkerView extends React.Component {
         <Content contentContainerStylestyle={styles.content}>
 
         <FlatList horizontal
-        pagingEnabled data={this.state.postdata}
-        renderItem={this.renderItem}
-        initialNumToRender={2}
-        getItemLayout={this.itemLayout}
-        initialScrollIndex={this.state.index}
+            pagingEnabled data={this.state.postdata}
+            renderItem={this.renderItem}
+            initialNumToRender={2}
+            getItemLayout={this.itemLayout}
+            initialScrollIndex={this.state.index}
         />
 
         </Content>
