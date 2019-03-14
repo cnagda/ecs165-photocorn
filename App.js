@@ -58,7 +58,7 @@ const MainStack = createStackNavigator(
         ListPeople: ListPeople,
     },
     {
-        initialRouteName: 'Loading',
+        initialRouteName: 'Signup',
         headerMode: 'none',
         defaultNavigationOptions: {
             headerVisible: false,

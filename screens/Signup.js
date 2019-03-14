@@ -71,7 +71,7 @@ export default class Signup extends React.Component {
         console.log("inside signup render " + this.state.isSignedUp + " - " + this.state.email);
         if (this.state.isSignedUp && firebase.auth().currentUser!== null) {
             return (
-                this.props.navigation.navigate('ProfileEdit')
+                this.props.navigation.navigate('HomeScreen')
             )
         }
         const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 0
