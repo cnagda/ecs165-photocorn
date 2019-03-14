@@ -21,16 +21,21 @@ firebase.initializeApp({
 // listens for a change to the updates table and notifies all users of the change.
 exports.sendPushNotifications = functions.firestore.document('Updates/{id}').onCreate((snap, context) =>{
     //const root = event.data.ref.root
-    var messages = []
+    let messages = []
+    const promises = []
      console.log("new update!")
-     var newUpdate = snap.data()
+     let newUpdate = snap.data()
+     console.log(newUpdate)
     // Get all users from the database
     //return root.child('/users').once('value').then(function(snapshot){
       // childSnapshot is an individual user
       if (newUpdate.currUser) {
-          firebase.firestore().collection("users").where("userID", "==", newUpdate.currUser).get().then(function(querySnapshot) {
-              querySnapshot.forEach(function(childSnapshot){
+          console.log("in here " + newUpdate)
+
+          firebase.firestore().collection("users").where("uid", "==", newUpdate.currUser).get().then(function(querySnapshot) {
+              querySnapshot.forEach(function(childSnapshot) {
                  var expoToken = childSnapshot.data().expoToken
+                 console.log("in here")
 
                  if (expoToken){
                     messages.push({
@@ -44,19 +49,18 @@ exports.sendPushNotifications = functions.firestore.document('Updates/{id}').onC
                  }
               //})
 
-                return Promise.all(messages)
+                //return Promise.all(messages)
 
-            }).then(messages =>{
-                fetch('https://exp.host/--/api/v2/push/send', {
-                  method: "POST",
-                  headers:{
-                     "Accept": "application/json",
-                     "Content-Type": "application/json"
-                  },
-                  body: JSON.stringify(messages)
-                })
             })
-          })
+            return fetch('https://exp.host/--/api/v2/push/send', {
+              method: "POST",
+              headers:{
+                 "Accept": "application/json",
+                 "Content-Type": "application/json"
+              },
+              body: JSON.stringify(messages)
+            })
+        })
 
       }
 
