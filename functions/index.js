@@ -25,45 +25,62 @@ exports.sendPushNotifications = functions.firestore.document('Updates/{id}').onC
     const promises = []
      console.log("new update!")
      let newUpdate = snap.data()
+     var type = newUpdate.type
+
+
      console.log(newUpdate)
     // Get all users from the database
     //return root.child('/users').once('value').then(function(snapshot){
       // childSnapshot is an individual user
       if (newUpdate.currUser) {
           console.log("in here " + newUpdate)
+          firebase.firestore().collection("users").where("uid", "==", newUpdate.actUser).get().then(function(userQuery){
+              actUser = ""
+              userQuery.forEach(function(childSnapshot) {
+                  actUser = childSnapshot.data().username
+              })
+            firebase.firestore().collection("users").where("uid", "==", newUpdate.currUser).get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(childSnapshot) {
+                   var expoToken = childSnapshot.data().expoToken
+                   console.log("in here")
+                      // follow, mentions add, like, comment update
 
-          firebase.firestore().collection("users").where("uid", "==", newUpdate.currUser).get().then(function(querySnapshot) {
-              querySnapshot.forEach(function(childSnapshot) {
-                 var expoToken = childSnapshot.data().expoToken
-                 console.log("in here")
+                         if (expoToken){
+                             if (type == "FOLLOW"){
+                                messages.push({
+                                  "to": expoToken,
+                                  "body": actUser + " followed you"
+                             })
+                            }
+                            else if (type == "MENTION")
+                            {
+                              messages.push({
+                                "to": expoToken,
+                                "body": actUser + " mentioned you in a comment"
+                           })
+                            }
+                          }
+                   else {
+                      console.log("no token")
+                   }
+                //})
 
-                 if (expoToken){
-                    messages.push({
-                      "to": expoToken,
-                      "body": "New Note Added"
-                    }
-                    )
-                 }
-                 else {
-                    console.log("no token")
-                 }
-              //})
+                  //return Promise.all(messages)
 
-                //return Promise.all(messages)
-
-            })
-            try{
-            return fetch('https://exp.host/--/api/v2/push/send', {
-              method: "POST",
-              headers:{
-                 "Accept": "application/json",
-                 "Content-Type": "application/json"
-              },
-              body: JSON.stringify(messages)
-            })}
-            catch(error){
-               console.error(error);
-            }
+              })
+              try{
+              return fetch('https://exp.host/--/api/v2/push/send', {
+                method: "POST",
+                headers:{
+                   "Accept": "application/json",
+                   "Content-Type": "application/json"
+                },
+                body: JSON.stringify(messages)
+              })}
+              catch(error){
+                 console.error(error);
+              }
+          })
         })
 
       }
