@@ -151,19 +151,23 @@ class SearchNames extends React.Component {
 
     updateSearch = (value) => {
         var people = this.state.namesOfPeople;
+        console.log("PEOPLE COMING");
+        console.log(people);
         //let currThis = this;
         searchResults = []
         if (value) {
             people.forEach(function(user) {
-                if (user.name.toLowerCase().includes(value.toLowerCase()) || user.username.toLowerCase().includes(value.toLowerCase())) {
-                    searchResults.push({
-                                            name: user.name,
-                                            username: user.username,
-                                            userID: user.uid,
-                                            photo: user.photo,
-                                        })
-                    this.setState({searchResults: searchResults})
-                    this.displayResults();
+                if(user.username) {
+                    if (user.name.toLowerCase().includes(value.toLowerCase()) || user.username.toLowerCase().includes(value.toLowerCase())) {
+                        searchResults.push({
+                                                name: user.name,
+                                                username: user.username,
+                                                userID: user.uid,
+                                                photo: user.photo,
+                                            })
+                        this.setState({searchResults: searchResults})
+                        this.displayResults();
+                    }
                 }
             }.bind(this));
         }

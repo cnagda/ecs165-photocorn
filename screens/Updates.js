@@ -47,7 +47,8 @@ export default class Updates extends React.Component {
         super(props);
 
         this.state = {
-            updates: []
+            updates: [],
+            refreshing: false
         }
         this.getActUserProfilePic = this.getActUserProfilePic.bind(this)
     }
@@ -236,7 +237,173 @@ export default class Updates extends React.Component {
     }
 
 
+    // for pull down refresh
+    _onRefresh = () => {
+        this.setState({ refreshing: true, updates: [] });
+        console.log("inside component did mount")
+        var updates = [];
+        console.log(firebase.auth().currentUser.uid)
+        firebase.firestore().collection("Updates").where("currUser", "==", firebase.auth().currentUser.uid).orderBy("timestamp", "desc").get().then(function(querySnapshot) {
+            console.log("looked for current users matching this user")
+            querySnapshot.forEach(function(doc) {
+                console.log("found an update for this user")
+                var niceTimestamp = doc.data().timestamp.toDate().tstring3();
+                //niceTimestamp = doc.data().timestamp.toDate().toString();
+                var timestampkey = doc.data().actUser + doc.data().type + niceTimestamp;
+                console.log("nice timestamp: " + niceTimestamp)
+                console.log("key: " + timestampkey)
+                actUserUN = ""
+                firebase.firestore().collection("users").doc(doc.data().actUser).get().then(function(doc2) {
+                    actUserUN = doc2.data().username
+                    console.log("username: " + doc.data().username)
+                }).then(function() {
+                    this.getActUserProfilePic(doc.data().actUser).then(function(avatarurl) {
+                        console.log("avatar url: " + avatarurl)
+                        switch(doc.data().type) {
+                            case "MENTION":
+                                console.log("was a mention")
+                                firebase.firestore().collection("Photo").doc(doc.data().postid).get().then(function(doc1) {
+                                    photourl = doc1.data().imageUri
+                                    if(doc.data().mentionType == "comment") {
+                                        this.setState((prevState, props) => {
+                                            var text = <Text>
+                                                           <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
+                                                           <Text style={{color: COLOR_PINK, fontSize: 12}}>{" mentioned you in a comment: "}</Text>
+                                                           <Text style={{color: COLOR_PINK, fontSize: 12}}>{doc.data().text}</Text>
+                                                       </Text>;
+                                            return {
+                                                updates: prevState.updates.concat(<ListItem
+                                                    roundAvatar
+                                                    leftAvatar={{ source: { uri: avatarurl } }}
+                                                    key={timestampkey}
+                                                    title={text}
+                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    containerStyle={styles.result}
+                                                    subtitleStyle={styles.timeText}
+                                                    titleStyle={styles.resultText}
+                                                    subtitle={niceTimestamp}
+                                                    rightElement={<Image style={styles.smallImg} source={{uri: photourl}}/>}
+                                                />),
+                                            };
+                                        })
+                                    } else {
+                                        this.setState((prevState, props) => {
+                                            var text = <Text>
+                                                           <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
+                                                           <Text style={{color: COLOR_PINK, fontSize: 12}}>{" mentioned you in a post: "}</Text>
+                                                           <Text style={{color: COLOR_PINK, fontSize: 12}}>{doc.data().text}</Text>
+                                                       </Text>;
+                                            return {
+                                                updates: prevState.updates.concat(<ListItem
+                                                    roundAvatar
+                                                    leftAvatar={{ source: { uri: avatarurl } }}
+                                                    key={timestampkey}
+                                                    title={text}
+                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    containerStyle={styles.result}
+                                                    subtitleStyle={styles.timeText}
+                                                    titleStyle={styles.resultText}
+                                                    subtitle={niceTimestamp}
+                                                    rightElement={<Image style={styles.smallImg} source={{uri: photourl}}/>}
+                                                />),
+                                            };
+                                        })
+                                    }
+                                }.bind(this))
 
+                                break;
+                            case "LIKE":
+                                console.log("was a like")
+                                firebase.firestore().collection("Photo").doc(doc.data().postid).get().then(function(doc1) {
+                                    photourl = doc1.data().imageUri
+                                    otherlikes = doc.data().numLikes - 1;
+                                    if(doc.data().numLikes > 0) {
+                                        this.setState((prevState, props) => {
+                                            var text = <Text>
+                                                           <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
+                                                           <Text style={{color: COLOR_PINK, fontSize: 12}}>{" and " + otherlikes + " others liked your post"}</Text>
+                                                       </Text>;
+                                            return {
+                                                updates: prevState.updates.concat(<ListItem
+                                                    roundAvatar
+                                                    leftAvatar={{ source: { uri: avatarurl } }}
+                                                    key={timestampkey}
+                                                    title={text}
+                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    containerStyle={styles.result}
+                                                    subtitleStyle={styles.timeText}
+                                                    titleStyle={styles.resultText}
+                                                    subtitle={niceTimestamp}
+                                                    rightElement={<Image style={styles.smallImg} source={{uri: photourl}}/>}
+                                                />),
+                                            };
+                                        })
+                                    }
+                                }.bind(this))
+                                break;
+                            case "COMMENT":
+                                console.log("was a comment")
+                                firebase.firestore().collection("Photo").doc(doc.data().postid).get().then(function(doc1) {
+                                    photourl = doc1.data().imageUri
+                                    othercomments = doc.data().numComments - 1;
+                                    if(doc.data().numComments > 0) {
+                                        this.setState((prevState, props) => {
+                                            var text = <Text>
+                                                           <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
+                                                           <Text style={{color: COLOR_PINK, fontSize: 12}}>{" commented on your post (and " + othercomments + " more)"}</Text>
+                                                       </Text>;
+                                            return {
+                                                updates: prevState.updates.concat(<ListItem
+                                                    roundAvatar
+                                                    leftAvatar={{ source: { uri: avatarurl } }}
+                                                    key={timestampkey}
+                                                    title={text}
+                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    containerStyle={styles.result}
+                                                    subtitleStyle={styles.timeText}
+                                                    titleStyle={styles.resultText}
+                                                    subtitle={niceTimestamp}
+                                                    rightElement={<Image style={styles.smallImg} source={{uri: photourl}}/>}
+                                                />),
+                                            };
+                                        })
+                                    }
+                                }.bind(this))
+                                break;
+                            case "FOLLOW":
+                                this.setState((prevState, props) => {
+                                    var text = <Text>
+                                                   <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
+                                                   <Text style={{color: COLOR_PINK, fontSize: 12}}>{" followed you"}</Text>
+                                               </Text>;
+                                    return {
+                                        updates: prevState.updates.concat(<ListItem
+                                            roundAvatar
+                                            leftAvatar={{ source: { uri: avatarurl } }}
+                                            key={timestampkey}
+                                            title={text}
+                                            onPress={() => this.props.navigation.navigate('Profile', {userID: doc.data().actUser})}
+                                            containerStyle={styles.result}
+                                            subtitleStyle={styles.timeText}
+                                            titleStyle={styles.resultText}
+                                            subtitle={niceTimestamp}
+                                        />),
+                                    };
+                                })
+                                break;
+                        }
+                    }.bind(this))
+                }.bind(this))
+            }.bind(this))
+
+            this.setState({
+                updates: updates,
+                refreshing: false
+            })
+        }.bind(this)).catch(function(error) {
+            console.log("Error searching document: " + error);
+        });
+    }
 
 
     render() {
@@ -244,7 +411,13 @@ export default class Updates extends React.Component {
         return (
             <Container style={styles.container}>
 
-                <Content contentContainerStyle={styles.content} >
+                <Content contentContainerStyle={styles.content}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.refreshing}
+                            onRefresh={this._onRefresh}
+                        />}
+                >
                     {this.state.updates}
                 </Content>
 
