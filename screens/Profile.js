@@ -581,6 +581,5 @@ const styles = StyleSheet.create({
         textDecorationLine: 'underline',
         fontSize: 15,
         marginTop: -4,
-        alignSelf: 'updates'
     }
 })
