@@ -238,38 +238,40 @@ class SearchNames extends React.Component {
                                         firebase.firestore().collection("AutoTags").where("photoID", "==", postdoc.data().postID).get().then(function(autotagquery) {
                                             if (!autotagquery.empty) {
                                                 autotagquery.forEach(function(match) {
-                                                    if (this.state.interests.includes(match.data().bucket)) {
-                                                        if (counter < 1) {
-                                                            counter ++;
-                                                            this.getProfileImage(user[0]).then(function(photo) {
-                                                                this.setState((prevState, props) => {
-                                                                    let arr = prevState.result.slice(); //creates the clone of the state
-                                                                    let l = userdoc.data();
+                                                    if(match.data.bucket) {
+                                                        if (this.state.interests.includes(match.data().bucket)) {
+                                                            if (counter < 1) {
+                                                                counter ++;
+                                                                this.getProfileImage(user[0]).then(function(photo) {
+                                                                    this.setState((prevState, props) => {
+                                                                        let arr = prevState.result.slice(); //creates the clone of the state
+                                                                        let l = userdoc.data();
 
-                                                                    arr[i] =
-                                                                        <ListItem
-                                                                            roundAvatar
-                                                                            leftAvatar={{ source: { uri: photo} }}
-                                                                            key={l.uid}
-                                                                            title={l.first + " " + l.last}
-                                                                            subtitle={l.username}
-                                                                            onPress={() => this.props.navigation.push('Profile', {userID: l.uid})}
-                                                                            containerStyle={styles.result}
-                                                                            titleStyle={styles.resultText}
-                                                                            subtitleStyle={styles.subtext}
-                                                                            chevronColor='white'
-                                                                            chevron
-                                                                        />
-                                                                    // console.log(arr)
-                                                                    return {
-                                                                        result: arr
-                                                                    }
-                                                                })
-                                                                console.log("here 1")
-                                                            }.bind(this))
-                                                            console.log("here 2")
+                                                                        arr[i] =
+                                                                            <ListItem
+                                                                                roundAvatar
+                                                                                leftAvatar={{ source: { uri: photo} }}
+                                                                                key={l.uid}
+                                                                                title={l.first + " " + l.last}
+                                                                                subtitle={l.username}
+                                                                                onPress={() => this.props.navigation.push('Profile', {userID: l.uid})}
+                                                                                containerStyle={styles.result}
+                                                                                titleStyle={styles.resultText}
+                                                                                subtitleStyle={styles.subtext}
+                                                                                chevronColor='white'
+                                                                                chevron
+                                                                            />
+                                                                        // console.log(arr)
+                                                                        return {
+                                                                            result: arr
+                                                                        }
+                                                                    })
+                                                                    console.log("here 1")
+                                                                }.bind(this))
+                                                                console.log("here 2")
+                                                            }
+                                                            console.log("here 3")
                                                         }
-                                                        console.log("here 3")
                                                     }
                                                     console.log("here 4")
                                                 }.bind(this))
