@@ -29,9 +29,13 @@ export default class Loading extends React.Component {
               pyf: [],
               followingList: null,
               followerList: null,
+              userViewing: this.props.navigation.getParam('userID', firebase.auth().currentUser.uid),
+              currentUser: firebase.auth().currentUser.uid,
+
 
         }
         this.getProfileImage = this.getProfileImage.bind(this)
+        this.getUserInfo = this.getUserInfo.bind(this)
         this.renderItem1 = this.renderItem1.bind(this)
         this.displayFollowerList = this.displayFollowerList.bind(this)
         this.displayFollowingList = this.displayFollowingList.bind(this)
@@ -41,6 +45,7 @@ export default class Loading extends React.Component {
     getUserInfo = async(users_ref) => {
         //console.log("inside get user info")
         users_ref.doc(this.state.userViewing).get().then(function(doc) {
+            console.log("this is the username: " + doc.data().username)
             this.getProfileImage(this.state.userViewing);
             this.setState(
                 {
@@ -97,6 +102,9 @@ export default class Loading extends React.Component {
             //console.log("just initialized state")
             users_ref = firebase.firestore().collection("users");
             users_ref.doc(this.state.userViewing).get().then(function(doc) {
+
+                    //console.log("this is the username: " + doc.data().username)
+                    let username = doc.data().username
                 this.getProfileImage(this.state.userViewing);
 
                 this.setState(
@@ -107,7 +115,7 @@ export default class Loading extends React.Component {
                         email: doc.data().email,
                         bio: doc.data().bio,
                         interests: doc.data().interests,
-                        username: doc.data().username,
+                        username: username,
                         isLoading: false,
                     }
                 );
@@ -285,13 +293,17 @@ export default class Loading extends React.Component {
             querySnapshot.forEach(function(doc) {
                 this.getProfileImageSimple(doc.data().userID).then(function(url) {
                     firebase.firestore().collection("users").doc(doc.data().userID).get().then(function(doc1) {
+                        let username = doc1.data().username
+                        let first = doc1.data().first
+                        let last = doc1.data().last
+                        let key = doc.data().userID
                         this.setState((prevState, props) => {
                             return {
                                 followers: prevState.followers.concat({
-                                    key: doc.data().userID,
+                                    key: key,
                                     uri: url,
-                                    username: doc1.data().username,
-                                    name: doc1.data().first + " " + doc1.data().last
+                                    username: username,
+                                    name: first + " " + last
                                 }),
                             };
                         })
@@ -312,13 +324,17 @@ export default class Loading extends React.Component {
                 this.getProfileImageSimple(doc.data().followedID).then(function(url) {
                     firebase.firestore().collection("users").doc(doc.data().followedID).get().then(function(doc1) {
                         //console.log("here's a username: " + doc1.data().username)
+                        let username = doc1.data().username
+                        let first = doc1.data().first 
+                        let last = doc1.data().last
+                        let key = doc.data().followedID
                         this.setState((prevState, props) => {
                             return {
                                 pyf: prevState.pyf.concat({
-                                    key: doc.data().followedID,
+                                    key: key,
                                     uri: url,
-                                    username: doc1.data().username,
-                                    name: doc1.data().first + " " + doc1.data().last,
+                                    username: username,
+                                    name: first + " " + last,
                                 }),
                             };
                         })

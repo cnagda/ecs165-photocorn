@@ -465,7 +465,7 @@ class PostView extends React.Component {
                     </Col>
                     <Col size={75} style={{paddingLeft: 10}}>
                         <Button transparent
-                            onPress={() => this.props.navigation.navigate('Profile', {userID: this.state.postUser})}
+                            onPress={() => this.props.navigation.push('Profile', {userID: this.state.postUser})}
                             style={{marginTop: -5}}>
                             <Text
                                 style = {styles.posterName}

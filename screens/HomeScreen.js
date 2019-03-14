@@ -381,7 +381,7 @@ export default class HomeScreen extends React.Component {
 
 
                             <Button
-                                onPress={() => this.props.navigation.navigate('Profile', {userID: firebase.auth().currentUser.uid})}>
+                                onPress={() => this.props.navigation.push('Profile', {userID: firebase.auth().currentUser.uid})}>
                                 <Icon style ={styles.inactiveicon} name="person" />
                             </Button>
 

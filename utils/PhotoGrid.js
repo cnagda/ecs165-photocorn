@@ -75,7 +75,7 @@ class PhotoGrid extends React.Component {
                     height: Dimensions.get('window').width/3,
                     backgroundColor: COLOR_BACKGRND,
                 }}>
-                    <TouchableHighlight onPress={() => this.props.navigation.navigate('StalkerView', {postdata: this.state.photoIDList, index: index, userViewing: this.state.userViewing})}>
+                    <TouchableHighlight onPress={() => this.props.navigation.push('StalkerView', {postdata: this.state.photoIDList, index: index, userViewing: this.state.userViewing})}>
                         <Image
                             style={{
                                 width: Dimensions.get('window').width/3,

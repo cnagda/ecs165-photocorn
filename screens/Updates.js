@@ -55,18 +55,18 @@ export default class Updates extends React.Component {
 
     componentDidMount() {
         console.log("inside component did mount")
-        var updates = [];
+        let updates = [];
         console.log(firebase.auth().currentUser.uid)
         firebase.firestore().collection("Updates").where("currUser", "==", firebase.auth().currentUser.uid).orderBy("timestamp", "desc").get().then(function(querySnapshot) {
             console.log("looked for current users matching this user")
             querySnapshot.forEach(function(doc) {
                 console.log("found an update for this user")
-                var niceTimestamp = doc.data().timestamp.toDate().tstring3();
+                let niceTimestamp = doc.data().timestamp.toDate().tstring3();
                 //niceTimestamp = doc.data().timestamp.toDate().toString();
-                var timestampkey = doc.data().actUser + doc.data().type + niceTimestamp;
+                let timestampkey = doc.data().actUser + doc.data().type + niceTimestamp;
                 console.log("nice timestamp: " + niceTimestamp)
                 console.log("key: " + timestampkey)
-                actUserUN = ""
+                let actUserUN = ""
                 firebase.firestore().collection("users").doc(doc.data().actUser).get().then(function(doc2) {
                     actUserUN = doc2.data().username
                     console.log("username: " + doc.data().username)
@@ -80,7 +80,7 @@ export default class Updates extends React.Component {
                                     photourl = doc1.data().imageUri
                                     if(doc.data().mentionType == "comment") {
                                         this.setState((prevState, props) => {
-                                            var text = <Text>
+                                            let text = <Text>
                                                            <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
                                                            <Text style={{color: COLOR_PINK, fontSize: 12}}>{" mentioned you in a comment: "}</Text>
                                                            <Text style={{color: COLOR_PINK, fontSize: 12}}>{doc.data().text}</Text>
@@ -91,7 +91,7 @@ export default class Updates extends React.Component {
                                                     leftAvatar={{ source: { uri: avatarurl } }}
                                                     key={timestampkey}
                                                     title={text}
-                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    onPress={() => this.props.navigation.push('ViewPost', {postID: doc.data().postid})}
                                                     containerStyle={styles.result}
                                                     subtitleStyle={styles.timeText}
                                                     titleStyle={styles.resultText}
@@ -102,7 +102,7 @@ export default class Updates extends React.Component {
                                         })
                                     } else {
                                         this.setState((prevState, props) => {
-                                            var text = <Text>
+                                            let text = <Text>
                                                            <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
                                                            <Text style={{color: COLOR_PINK, fontSize: 12}}>{" mentioned you in a post: "}</Text>
                                                            <Text style={{color: COLOR_PINK, fontSize: 12}}>{doc.data().text}</Text>
@@ -113,7 +113,7 @@ export default class Updates extends React.Component {
                                                     leftAvatar={{ source: { uri: avatarurl } }}
                                                     key={timestampkey}
                                                     title={text}
-                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    onPress={() => this.props.navigation.push('ViewPost', {postID: doc.data().postid})}
                                                     containerStyle={styles.result}
                                                     subtitleStyle={styles.timeText}
                                                     titleStyle={styles.resultText}
@@ -133,7 +133,7 @@ export default class Updates extends React.Component {
                                     otherlikes = doc.data().numLikes - 1;
                                     if(doc.data().numLikes > 0) {
                                         this.setState((prevState, props) => {
-                                            var text = <Text>
+                                            let text = <Text>
                                                            <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
                                                            <Text style={{color: COLOR_PINK, fontSize: 12}}>{" and " + otherlikes + " others liked your post"}</Text>
                                                        </Text>;
@@ -143,7 +143,7 @@ export default class Updates extends React.Component {
                                                     leftAvatar={{ source: { uri: avatarurl } }}
                                                     key={timestampkey}
                                                     title={text}
-                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    onPress={() => this.props.navigation.push('ViewPost', {postID: doc.data().postid})}
                                                     containerStyle={styles.result}
                                                     subtitleStyle={styles.timeText}
                                                     titleStyle={styles.resultText}
@@ -162,7 +162,7 @@ export default class Updates extends React.Component {
                                     othercomments = doc.data().numComments - 1;
                                     if(doc.data().numComments > 0) {
                                         this.setState((prevState, props) => {
-                                            var text = <Text>
+                                            let text = <Text>
                                                            <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
                                                            <Text style={{color: COLOR_PINK, fontSize: 12}}>{" commented on your post (and " + othercomments + " more)"}</Text>
                                                        </Text>;
@@ -172,7 +172,7 @@ export default class Updates extends React.Component {
                                                     leftAvatar={{ source: { uri: avatarurl } }}
                                                     key={timestampkey}
                                                     title={text}
-                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    onPress={() => this.props.navigation.push('ViewPost', {postID: doc.data().postid})}
                                                     containerStyle={styles.result}
                                                     subtitleStyle={styles.timeText}
                                                     titleStyle={styles.resultText}
@@ -196,7 +196,7 @@ export default class Updates extends React.Component {
                                             leftAvatar={{ source: { uri: avatarurl } }}
                                             key={timestampkey}
                                             title={text}
-                                            onPress={() => this.props.navigation.navigate('Profile', {userID: doc.data().actUser})}
+                                            onPress={() => this.props.navigation.push('Profile', {userID: doc.data().actUser})}
                                             containerStyle={styles.result}
                                             subtitleStyle={styles.timeText}
                                             titleStyle={styles.resultText}
@@ -241,18 +241,18 @@ export default class Updates extends React.Component {
     _onRefresh = () => {
         this.setState({ refreshing: true, updates: [] });
         console.log("inside component did mount")
-        var updates = [];
+        let updates = [];
         console.log(firebase.auth().currentUser.uid)
         firebase.firestore().collection("Updates").where("currUser", "==", firebase.auth().currentUser.uid).orderBy("timestamp", "desc").get().then(function(querySnapshot) {
             console.log("looked for current users matching this user")
             querySnapshot.forEach(function(doc) {
                 console.log("found an update for this user")
-                var niceTimestamp = doc.data().timestamp.toDate().tstring3();
+                let niceTimestamp = doc.data().timestamp.toDate().tstring3();
                 //niceTimestamp = doc.data().timestamp.toDate().toString();
-                var timestampkey = doc.data().actUser + doc.data().type + niceTimestamp;
+                let timestampkey = doc.data().actUser + doc.data().type + niceTimestamp;
                 console.log("nice timestamp: " + niceTimestamp)
                 console.log("key: " + timestampkey)
-                actUserUN = ""
+                let actUserUN = ""
                 firebase.firestore().collection("users").doc(doc.data().actUser).get().then(function(doc2) {
                     actUserUN = doc2.data().username
                     console.log("username: " + doc.data().username)
@@ -266,7 +266,7 @@ export default class Updates extends React.Component {
                                     photourl = doc1.data().imageUri
                                     if(doc.data().mentionType == "comment") {
                                         this.setState((prevState, props) => {
-                                            var text = <Text>
+                                            let text = <Text>
                                                            <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
                                                            <Text style={{color: COLOR_PINK, fontSize: 12}}>{" mentioned you in a comment: "}</Text>
                                                            <Text style={{color: COLOR_PINK, fontSize: 12}}>{doc.data().text}</Text>
@@ -277,7 +277,7 @@ export default class Updates extends React.Component {
                                                     leftAvatar={{ source: { uri: avatarurl } }}
                                                     key={timestampkey}
                                                     title={text}
-                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    onPress={() => this.props.navigation.push('ViewPost', {postID: doc.data().postid})}
                                                     containerStyle={styles.result}
                                                     subtitleStyle={styles.timeText}
                                                     titleStyle={styles.resultText}
@@ -288,7 +288,7 @@ export default class Updates extends React.Component {
                                         })
                                     } else {
                                         this.setState((prevState, props) => {
-                                            var text = <Text>
+                                            let text = <Text>
                                                            <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
                                                            <Text style={{color: COLOR_PINK, fontSize: 12}}>{" mentioned you in a post: "}</Text>
                                                            <Text style={{color: COLOR_PINK, fontSize: 12}}>{doc.data().text}</Text>
@@ -299,7 +299,7 @@ export default class Updates extends React.Component {
                                                     leftAvatar={{ source: { uri: avatarurl } }}
                                                     key={timestampkey}
                                                     title={text}
-                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    onPress={() => this.props.navigation.push('ViewPost', {postID: doc.data().postid})}
                                                     containerStyle={styles.result}
                                                     subtitleStyle={styles.timeText}
                                                     titleStyle={styles.resultText}
@@ -319,7 +319,7 @@ export default class Updates extends React.Component {
                                     otherlikes = doc.data().numLikes - 1;
                                     if(doc.data().numLikes > 0) {
                                         this.setState((prevState, props) => {
-                                            var text = <Text>
+                                            let text = <Text>
                                                            <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
                                                            <Text style={{color: COLOR_PINK, fontSize: 12}}>{" and " + otherlikes + " others liked your post"}</Text>
                                                        </Text>;
@@ -329,7 +329,7 @@ export default class Updates extends React.Component {
                                                     leftAvatar={{ source: { uri: avatarurl } }}
                                                     key={timestampkey}
                                                     title={text}
-                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    onPress={() => this.props.navigation.push('ViewPost', {postID: doc.data().postid})}
                                                     containerStyle={styles.result}
                                                     subtitleStyle={styles.timeText}
                                                     titleStyle={styles.resultText}
@@ -348,7 +348,7 @@ export default class Updates extends React.Component {
                                     othercomments = doc.data().numComments - 1;
                                     if(doc.data().numComments > 0) {
                                         this.setState((prevState, props) => {
-                                            var text = <Text>
+                                            let text = <Text>
                                                            <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
                                                            <Text style={{color: COLOR_PINK, fontSize: 12}}>{" commented on your post (and " + othercomments + " more)"}</Text>
                                                        </Text>;
@@ -358,7 +358,7 @@ export default class Updates extends React.Component {
                                                     leftAvatar={{ source: { uri: avatarurl } }}
                                                     key={timestampkey}
                                                     title={text}
-                                                    onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
+                                                    onPress={() => this.props.navigation.push('ViewPost', {postID: doc.data().postid})}
                                                     containerStyle={styles.result}
                                                     subtitleStyle={styles.timeText}
                                                     titleStyle={styles.resultText}
@@ -372,7 +372,7 @@ export default class Updates extends React.Component {
                                 break;
                             case "FOLLOW":
                                 this.setState((prevState, props) => {
-                                    var text = <Text>
+                                    let text = <Text>
                                                    <Text style={{fontWeight: 'bold', color: COLOR_PINK, fontSize: 12}}>{actUserUN}</Text>
                                                    <Text style={{color: COLOR_PINK, fontSize: 12}}>{" followed you"}</Text>
                                                </Text>;
@@ -382,7 +382,7 @@ export default class Updates extends React.Component {
                                             leftAvatar={{ source: { uri: avatarurl } }}
                                             key={timestampkey}
                                             title={text}
-                                            onPress={() => this.props.navigation.navigate('Profile', {userID: doc.data().actUser})}
+                                            onPress={() => this.props.navigation.push('Profile', {userID: doc.data().actUser})}
                                             containerStyle={styles.result}
                                             subtitleStyle={styles.timeText}
                                             titleStyle={styles.resultText}

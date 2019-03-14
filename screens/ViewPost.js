@@ -4,12 +4,14 @@ import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK 
 import {
   AppRegistry,
   StyleSheet,
-  Text,
   View,
   Dimensions,
   Image,
   Button,
+  StatusBar,
 } from 'react-native'
+
+import { Container, Header, Title, Content, Footer, FooterTab, Left, Right, Body, Icon, Text, ActionSheet, Root } from 'native-base';
 
 import PostView from '../utils/Post'
 
@@ -19,14 +21,19 @@ export default class ViewPost extends React.Component {
 
     render() {
         return (
-            <View style={styles.container}>
+            <Container style={styles.container}>
+            <Content contentContainerStylestyle={styles.content}>
+            <View style={{
+                width: Dimensions.get('window').width,
+                backgroundColor: COLOR_BACKGRND,
+                paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 10: 30,
+            }}>
                     <PostView postID={this.props.navigation.getParam("postID", "")} />
-
-                    <Button
-                        title="Back" color= '#f300a2'
-                        onPress={() => this.props.navigation.pop(2)}
-                    />
             </View>
+
+
+            </Content>
+            </Container>
 
         )
     }
@@ -34,13 +41,10 @@ export default class ViewPost extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        width:  Dimensions.get('window').width,
-        height:  Dimensions.get('window').height,
-        fontSize: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
         backgroundColor: COLOR_BACKGRND,
-        marginTop: 50,
+    },
+    content: {
+        alignItems: 'center',
     },
 
 })
