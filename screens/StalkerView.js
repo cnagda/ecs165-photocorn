@@ -46,62 +46,46 @@ export default class StalkerView extends React.Component {
     renderItem({ item, index }) {
         console.log(item.key)
 
-            return <View style={{
-                    flex: 1,
-                    width: Dimensions.get('window').width,
-                    backgroundColor: COLOR_BACKGRND,
-                }}>
-                  <PostView postID={item.key} />
-                </View>
-
-
-
-
-  }
+        return (
+            <View style={{
+                width: Dimensions.get('window').width,
+                backgroundColor: COLOR_BACKGRND,
+                paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 10: 30,
+            }}>
+                <PostView postID={item.key} />
+            </View>
+        )
+    }
 
     itemLayout = (data, index) => ({
-    index,
-    length: Dimensions.get('window').width,
-    offset: Dimensions.get('window').width * index,
-  });
+        index,
+        length: Dimensions.get('window').width,
+        offset: Dimensions.get('window').width * index,
+    });
+
     render() {
         //console.log(this.props.postdata)
         console.log(this.state.postdata)
-        // return (
-        //     <View style = {styles.container}>
-        //         <FlatList horizontal pagingEnabled data={this.state.postdata} renderItem={this.renderItem} initialNumToRender={2} getItemLayout = {this.itemLayout} initialScrollIndex = {this.state.index}/>
-        //
-        //     </View>
-        // );
+
         return (
-            <Root>
-            <Container style={styles.container}>
-                <Header style={styles.header}>
-                    <Left>
-                        <Button
-                            onPress={() => this.props.navigation.goBack()}
-                            title="Back"
-                            type="clear"
-                            titleStyle={{color: 'white'}}
-                        />
-                    </Left>
-                    <Body>
-                        <Title style={{color: 'white'}}>{"Photos by @" + this.state.userViewing}</Title>
-                    </Body>
+        <Root>
+        <Container style={styles.container}>
+        <Content contentContainerStylestyle={styles.content}>
 
-                </Header>
+        <FlatList horizontal
+        pagingEnabled data={this.state.postdata}
+        renderItem={this.renderItem}
+        initialNumToRender={2}
+        getItemLayout={this.itemLayout}
+        initialScrollIndex={this.state.index}
+        />
 
-                <Content contentContainerStylestyle={styles.content}>
+        </Content>
 
-                     <FlatList horizontal pagingEnabled data={this.state.postdata} renderItem={this.renderItem} initialNumToRender={2} getItemLayout = {this.itemLayout} initialScrollIndex = {this.state.index}/>
-
-                </Content>
-
-            </Container>
-            </Root>
+        </Container>
+        </Root>
         );
     }
-
 }
 
 
@@ -109,19 +93,7 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: COLOR_BACKGRND,
     },
-    header: {
-        backgroundColor: COLOR_DGREY,
-        borderBottomWidth: 0,
-        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight: 20,
-        height: Platform.OS === "android" ? 80: undefined
-    },
     content: {
         alignItems: 'center',
-    },
-    posterName: {
-        color: COLOR_PINK,
-        fontSize: 18,
-        alignItems: 'center',
-        justifyContent: 'center',
     },
 })
