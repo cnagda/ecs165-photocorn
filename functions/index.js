@@ -24,7 +24,7 @@ exports.sendPushNotificationsUpdate = functions.firestore.document('Updates/{id}
     let messages = []
     const promises = []
      console.log("new update!")
-     let newUpdate = snap.data()
+     let newUpdate = snap.after.data()
      var type = newUpdate.type
 
 
