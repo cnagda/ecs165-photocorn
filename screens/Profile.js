@@ -383,7 +383,7 @@ export default class Loading extends React.Component {
                                     onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.followers, title: "Followers",})}
                                     style={{marginLeft: -15, marginBottom: -7, marginTop: 7}}
                                 >
-                                    <Text style = {styles.textSecondButton}>Followers</Text>
+                                    <Text style = {styles.textSecondButton} uppercase={false}>Followers</Text>
                                 </Button>
 
                                 {this.state.followers.length == 0 ? <Text style={styles.textVal}>Sorry, no one likes you!</Text> :
@@ -398,7 +398,7 @@ export default class Loading extends React.Component {
                                 <Button transparent
                                     onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.pyf, title: "Following",})}
                                     style={{marginLeft: -15, marginBottom: -7, marginTop: 5}}>
-                                    <Text style = {styles.textSecondButton}>Following</Text>
+                                    <Text style = {styles.textSecondButton} uppercase={false}>Following</Text>
                                 </Button>
 
                                 {this.state.pyf.length == 0 ? <Text style={styles.textVal}>You're not following anyone yet!</Text> :

@@ -238,7 +238,7 @@ class SearchNames extends React.Component {
                                         firebase.firestore().collection("AutoTags").where("photoID", "==", postdoc.data().postID).get().then(function(autotagquery) {
                                             if (!autotagquery.empty) {
                                                 autotagquery.forEach(function(match) {
-                                                    if(match.data.bucket) {
+                                                    if(match.data().bucket) {
                                                         if (this.state.interests.includes(match.data().bucket)) {
                                                             if (counter < 1) {
                                                                 counter ++;
