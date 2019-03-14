@@ -244,7 +244,7 @@ class SearchNames extends React.Component {
                                                             this.getProfileImage(user[0]).then(function(photo) {
                                                                 this.setState((prevState, props) => {
                                                                     let arr = prevState.result.slice(); //creates the clone of the state
-                                                                    var l = userdoc.data();
+                                                                    let l = userdoc.data();
 
                                                                     arr[i] =
                                                                         <ListItem
@@ -265,18 +265,29 @@ class SearchNames extends React.Component {
                                                                         result: arr
                                                                     }
                                                                 })
+                                                                console.log("here 1")
                                                             }.bind(this))
-
+                                                            console.log("here 2")
                                                         }
+                                                        console.log("here 3")
                                                     }
+                                                    console.log("here 4")
                                                 }.bind(this))
+                                                console.log("here 5")
                                             }
+                                            console.log("here 6")
                                         }.bind(this))
+                                        console.log("here 7")
                                     }.bind(this))
+                                    console.log("here 8")
                                 }
+                                console.log("here 9")
                             }.bind(this))
+                            console.log("here 10")
                         }
+                        console.log("here 11")
                     }.bind(this))
+                    console.log("here 12")
                 }
 
             }
