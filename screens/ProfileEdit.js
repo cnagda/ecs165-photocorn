@@ -197,7 +197,7 @@ export default class ProfileEdit extends React.Component {
             if (this.state.motivation) {interestarray.push("Motivational Quotes")}
             var intereststring = interestarray.join(', ')
             user.updateEmail(email).then(
-            firebase.firestore().collection("users").doc(user.uid).set({
+            firebase.firestore().collection("users").doc(user.uid).update({
                 first: firstname,
                 last: lastname,
                 email: email,
