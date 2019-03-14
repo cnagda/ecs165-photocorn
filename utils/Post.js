@@ -431,7 +431,7 @@ class PostView extends React.Component {
                             <Icon
                                 type="FontAwesome"
                                 name="heart"
-                                style={{color: COLOR_LGREY}}
+                                style={{color: "#ff66cc"}}
                                 onPress={this.handleUnlike}/>
                         </Button>
             })
