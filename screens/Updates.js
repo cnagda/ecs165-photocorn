@@ -170,7 +170,7 @@ export default class Updates extends React.Component {
                                                     roundAvatar
                                                     leftAvatar={{ source: { uri: avatarurl } }}
                                                     key={timestampkey}
-                                                    title={ actUserUN + " commented on your post (and " + othercomments + " more)"}
+                                                    title={text}
                                                     onPress={() => this.props.navigation.navigate('ViewPost', {postID: doc.data().postid})}
                                                     containerStyle={styles.result}
                                                     subtitleStyle={styles.timeText}

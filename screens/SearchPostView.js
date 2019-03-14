@@ -85,7 +85,7 @@ export default class SearchPostView extends React.Component {
                 <Content contentContainerStylestyle={styles.content}>
 
                     <FlatList contentContainerStyle={styles.list} data={this.state.postList} renderItem={this.renderItem} initialNumToRender={3}/>
-                    
+
                 </Content>
 
             </Container>
@@ -101,8 +101,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLOR_BACKGRND,
     },
     content: {
-        alignItems: 'center',
-        justifyContent: 'space-evenly'
+
     },
     header: {
         backgroundColor: COLOR_DGREY,
@@ -132,5 +131,8 @@ const styles = StyleSheet.create({
     },
     inactiveicon: {
         color: COLOR_LGREY
+    },
+    list: {
+        marginTop: 10
     }
 })
