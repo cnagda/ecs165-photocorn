@@ -15,11 +15,21 @@ var BUTTONS = ["Take a Photo", "Upload a Photo", "Cancel"];
 var LOCATIONS = ["NewPostCamera", "NewPostUpload", "HomeScreen"]
 var CANCEL_INDEX = 2;
 
-
 var searchResults = []
 
 //remove duplicates from https://reactgo.com/removeduplicateobjects/
 
+function search(array, key) {
+    var res;
+    for (var i = 0; i < array.length; i++) {
+        if (array[i].uid === key) {
+            res = array[i];
+        }
+    }
+
+    var promise = new Promise(function(resolve, reject) {resolve(res)});
+    return promise;
+}
 
 class SearchNames extends React.Component {
     // initialize state
@@ -28,6 +38,7 @@ class SearchNames extends React.Component {
         this.state = {query: '', searchResults: [], namesOfPeople: this.getNamesandUsernames(), result: [], followers:[], interests: []}
         this.getNamesandUsernames = this.getNamesandUsernames.bind(this)
         this.updateSearch = this.updateSearch.bind(this)
+        this.getProfileImage = this.getProfileImage.bind(this)
     }
 
 
@@ -140,25 +151,44 @@ class SearchNames extends React.Component {
 
     updateSearch = (value) => {
         var people = this.state.namesOfPeople;
+        console.log("PEOPLE COMING");
+        console.log(people);
         //let currThis = this;
         searchResults = []
         if (value) {
             people.forEach(function(user) {
-                if (user.name.toLowerCase().includes(value.toLowerCase()) || user.username.toLowerCase().includes(value.toLowerCase())) {
-                    searchResults.push({
-                                            name: user.name,
-                                            username: user.username,
-                                            userID: user.uid,
-                                            photo: user.photo,
-                                        })
-                    this.setState({searchResults: searchResults})
-                    this.displayResults();
+                if(user.username) {
+                    if (user.name.toLowerCase().includes(value.toLowerCase()) || user.username.toLowerCase().includes(value.toLowerCase())) {
+                        searchResults.push({
+                                                name: user.name,
+                                                username: user.username,
+                                                userID: user.uid,
+                                                photo: user.photo,
+                                            })
+                        this.setState({searchResults: searchResults})
+                        this.displayResults();
+                    }
                 }
             }.bind(this));
         }
     }
 
 
+    getProfileImage = async(user) => {
+        //console.log("in get profile image");
+        //console.log(user)
+        var path = "ProfilePictures/".concat(user, ".jpg");
+        //console.log(path)
+        var image_ref = firebase.storage().ref(path);
+        var downloadURL = await image_ref.getDownloadURL()
+
+        if (!downloadURL.cancelled) {
+              //console.log("testing1")
+              //console.log(downloadURL)
+              return downloadURL
+        }
+        return "http://i68.tinypic.com/awt7ko.jpg";
+    };
 
 
 
@@ -186,7 +216,7 @@ class SearchNames extends React.Component {
             var currentUser = firebase.auth().currentUser.uid;
             this.setState((prevState, props) => {
                 return {
-                    result: prevState.result.concat(<Text style={{color: '#f300a2', fontWeight: 'bold', marginTop: 50}}>SUGESTIONS</Text>),
+                    result: prevState.result.concat(<Text style={styles.sugtext}>Suggestions</Text>),
                 };
             })
 
@@ -208,30 +238,58 @@ class SearchNames extends React.Component {
                                         firebase.firestore().collection("AutoTags").where("photoID", "==", postdoc.data().postID).get().then(function(autotagquery) {
                                             if (!autotagquery.empty) {
                                                 autotagquery.forEach(function(match) {
-                                                    if (this.state.interests.includes(match.data().bucket)) {
-                                                        if (counter < 1) {
-                                                            counter ++;
-                                                            this.setState((prevState, props) => {
-                                                                let arr = prevState.result.slice(); //creates the clone of the state
-                                                                arr[i] = <Button transparent onPress={() => this.props.navigation.navigate('Profile', {userID: userdoc.data().uid})}>
-                                                                    <Text style={{color: '#f300a2'}}>{userdoc.data().first + ' ' + userdoc.data().last}</Text>
-                                                                </Button>;
-                                                                console.log(arr)
-                                                                return {
-                                                                    result: arr
-                                                                }
-                                                            })
+                                                    if(match.data().bucket) {
+                                                        if (this.state.interests.includes(match.data().bucket)) {
+                                                            if (counter < 1) {
+                                                                counter ++;
+                                                                this.getProfileImage(user[0]).then(function(photo) {
+                                                                    this.setState((prevState, props) => {
+                                                                        let arr = prevState.result.slice(); //creates the clone of the state
+                                                                        let l = userdoc.data();
 
+                                                                        arr[i] =
+                                                                            <ListItem
+                                                                                roundAvatar
+                                                                                leftAvatar={{ source: { uri: photo} }}
+                                                                                key={l.uid}
+                                                                                title={l.first + " " + l.last}
+                                                                                subtitle={l.username}
+                                                                                onPress={() => this.props.navigation.push('Profile', {userID: l.uid})}
+                                                                                containerStyle={styles.result}
+                                                                                titleStyle={styles.resultText}
+                                                                                subtitleStyle={styles.subtext}
+                                                                                chevronColor='white'
+                                                                                chevron
+                                                                            />
+                                                                        // console.log(arr)
+                                                                        return {
+                                                                            result: arr
+                                                                        }
+                                                                    })
+                                                                    console.log("here 1")
+                                                                }.bind(this))
+                                                                console.log("here 2")
+                                                            }
+                                                            console.log("here 3")
                                                         }
                                                     }
+                                                    console.log("here 4")
                                                 }.bind(this))
+                                                console.log("here 5")
                                             }
+                                            console.log("here 6")
                                         }.bind(this))
+                                        console.log("here 7")
                                     }.bind(this))
+                                    console.log("here 8")
                                 }
+                                console.log("here 9")
                             }.bind(this))
+                            console.log("here 10")
                         }
+                        console.log("here 11")
                     }.bind(this))
+                    console.log("here 12")
                 }
 
             }
@@ -270,32 +328,32 @@ class SearchNames extends React.Component {
         const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : 0
         return (
             <Root>
-            <Container style={styles.container}>
-                <Content contentContainerStyle={styles.content}>
-                <View style={{flex: 1, flexDirection:'column', marginTop: 50}}>
-                         <TextInput
-                             style={styles.search}
-                             placeholder={"Search"}
-                             placeholderTextColor='#f300a2'
-                             onChangeText={query => this.handleUpdate(query) }
-                             value={this.state.query}
-                         />
-                         <KeyboardAvoidingView
-                             style={styles.container}
-                             keyboardVerticalOffset = {keyboardVerticalOffset}
-                             behavior="padding"
-                             enabled
-                         >
-                         <ScrollView>
-                         { this.state.result  }
-                         </ScrollView>
+                <Container style={styles.container}>
+                    <Content contentContainerStyle={styles.content}>
+                        <View style={{flex: 1, flexDirection:'column', marginTop: 50}}>
+                            {/*search bar*/}
+                            <TextInput
+                                style={styles.search}
+                                placeholder={"Search"}
+                                placeholderTextColor='#f300a2'
+                                onChangeText={query => this.handleUpdate(query) }
+                                value={this.state.query}
+                            />
 
-
-                         </KeyboardAvoidingView>
-
+                            {/*search results*/}
+                            <KeyboardAvoidingView
+                                style={styles.container}
+                                keyboardVerticalOffset = {keyboardVerticalOffset}
+                                behavior="padding"
+                                enabled
+                            >
+                                <ScrollView>
+                                    {this.state.result}
+                                </ScrollView>
+                            </KeyboardAvoidingView>
                         </View>
-                </Content>
-            </Container>
+                    </Content>
+                </Container>
             </Root>
         );
     }
@@ -338,7 +396,7 @@ const styles = StyleSheet.create({
         height: 40,
         width: 300,
         color: COLOR_PINK,
-        marginTop: 20,
+        marginTop: -30,
         backgroundColor: COLOR_DGREY,
         paddingLeft: 10,
         borderRadius: 12,
@@ -353,5 +411,10 @@ const styles = StyleSheet.create({
     },
     subtext: {
         color: COLOR_LGREY
+    },
+    sugtext: {
+        fontWeight: 'bold',
+        color: COLOR_LGREY,
+        marginTop: 20
     }
 })

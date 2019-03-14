@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableHighlight, Image, FlatList, Dimensions, Scro
 import * as firebase from 'firebase';
 import { COLOR_PINK, COLOR_BACKGRND, COLOR_DGREY, COLOR_LGREY, COLOR_PURPLEPINK } from './../components/commonstyle';
 // import { Footer, FooterTab, Icon, Button, Text } from 'native-base';
-import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, Grid, Col, ActionSheet, Root } from 'native-base';
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, Grid, Col, ActionSheet, Root, Row } from 'native-base';
 //import { getProfileImage } from '../utils/Photos'
 import PhotoGrid from '../utils/PhotoGrid'
 
@@ -271,7 +271,7 @@ export default class Loading extends React.Component {
                     alignItems: 'center',
                 }}><TouchableHighlight onPress={() => this.props.navigation.push('Profile', {userID: uid})}>
                   <Image style={styles.smallcircle} source = {{uri: imageurl1}}  />
-                  </TouchableHighlight><Text style={{color: COLOR_LGREY, fontSize: 12}}>{username}</Text></View>);
+                  </TouchableHighlight><Text style={{color: COLOR_PINK, fontSize: 12}}>{username}</Text></View>);
                   ////console.log("rendered: " + rendered)
             //rendered = <Text style={styles.textMainOne}>HI</Text>
         }
@@ -287,7 +287,12 @@ export default class Loading extends React.Component {
                     firebase.firestore().collection("users").doc(doc.data().userID).get().then(function(doc1) {
                         this.setState((prevState, props) => {
                             return {
-                                followers: prevState.followers.concat({key: doc.data().userID, uri: url, username: doc1.data().username}),
+                                followers: prevState.followers.concat({
+                                    key: doc.data().userID,
+                                    uri: url,
+                                    username: doc1.data().username,
+                                    name: doc1.data().first + " " + doc1.data().last
+                                }),
                             };
                         })
                     }.bind(this))
@@ -309,7 +314,12 @@ export default class Loading extends React.Component {
                         //console.log("here's a username: " + doc1.data().username)
                         this.setState((prevState, props) => {
                             return {
-                                pyf: prevState.pyf.concat({key: doc.data().followedID, uri: url, username: doc1.data().username}),
+                                pyf: prevState.pyf.concat({
+                                    key: doc.data().followedID,
+                                    uri: url,
+                                    username: doc1.data().username,
+                                    name: doc1.data().first + " " + doc1.data().last,
+                                }),
                             };
                         })
                     }.bind(this))
@@ -322,72 +332,96 @@ export default class Loading extends React.Component {
 
     render() {
         if (Boolean(this.state.isLoading) || Boolean(this.state.isImgLoading) ) {
-            //console.log("about to return false")
-
             return ( false )
         }
         const isEditable = this.state.isEditable;
         const isAlreadyFollowing = this.state.isAlreadyFollowing;
-        //console.log("from render: " + isEditable + " " + isAlreadyFollowing)
-        return (
 
+        return (
             <Root>
             <Container style={styles.container}>
                 <Content>
                     <Grid>
-                        <Col>
-                            <Image
-                                style= {styles.circle}
-                                source = {{uri: this.state.profileImageURL}}
-                            />
-                        </Col>
-                        <Col>
-                            {this.displayFollowEditButton(isEditable, isAlreadyFollowing)}
-                        </Col>
+                        {/*profile header*/}
+                        <Row>
+                            <Col>
+                                <Image
+                                    style= {styles.circle}
+                                    source = {{uri: this.state.profileImageURL}}
+                                />
+                            </Col>
+                            <Col>
+                                {this.displayFollowEditButton(isEditable, isAlreadyFollowing)}
+
+                                {/*log out*/}
+                                {this.props.navigation.getParam('userID', '') == firebase.auth().currentUser.uid ? <Button transparent
+                                    style={{alignSelf: 'center', marginLeft: 3}}
+                                    onPress={() => firebase.auth().signOut().then(function() {
+                                        this.props.navigation.navigate('Login')
+                                    }.bind(this))}>
+                                    <Text style={styles.logoutbutton}>Log Out</Text>
+                                </Button> : null}
+                            </Col>
+                        </Row>
+
+                        {/*subtopics*/}
+                        <Row>
+                            <Col style={{ paddingLeft: 20, paddingRight: 20}}>
+                                {/*user information*/}
+                                <Text style = {styles.textMainTwo}>{this.state.firstname} {this.state.lastname}</Text>
+                                <Text style = {styles.textSecond}>Username</Text>
+                                <Text style= {styles.textVal}>{this.state.username}</Text>
+                                <Text style = {styles.textSecond}>Birthday</Text>
+                                <Text style= {styles.textVal}>{this.state.birthday}</Text>
+                                <Text style={styles.textSecond}>Bio </Text>
+                                <Text style={styles.textVal}>{this.state.bio}</Text>
+                                <Text style = {styles.textSecond}>Interests </Text>
+                                <Text style={styles.textVal}>{this.state.interests}</Text>
+
+                                {/*followers*/}
+                                <Button transparent
+                                    onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.followers, title: "Followers",})}
+                                    style={{marginLeft: -15, marginBottom: -7, marginTop: 7}}
+                                >
+                                    <Text style = {styles.textSecondButton} uppercase={false}>Followers</Text>
+                                </Button>
+
+                                {this.state.followers.length == 0 ? <Text style={styles.textVal}>Sorry, no one likes you!</Text> :
+                                <FlatList horizontal
+                                    contentContainerStyle={styles.list}
+                                    data={this.state.followers}
+                                    renderItem={this.renderItem1}
+                                    initialNumToRender={2}
+                                />}
+
+                                {/*following*/}
+                                <Button transparent
+                                    onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.pyf, title: "Following",})}
+                                    style={{marginLeft: -15, marginBottom: -7, marginTop: 5}}>
+                                    <Text style = {styles.textSecondButton} uppercase={false}>Following</Text>
+                                </Button>
+
+                                {this.state.pyf.length == 0 ? <Text style={styles.textVal}>You're not following anyone yet!</Text> :
+                                <FlatList horizontal
+                                    contentContainerStyle={styles.list}
+                                    data={this.state.pyf}
+                                    renderItem={this.renderItem1}
+                                    initialNumToRender={2}
+                                />}
+                                <Text style = {styles.textSecond}>Photos</Text>
+                            </Col>
+                        </Row>
+
+                        <Row>
+                            <Col style={{paddingTop: 7}}>
+                                {/*photogrid*/}
+                                <PhotoGrid photos={this.state.photoList} userViewing={this.state.userViewing}/>
+                            </Col>
+                        </Row>
                     </Grid>
-
-                    <Text style = {styles.textMainTwo}>{this.state.firstname} {this.state.lastname}</Text>
-
-                    <View style={{flex:2, flexDirection: 'row',marginLeft:20,}}>
-                        <View style={{flex:1, flexDirection:'column',}} >
-                            <Text style = {styles.textSecond}>Username:</Text>
-                            <Text style= {styles.textVal}> {this.state.username}</Text>
-                            <Text style = {styles.textSecond}>Birthday:</Text>
-                            <Text style= {styles.textVal}> {this.state.birthday}</Text>
-                            <Text style={styles.textSecond}>Bio: </Text>
-                            <Text style={styles.textVal}>{this.state.bio}</Text>
-                            <Text style = {styles.textSecond}>Interests: </Text>
-                            <Text style={styles.textVal}>{this.state.interests}</Text>
-                        </View>
-                    </View>
-
-                    {this.props.navigation.getParam('userID', '') == firebase.auth().currentUser.uid ? <Button transparent
-                        style={{marginLeft: 5}}
-                        onPress={() => firebase.auth().signOut().then(function() {
-                        //console.log('Signed Out');
-                        this.props.navigation.navigate('Login')
-                        }.bind(this))}>
-                        <Text style={{color: 'white'}}>Log Out</Text>
-                    </Button> : null}
-                    <Button transparent
-                        onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.followers, title: "Followers",})}
-                        style={{marginTop: -5}}>
-                    <Text style = {styles.textSecond}>Followers: </Text>
-                    </Button>
-                    <FlatList horizontal contentContainerStyle={styles.list} data={this.state.followers} renderItem={this.renderItem1} initialNumToRender={2}/>
-                    <Button transparent
-                        onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.pyf, title: "Following",})}
-                        style={{marginTop: -5}}>
-                    <Text style = {styles.textSecond}>Following: </Text>
-                    </Button>
-                    <FlatList horizontal contentContainerStyle={styles.list} data={this.state.pyf} renderItem={this.renderItem1} initialNumToRender={2}/>
-                    <View style={{flex:2, flexDirection: 'column',alignItems: 'flex-start'}}>
-                    {/*<FlatList contentContainerStyle={styles.list} data={this.state.photoIDList} renderItem={this.renderItem} initialNumToRender={8}/>*/}
-                    <Text style = {styles.textSecond}>Photos: </Text>
-                    <PhotoGrid photos={this.state.photoList}/>
-                    </View>
                 </Content>
 
+                {/*footer*/}
                 {this.props.navigation.getParam('userID', '') == firebase.auth().currentUser.uid ? <Footer style={styles.footer}>
                     <FooterTab style={styles.footertab}>
                         <Button
@@ -470,32 +504,29 @@ const styles = StyleSheet.create({
     textMainOne: {
         color: COLOR_PINK,
         fontSize: 20,
-        borderRadius: 150 / 2,
         alignItems: 'center',
         justifyContent: 'center',
     },
     textMainTwo: {
         color: COLOR_PINK,
         fontSize: 20,
-        marginLeft: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 20,
         marginTop:20,
         fontWeight: 'bold'
     },
     textSecond: {
         color: COLOR_PURPLEPINK,
-        fontSize: 15,
-        borderRadius: 150 / 2,
+        fontSize: 17,
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 20,
+        marginBottom: 5,
+        fontWeight: 'bold',
     },
     textVal: {
         color: COLOR_LGREY,
         fontSize: 15,
-        borderRadius: 150 / 2,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -534,7 +565,21 @@ const styles = StyleSheet.create({
         color: COLOR_LGREY
     },
     list: {
-        justifyContent: 'center',
         flexDirection: 'row',
+        marginTop: 10,
+        marginBottom: 0,
+    },
+    textSecondButton: {
+        color: COLOR_PURPLEPINK,
+        fontSize: 17,
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: 'bold',
+    },
+    logoutbutton: {
+        color: 'white',
+        textDecorationLine: 'underline',
+        fontSize: 15,
+        marginTop: -4,
     }
 })

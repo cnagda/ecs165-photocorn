@@ -63,11 +63,13 @@ class PostView extends React.Component {
             imageUri: "http://i68.tinypic.com/awt7ko.jpg",
             caption: "",
             tags: "",
+            autotags: "",
             isLoading: true,
             username: "",
             likeInfo: null,
             lifeButton: null,
             likers: null,
+            showthething: false,
         }
         this.displayLikeInfo = this.displayLikeInfo.bind(this)
         this.getLikeInfo = this.getLikeInfo.bind(this)
@@ -110,30 +112,30 @@ class PostView extends React.Component {
                               }
                           }.bind(this));
 
+                          autotags_ref = firebase.firestore().collection("AutoTags");
+                          autotags_ref.doc(this.props.postID).get().then(function(adoc) {
+                              this.setState({
+                                  currentUser: userViewingVar,
+                                  name: doc1.data().first + " " + doc1.data().last,
+                                  postUser: doc.data().userID,
+                                  caption: doc.data().caption,
+                                  numComments: doc.data().numComments,
+                                  tags: doc.data().tags,
+                                  autotags: adoc.data().tags,
+                                  imageUri: doc2.data().imageUri,
+                                  username: doc1.data().username,
+                                  timestamp: timestamp.toString(),
+                                  alreadyLikedVar: alreadyLikedVar,
+                                  likedJustNow: false,
+                                  unlikedJustNow: false,
+                                  isLoading: false,
+                              }, () => {
+                                  this.displayLikeButton()
+                                  this.displayLikeInfo()
+                                  this.getLikers()
 
-
-                        this.setState({
-                            currentUser: userViewingVar,
-                            name: doc1.data().first + " " + doc1.data().last,
-                            postUser: doc.data().userID,
-                            caption: doc.data().caption,
-                            numComments: doc.data().numComments,
-                            tags: doc.data().tags,
-                            imageUri: doc2.data().imageUri,
-                            username: doc1.data().username,
-                            timestamp: timestamp.toString(),
-                            alreadyLikedVar: alreadyLikedVar,
-                            likedJustNow: false,
-                            unlikedJustNow: false,
-                            isLoading: false,
-                        }, () => {
-                            this.displayLikeButton()
-                            this.displayLikeInfo()
-                            this.getLikers()
-
-                        });
-
-
+                              });
+                          }.bind(this));
 
                         // console.log("caption " + doc.data().caption)
                         // console.log("postid " + this.props.postID)
@@ -173,7 +175,12 @@ class PostView extends React.Component {
                             this.getProfileImageSimple(doc.data().userID).then(function(url) {
                                 this.setState((prevState, props) => {
                                     return {
-                                        likers: prevState.likers.concat({key: doc.data().userID, uri: url, username: doc1.data().username}),
+                                        likers: prevState.likers.concat({
+                                            key: doc.data().userID,
+                                            uri: url,
+                                            username: doc1.data().username,
+                                            name: doc1.data().first + " " + doc1.data().last
+                                        }),
                                     };
                                 })
                             }.bind(this))
@@ -228,7 +235,6 @@ class PostView extends React.Component {
                     numLikes: newnumLikes,
                     likeList: likeList,
                     actUser: newActUser,
-                    timestamp:  firebase.firestore.Timestamp.fromDate(new Date()),
                 }).then(function() {
                     if (newnumLikes == 0) {
                         this.setState({likeInfo: null})
@@ -358,8 +364,8 @@ class PostView extends React.Component {
               this.setState({
                   likeInfo: <Row style={{paddingLeft: 0, paddingBottom: 3}}>
                   <Button transparent
-                      onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
-                      style={{marginTop: -5, paddingLeft: 0}}>
+                      onPress={() => this.props.navigation.push('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
+                      style={styles.likedby}>
                       <Text>
                       <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}>Liked by </Text>
                       <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.lastLiked}</Text>
@@ -378,7 +384,7 @@ class PostView extends React.Component {
                 likeInfo: <Row style={{paddingLeft: 0, paddingBottom: 3}}>
                 <Button transparent
                     onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
-                    style={{marginTop: -5, paddingLeft: 0}}>
+                    style={styles.likedby}>
                     <Text>
                     <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}>Liked by </Text>
                     <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.lastLiked}</Text>
@@ -397,7 +403,7 @@ class PostView extends React.Component {
                    likeInfo: <Row style={{paddingLeft: 0, paddingBottom: 3}}>
                    <Button transparent
                        onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
-                       style={{marginTop: -5, paddingLeft: 0}}>
+                       style={styles.likedby}>
                        <Text>
                        <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}>Liked by </Text>
                        <Text style={{color: COLOR_PINK, fontWeight: 'bold'}} uppercase={false}>{this.state.lastLiked} </Text>
@@ -425,7 +431,7 @@ class PostView extends React.Component {
                             <Icon
                                 type="FontAwesome"
                                 name="heart"
-                                style={{color: COLOR_LGREY}}
+                                style={{color: "#ff66cc"}}
                                 onPress={this.handleUnlike}/>
                         </Button>
             })
@@ -481,6 +487,15 @@ class PostView extends React.Component {
                             source={{uri: this.state.imageUri}}
                         />
                     </Row>
+
+                    {/*info popup*/}
+                    <View style={styles.inforec}>
+                        {this.state.showthething &&
+                            <Text style={styles.info}>
+                                {this.state.autotags.join('\n').toLowerCase()}
+                            </Text>
+                        }
+                    </View>
                 </LinearGradient>
 
                 {/*post footer*/}
@@ -497,7 +512,9 @@ class PostView extends React.Component {
                                 style={{color: COLOR_LGREY}}
                                 onPress={() => this.props.navigation.navigate('Comments', {postID: this.props.postID})}/>
                         </Button>
-                        <Button icon transparent>
+                        <Button icon transparent
+                            onPressIn={() => this.setState({showthething:true})}
+                            onPressOut={() => this.setState({showthething:false})}>
                             <Icon
                                 type="Feather"
                                 name="info"
@@ -510,7 +527,7 @@ class PostView extends React.Component {
                     {this.state.likeInfo}
 
                     {/*caption*/}
-                    <Text style={{paddingLeft: 10, paddingTop: 5}}>
+                    <Text style={{paddingLeft: 10, paddingTop: 0}}>
                         <Text style={styles.caption}>{this.state.caption}</Text>
                         <Text style={styles.tags}>{getTagString(this.state.tags)}</Text>
                     </Text>
@@ -578,5 +595,21 @@ const styles = StyleSheet.create({
         paddingBottom: 8,
         paddingTop: 8,
         backgroundColor: COLOR_DGREY
+    },
+    likedby: {
+        marginTop: -10,
+        marginLeft: -6,
+        marginBottom: -8,
+        paddingBottom: 0
+    },
+    info: {
+        color: 'white',
+        margin: 6
+    },
+    inforec: {
+        position: 'absolute',
+        backgroundColor: 'rgba(25, 25, 25, 0.65)',
+        alignSelf: 'center',
+        borderRadius: 8
     }
 })

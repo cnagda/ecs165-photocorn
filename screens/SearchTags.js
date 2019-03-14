@@ -105,6 +105,7 @@ class SearchTags extends React.Component {
                 tag: tag
             }).then(function() {
                 console.log("trying to navigate")
+                console.log("postarr: " + postarr)
                 this.props.navigation.navigate('SearchPostView', {postarray: postarr, tag: tag});
             }.bind(this)).catch(function(error) {
                 console.log("error setting: " + error)
@@ -120,9 +121,8 @@ class SearchTags extends React.Component {
             this.setState({
                 result: this.state.searchResults.map(e => e['tag']).map((e, i, final) => final.indexOf(e) === i && i).filter(e => searchResults[e]).map(e => searchResults[e]).map((l) => (
                     <ListItem
-
                         key={l.tag}
-                        title={l.tag}
+                        title={"#" + l.tag}
                         onPress={() => this.handleSelect(l.tag, l.postarray)}
                         containerStyle={styles.result}
                         titleStyle={styles.resultText}
@@ -134,24 +134,42 @@ class SearchTags extends React.Component {
         } else {
 
             this.setState((prevState, props) => {
+                var tempresult = []
+                tempresult.push(<Text style={styles.sugtext}>Popular Hashtags</Text>)
                 return {
-                    result: prevState.result.concat(<Text style={{color: '#f300a2', fontWeight: 'bold', marginTop: 50}}>POPULAR TAGS</Text>),
+                    result: tempresult,
                 };
-            })
-            firebase.firestore().collection("TagSearchHits").orderBy("hits", "desc").limit(10).get().then(function(querySnapshot) {
-                querySnapshot.forEach(function(hitdoc) {
-                    firebase.firestore().collection("Tags").doc(hitdoc.data().tag).get().then(function(tagdoc) {
-                        console.log("got a suggestion: " + hitdoc.data().tag)
-                        this.setState((prevState, props) => {
-                            return {
-                                result: prevState.result.concat(<Button transparent onPress={() => this.props.navigation.navigate('SearchPostView', {postarray: tagdoc.data().posts, tag: hitdoc.data().tag})}>
-                                    <Text style={{color: '#f300a2'}}>{hitdoc.data().tag}</Text>
-                                </Button>),
-                            };
-                        })
+            }, () => {
+                firebase.firestore().collection("TagSearchHits").orderBy("hits", "desc").limit(10).get().then(function(querySnapshot) {
+                    let i = 0
+                    querySnapshot.forEach(function(hitdoc) {
+
+                        firebase.firestore().collection("Tags").doc(hitdoc.data().tag).get().then(function(tagdoc) {
+                            console.log("got a suggestion: " + hitdoc.data().tag)
+                            let l = tagdoc.data()
+                            this.setState((prevState, props) => {
+                                i++
+                                let arr = prevState.result.slice(); //creates the clone of the state
+                                arr[i] = <ListItem
+                                    key={l.tag}
+                                    title={"#" + l.tag}
+                                    onPress={() => this.handleSelect(l.tag, l.posts)}
+                                    containerStyle={styles.result}
+                                    titleStyle={styles.resultText}
+                                    chevronColor='white'
+                                    chevron
+                                />
+
+                                return {
+                                    result: arr
+                                };
+                            })
+                        }.bind(this))
+
                     }.bind(this))
                 }.bind(this))
-            }.bind(this))
+            })
+
 
 
         }
@@ -230,7 +248,7 @@ const styles = StyleSheet.create({
         height: 40,
         width: 300,
         color: COLOR_PINK,
-        marginTop: 20,
+        marginTop: -30,
         backgroundColor: COLOR_DGREY,
         paddingLeft: 10,
         borderRadius: 12,
@@ -242,5 +260,10 @@ const styles = StyleSheet.create({
     },
     resultText: {
         color: COLOR_PINK
+    },
+    sugtext: {
+        fontWeight: 'bold',
+        color: COLOR_LGREY,
+        marginTop: 20
     }
 })
