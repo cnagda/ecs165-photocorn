@@ -94,10 +94,10 @@ export default class HomeScreen extends React.Component {
       // Get the token that uniquely identifies this device
     //  let token = await Notifications.getExpoPushTokenAsync();
         console.log("got token")
-        Notifications.getExpoPushTokenAsync().then((token) => {
+        Notifications.getExpoPushTokenAsync().then(function(token) {
           console.log("found token")
           users_ref = firebase.firestore().collection("users");
-          users_ref.doc(firebase.auth().currentUser.uid).set({
+          users_ref.doc(firebase.auth().currentUser.uid).update({
              expoToken: token
           })
         })
@@ -173,15 +173,15 @@ export default class HomeScreen extends React.Component {
                 .get()
                 .then(function(querySnapshot) {
                     if (!querySnapshot.empty) {
-                        console.log("About to hit for loop")
+                        //console.log("About to hit for loop")
                         var notInterestedPosts = [];
                         var postIDs = []  //I ADDED THIS HERE AND IDK WHY BUT IT FELT IMPORTANT
                         var prevTimeStamp = null;
                         querySnapshot.forEach(function(postDoc) { //for each match
-                            console.log("postIDs!");
-                            console.log(postIDs);
-                            console.log("notInterestedPosts!");
-                            console.log(notInterestedPosts);
+                            //console.log("postIDs!");
+                            //console.log(postIDs);
+                            //console.log("notInterestedPosts!");
+                            //console.log(notInterestedPosts);
                             if (prevTimeStamp == null) {
                                 prevTimeStamp = postDoc.data().timestamp.toDate().getDate();
                                 currTimeStamp = postDoc.data().timestamp.toDate().getDate();
@@ -189,10 +189,10 @@ export default class HomeScreen extends React.Component {
                             else {
                                 currTimeStamp = postDoc.data().timestamp.toDate().getDate();
                             }
-                            console.log("currTimeStamp!");
-                            console.log(currTimeStamp);
-                            console.log("prevTimeStamp!");
-                            console.log(prevTimeStamp);
+                            //console.log("currTimeStamp!");
+                            //console.log(currTimeStamp);
+                            //console.log("prevTimeStamp!");
+                            //console.log(prevTimeStamp);
                             /*
                             if (currTimeStamp != prevTimeStamp) {
                                 postIDs.push.apply(postIDs, notInterestedPosts);
@@ -202,9 +202,9 @@ export default class HomeScreen extends React.Component {
                             if ((followed.includes(postDoc.data().userID) ||
                                  (firebase.auth().currentUser.uid == postDoc.data().userID))
                                 && numPosts < numPostsToGet) { //if the post should be in the feed
-                                console.log("user followed: " + postDoc.data().userID)
+                                //console.log("user followed: " + postDoc.data().userID)
                                 firebase.firestore().collection("AutoTags").doc(postDoc.data().postID).get().then(function(autoTag) {
-                                    console.log("Ran autoTag query");
+                                    //console.log("Ran autoTag query");
                                     if (autoTag.exists) {
                                         firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).get().then(function(userDoc) {
                                             if (userDoc.exists) {
@@ -259,8 +259,8 @@ export default class HomeScreen extends React.Component {
                             prevTimeStamp = postDoc.data().timestamp.toDate().getDate();
                         }.bind(this));
 
-                        console.log("PostIDs!");
-                        console.log(postIDs);
+                        //console.log("PostIDs!");
+                        //console.log(postIDs);
                         // set states to rerender
                         this.setState(
                             {
@@ -277,7 +277,7 @@ export default class HomeScreen extends React.Component {
     sortByInterests = (postDoc, postIDs, notInterestedPosts) => {
         return new Promise(function() {
             firebase.firestore().collection("AutoTags").doc(postDoc.data().postID).get().then(function(autoTag) {
-                console.log("Ran autoTag query");
+                //console.log("Ran autoTag query");
                 if (autoTag.exists) {
                     firebase.firestore().collection("users").doc(firebase.auth().currentUser.uid).get().then(function(userDoc) {
                         let rawInterests = userDoc.data().interests;
