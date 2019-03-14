@@ -399,9 +399,15 @@ export default class Updates extends React.Component {
             this.setState({
                 updates: updates,
                 refreshing: false
-            })
+            });
+
+            this.forceUpdate();
         }.bind(this)).catch(function(error) {
             console.log("Error searching document: " + error);
+        });
+
+        this.setState({
+            refreshing: false
         });
     }
 
