@@ -52,6 +52,7 @@ exports.sendPushNotifications = functions.firestore.document('Updates/{id}').onC
                 //return Promise.all(messages)
 
             })
+            try{
             return fetch('https://exp.host/--/api/v2/push/send', {
               method: "POST",
               headers:{
@@ -59,7 +60,10 @@ exports.sendPushNotifications = functions.firestore.document('Updates/{id}').onC
                  "Content-Type": "application/json"
               },
               body: JSON.stringify(messages)
-            })
+            })}
+            catch(error){
+               console.error(error);
+            }
         })
 
       }
