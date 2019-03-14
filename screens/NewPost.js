@@ -310,9 +310,23 @@ export default class NewPost extends React.Component {
                             firebase.firestore().collection("Tags").doc(tag).set({
                                 posts: postIDList,
                                 tag: tag
-                            })
-                        })
-                    })
+                            }).then(function() {
+                                firebase.firestore().collection("TagSearchHits").doc(tag).get().then(function(searchhitdoc) {
+                                    console.log("made it inside")
+                                    var numHits = 0
+                                    if (searchhitdoc.exists) {
+                                        numHits = searchhitdoc.data().hits;
+                                    }
+                                    firebase.firestore().collection("TagSearchHits").doc(tag).set({
+                                        hits: numHits + 1,
+                                        tag: tag
+                                    })
+                                }.bind(this)).catch(function(error) {
+                                    console.log("error accessing doc: " + error)
+                                })
+                            }.bind(this))
+                        }.bind(this))
+                    }.bind(this))
                 }
                 //console.log("AutoTags:")
                 this.chooseBucket();

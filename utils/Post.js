@@ -205,14 +205,25 @@ class PostView extends React.Component {
         firebase.firestore().collection("Updates").where("postid", "==", this.props.postID).where("type", "==", "LIKE").get().then(function(querySnapshot) {
             querySnapshot.forEach(function(doc) {
                 //console.log("found one")
+                var likeList = []
                 newnumLikes = doc.data().numLikes - 1
                 if (doc.data().likeList) {
                     likeList = doc.data().likeList
                 } else { //should never happen because this is unlike
                     likeList = []
                 }
+                var newActUser = null
+                if (doc.data().actUser == firebase.auth().currentUser.uid) {
+                    newActUser = likeList.pop()
+                } else {
+                    newActUser = doc.data().actUser
+                    for( var i = 0; i < likeList.length; i++){
+                       if ( likeList[i] === firebase.auth().currentUser.uid) {
+                         likeList.splice(i, 1);
+                       }
+                    }
+                }
 
-                newActUser = likeList.pop()
                 doc.ref.update({
                     numLikes: newnumLikes,
                     likeList: likeList,
@@ -440,75 +451,71 @@ class PostView extends React.Component {
         }
         //console.log("render numLikes ", this.state.numLikes)
         return (
-            <Container style={styles.container}>
-                <Content scrollEnabled={false}>
-                    <Grid>
-                        {/*post header*/}
-                        <Row style={styles.postHeader}>
-                            <Col size={15} style={{paddingLeft: 10}}>
-                                <Image style={styles.profile} source={{uri: this.state.profileImageURL}}/>
-                            </Col>
-                            <Col size={75} style={{paddingLeft: 10}}>
-                                <Button transparent
-                                    onPress={() => this.props.navigation.navigate('Profile', {userID: this.state.postUser})}
-                                    style={{marginTop: -5}}>
-                                    <Text
-                                        style = {styles.posterName}
-                                        uppercase={false}>
-                                            {this.state.username}
-                                    </Text>
-                                </Button>
-                                <Text style={styles.timestamp}>{this.state.timestamp}</Text>
-                            </Col>
-                        </Row>
-
-                        {/*post image*/}
-                        <LinearGradient
-                            colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
-                            style={styles.backBox}>
-                            <Row>
-                                <Image
-                                    style={styles.image}
-                                    source={{uri: this.state.imageUri}}
-                                />
-                            </Row>
-                        </LinearGradient>
-
-                        {/*post footer*/}
-                        <Col style={styles.postFooter}>
-                            {/*task bar*/}
-                            <Row style={{paddingLeft: 10}}>
-
-                                {this.state.likeButton}
-
-                                <Button icon transparent>
-                                    <Icon
-                                        type="Feather"
-                                        name="message-square"
-                                        style={{color: COLOR_LGREY}}
-                                        onPress={() => this.props.navigation.navigate('Comments', {postID: this.props.postID})}/>
-                                </Button>
-                                <Button icon transparent>
-                                    <Icon
-                                        type="Feather"
-                                        name="info"
-                                        style={{color: COLOR_LGREY}}/>
-                                </Button>
-                            </Row>
-                            {/*likes*/}
-
-
-                            {this.state.likeInfo}
-
-                            {/*caption*/}
-                            <Text style={{paddingLeft: 10, paddingTop: 5}}>
-                                <Text style={styles.caption}>{this.state.caption}</Text>
-                                <Text style={styles.tags}>{getTagString(this.state.tags)}</Text>
+            <Grid style={styles.container}>
+                {/*post header*/}
+                <Row style={styles.postHeader}>
+                    <Col size={15} style={{paddingLeft: 10}}>
+                        <Image style={styles.profile} source={{uri: this.state.profileImageURL}}/>
+                    </Col>
+                    <Col size={75} style={{paddingLeft: 10}}>
+                        <Button transparent
+                            onPress={() => this.props.navigation.navigate('Profile', {userID: this.state.postUser})}
+                            style={{marginTop: -5}}>
+                            <Text
+                                style = {styles.posterName}
+                                uppercase={false}>
+                                    {this.state.username}
                             </Text>
-                        </Col>
-                    </Grid>
-                </Content>
-            </Container>
+                        </Button>
+                        <Text style={styles.timestamp}>{this.state.timestamp}</Text>
+                    </Col>
+                </Row>
+
+                {/*post image*/}
+                <LinearGradient
+                    colors={['rgba(122,122,122,0.2)', '#2a2a2a']}
+                    style={styles.backBox}>
+                    <Row>
+                        <Image
+                            style={styles.image}
+                            source={{uri: this.state.imageUri}}
+                        />
+                    </Row>
+                </LinearGradient>
+
+                {/*post footer*/}
+                <Col style={styles.postFooter}>
+                    {/*task bar*/}
+                    <Row style={{paddingLeft: 10}}>
+
+                        {this.state.likeButton}
+
+                        <Button icon transparent>
+                            <Icon
+                                type="Feather"
+                                name="message-square"
+                                style={{color: COLOR_LGREY}}
+                                onPress={() => this.props.navigation.navigate('Comments', {postID: this.props.postID})}/>
+                        </Button>
+                        <Button icon transparent>
+                            <Icon
+                                type="Feather"
+                                name="info"
+                                style={{color: COLOR_LGREY}}/>
+                        </Button>
+                    </Row>
+                    {/*likes*/}
+
+
+                    {this.state.likeInfo}
+
+                    {/*caption*/}
+                    <Text style={{paddingLeft: 10, paddingTop: 5}}>
+                        <Text style={styles.caption}>{this.state.caption}</Text>
+                        <Text style={styles.tags}>{getTagString(this.state.tags)}</Text>
+                    </Text>
+                </Col>
+            </Grid>
         )
     }
 }
@@ -519,7 +526,7 @@ const styles = StyleSheet.create({
     container: {
         fontSize: 20,
         backgroundColor: COLOR_BACKGRND,
-        marginBottom: 20
+        marginBottom: 40
     },
     backBox: {
         // height: Dimensions.get('window').width + 75,
