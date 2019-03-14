@@ -364,7 +364,7 @@ class PostView extends React.Component {
               this.setState({
                   likeInfo: <Row style={{paddingLeft: 0, paddingBottom: 3}}>
                   <Button transparent
-                      onPress={() => this.props.navigation.navigate('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
+                      onPress={() => this.props.navigation.push('ListPeople', {listOfPeople: this.state.likers, title: "Liked by",})}
                       style={styles.likedby}>
                       <Text>
                       <Text style={{color: COLOR_LGREY, fontWeight: 'bold'}} uppercase={false}>Liked by </Text>
