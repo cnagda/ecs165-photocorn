@@ -19,6 +19,78 @@ firebase.initializeApp({
 // Credit to tutorial: https://www.youtube.com/watch?v=R2D6J10fhA4
 // for push notification send code
 // listens for a change to the updates table and notifies all users of the change.
+exports.sendPushNotificationsUpdate = functions.firestore.document('Updates/{id}').onUpdate((snap, context) =>{
+    //const root = event.data.ref.root
+    let messages = []
+    const promises = []
+     console.log("new update!")
+     let newUpdate = snap.data()
+     var type = newUpdate.type
+
+
+     console.log(newUpdate)
+    // Get all users from the database
+    //return root.child('/users').once('value').then(function(snapshot){
+      // childSnapshot is an individual user
+      if (newUpdate.currUser) {
+          console.log("in here " + newUpdate)
+          firebase.firestore().collection("users").where("uid", "==", newUpdate.actUser).get().then(function(userQuery){
+              actUser = ""
+              userQuery.forEach(function(childSnapshot) {
+                  actUser = childSnapshot.data().username
+              })
+            firebase.firestore().collection("users").where("uid", "==", newUpdate.currUser).get().then(function(querySnapshot) {
+                querySnapshot.forEach(function(childSnapshot) {
+                   var expoToken = childSnapshot.data().expoToken
+                   console.log("in here")
+                      // follow, mentions add, like, comment update
+
+                         if (expoToken){
+                             if (type == "LIKE"){
+                                messages.push({
+                                  "to": expoToken,
+                                  "body": actUser + " liked your post"
+                             })
+                            }
+                            else if (type == "COMMENT")
+                            {
+                              messages.push({
+                                "to": expoToken,
+                                "body": actUser + " commented on your post"
+                           })
+                            }
+                          }
+                   else {
+                      console.log("no token")
+                   }
+                //})
+
+                  //return Promise.all(messages)
+
+              })
+              try{
+              return fetch('https://exp.host/--/api/v2/push/send', {
+                method: "POST",
+                headers:{
+                   "Accept": "application/json",
+                   "Content-Type": "application/json"
+                },
+                body: JSON.stringify(messages)
+              })}
+              catch(error){
+                 console.error(error);
+              }
+          })
+        })
+
+      }
+
+});
+
+
+// Credit to tutorial: https://www.youtube.com/watch?v=R2D6J10fhA4
+// for push notification send code
+// listens for a change to the updates table and notifies all users of the change.
 exports.sendPushNotifications = functions.firestore.document('Updates/{id}').onCreate((snap, context) =>{
     //const root = event.data.ref.root
     let messages = []
