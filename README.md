@@ -1,1 +1,3 @@
-# ECS_165_Instagram_App
+# PhotoCorn
+
+Test our application [here](https://expo.io/@cnagda/photo-corn).
